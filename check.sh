@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+echo "Checking..."
 CHANGED=0
 if [[ $# = 1 ]] && [[ "$1" = "--fix" ]]; then
     if ! black --check . &> /dev/null; then
