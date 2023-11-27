@@ -311,6 +311,9 @@ def start() -> None:
     input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t")
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
+    fits_df = fits_df[fits_df["pathogen"] != "aav5"]  # FIX ME
+    input_df = input_df[input_df["pathogen"] != "aav5"]  # FIX ME
+
     input_df["nucleic_acid"] = input_df.pathogen.map(nucleic_acid)
     input_df["selection_round"] = input_df.pathogen.map(selection_round)
     input_df["observed?"] = input_df.viral_reads > 0
