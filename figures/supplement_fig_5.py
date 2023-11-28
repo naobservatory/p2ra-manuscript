@@ -189,7 +189,7 @@ def plot_df(df: pd.DataFrame) -> None:
         "OOM difference between lowest and highest study estimate (based on median location)"
     )
 
-    plt.savefig("ra_variability.png", dpi=600, bbox_inches="tight")
+    plt.savefig("suuplement_fig_5.png", dpi=600, bbox_inches="tight")
     plt.clf()
 
 
