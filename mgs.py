@@ -138,6 +138,7 @@ class MGSData:
         ref=MGS_REPO_DEFAULTS["ref"],
     ):
         repo = GitHubRepo(user, repo, ref)
+        print(repo, type(repo))
         return MGSData(
             bioprojects=load_bioprojects(repo),
             sample_attrs=load_sample_attributes(repo),
