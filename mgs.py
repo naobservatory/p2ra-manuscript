@@ -79,9 +79,6 @@ class SampleAttributes(BaseModel):
 
 def load_sample_attributes(repo: GitHubRepo) -> dict[Sample, SampleAttributes]:
     data = json.loads(repo.get_file("dashboard/metadata_samples.json"))
-    # print(
-    #    "Changed SampleAttributes in mgs.py to not require location or reads. Needs fixing."
-    # )
     return {
         Sample(s): SampleAttributes(**attribs) for s, attribs in data.items()
     }
@@ -141,7 +138,7 @@ class MGSData:
         ref=MGS_REPO_DEFAULTS["ref"],
     ):
         repo = GitHubRepo(user, repo, ref)
-        print(repo, type(repo))  # FIX ME
+        print(repo, type(repo))
         return MGSData(
             bioprojects=load_bioprojects(repo),
             sample_attrs=load_sample_attributes(repo),
