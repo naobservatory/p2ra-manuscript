@@ -68,18 +68,17 @@ class SampleAttributes(BaseModel):
     country: str
     state: Optional[str] = None
     county: Optional[str] = None
-    location: Optional[str] = None #FIX ME
+    location: str
     fine_location: Optional[str] = None
     # Fixme: Not all the dates are real dates
     date: date | str
-    reads: Optional[int] = None #FIX ME 
+    reads: int
     enrichment: Optional[Enrichment] = None
     method: Optional[str] = None
 
 
 def load_sample_attributes(repo: GitHubRepo) -> dict[Sample, SampleAttributes]:
     data = json.loads(repo.get_file("dashboard/metadata_samples.json"))
-    print("Changed SampleAttributes in mgs.py to not require location or reads. Needs fixing.")
     return {
         Sample(s): SampleAttributes(**attribs) for s, attribs in data.items()
     }
@@ -139,7 +138,7 @@ class MGSData:
         ref=MGS_REPO_DEFAULTS["ref"],
     ):
         repo = GitHubRepo(user, repo, ref)
-        print(repo, type(repo)) #FIX ME
+        print(repo, type(repo))
         return MGSData(
             bioprojects=load_bioprojects(repo),
             sample_attrs=load_sample_attributes(repo),
