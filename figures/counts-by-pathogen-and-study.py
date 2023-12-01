@@ -15,7 +15,7 @@ import pathogens
 
 def start():
     branch = "simon-validation-exclusion-run"
-    #ref = "ref"
+    # ref = "ref"
     mgs_data = mgs.MGSData.from_repo(ref=branch)
     pathogen_taxids_by_name = defaultdict(list)
     for (
@@ -151,7 +151,7 @@ def start():
         cellLoc="center",
         loc="upper left",
     )
-    fig.show() 
+    fig.show()
     fig.savefig(f"matching-reads-table_from{branch}.png", dpi=180)
     plt.clf()
 
