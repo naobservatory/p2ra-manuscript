@@ -1,24 +1,21 @@
-import sys as sys
 import csv
+import sys as sys
 
 sys.path.append("..")
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt  # type: ignore
-import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
-from matplotlib.gridspec import GridSpec
-
-
 import datetime as dt
-import numpy as np
-import pandas as pd
 from dataclasses import dataclass
 
+import matplotlib as mpl  # type: ignore
+import matplotlib.dates as mdates  # type: ignore
+import matplotlib.pyplot as plt  # type: ignore
+import matplotlib.ticker as mticker  # type: ignore
+import numpy as np
+import pandas as pd
+from matplotlib.gridspec import GridSpec  # type: ignore
 
 import mgs
 import pathogens
-
 from populations import us_population
 
 sys.path.append("..")
