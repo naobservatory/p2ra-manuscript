@@ -1,18 +1,18 @@
 import csv
+from collections import defaultdict
 from dataclasses import dataclass
 from math import log
-from collections import defaultdict
-import matplotlib.pyplot as plt  # type: ignore
-import seaborn as sns  # type: ignore
 
+import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import pandas as pd
+import seaborn as sns  # type: ignore
 
 PERCENTILES = [5, 25, 50, 75, 95]
 
 
 def fits_df() -> pd.DataFrame:
-    data = defaultdict(list)
+    data: defaultdict[str, list] = defaultdict(list)
 
     for p in PERCENTILES:
         data[f"{p}%"] = []
