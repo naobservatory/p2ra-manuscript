@@ -207,6 +207,7 @@ def plot_prevalence(
         ascending=[False, True, False, True, False],
         violin_scale=1.5,
     )
+    ax.set_xlim((-15, -7))
     ax.set_xlim(-15, -7)
     ax.set_xticks(list(range(-15, -5, 2)))
     separate_viruses(ax)
