@@ -407,7 +407,7 @@ def boxplot(
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
     for label in ax.get_yticklabels():
-        label.set_ha("left")
+        label.set_ha("left")  # type: ignore
 
     ax.yaxis.set_label_position("right")
     formatter = ticker.FuncFormatter(
@@ -485,7 +485,7 @@ def barplot(
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
     for label in ax.get_yticklabels():
-        label.set_ha("left")
+        label.set_ha("left")  # type: ignore
 
     ax.axhline(5.5, color="black", linewidth=1, linestyle="-")
 
