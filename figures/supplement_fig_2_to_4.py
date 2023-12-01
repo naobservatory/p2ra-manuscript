@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.append("..")
 
@@ -152,10 +152,10 @@ def plot_incidence(
 ) -> plt.Axes:
     predictor_type = "incidence"
     if target_x == "log10ra_at_1in10":
-        ax.set_xlim([-15, -1])
+        ax.set_xlim((-15, -1))
         ax.set_xticks(list(range(-15, 1, 2)))
     else:
-        ax.set_xlim([-15, -3])
+        ax.set_xlim((-15, -3))
         ax.set_xticks(list(range(-15, -1, 2)))
 
     plot_violin(
@@ -193,8 +193,8 @@ def plot_incidence(
         borderaxespad=0,
         frameon=False,
     )
-    for legend_handle in legend.legend_handles:
-        legend_handle.set_edgecolor(legend_handle.get_facecolor())
+    for legend_handle in legend.legend_handles:  # type: ignore
+        legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
 
     ax_title = ax.set_title("a", fontweight="bold")
     ax_title.set_position((-0.16, 0))
@@ -228,10 +228,10 @@ def plot_prevalence(
         violin_scale=1.5,
     )
     if target_x == "log10ra_at_1in10":
-        ax.set_xlim([-15, -1])
+        ax.set_xlim((-15, -1))
         ax.set_xticks(list(range(-15, 1, 2)))
     else:
-        ax.set_xlim([-15, -3])
+        ax.set_xlim((-15, -3))
         ax.set_xticks(list(range(-15, -1, 2)))
     separate_viruses(ax)
     # TODO Get these values automatically
@@ -263,8 +263,8 @@ def plot_prevalence(
         borderaxespad=0,
         frameon=False,
     )
-    for legend_handle in legend.legend_handles:
-        legend_handle.set_edgecolor(legend_handle.get_facecolor())
+    for legend_handle in legend.legend_handles:  # type: ignore
+        legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
 
     ax_title = ax.set_title("b", fontweight="bold")
     ax_title.set_position((-0.16, 0))
