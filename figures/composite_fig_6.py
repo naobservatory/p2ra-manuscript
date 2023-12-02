@@ -22,7 +22,7 @@ class SummaryStats:
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     data = {}
-    with open("fits_summary.tsv") as datafile:
+    with open("../fits_summary.tsv") as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
