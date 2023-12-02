@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
+import sys
 from pathlib import Path
+
+sys.path.append("..")
 
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
@@ -36,9 +39,9 @@ def separate_viruses(ax) -> None:
     ax.hlines(
         [(y1 + y2) / 2 for y1, y2 in zip(yticks[:-1], yticks[1:])],
         *ax.get_xlim(),
-        linestyle="dotted",
-        color="0.5",
-        linewidth=0.5,
+        color="grey",
+        linewidth=0.3,
+        linestyle=":",
     )
 
 
@@ -54,8 +57,9 @@ def adjust_axes(ax, predictor_type: str) -> None:
     ax.vlines(
         ax.get_xticks()[1:-1],
         *ax.get_ylim(),
-        linewidth=0.05,
-        color="black",
+        color="grey",
+        linewidth=0.3,
+        linestyle=":",
         zorder=-1,
     )
     # ax.set_xscale("log")
@@ -76,7 +80,7 @@ def plot_violin(
     y: str,
     sorting_order: list[str],
     ascending: list[bool],
-    hatch_zero_counts: bool = True,
+    hatch_zero_counts: bool = False,
     violin_scale=1.0,
 ) -> None:
     assert len(sorting_order) == len(ascending)
@@ -114,7 +118,7 @@ def plot_violin(
             path.vertices[:, 1] = (
                 violin_scale * (path.vertices[:, 1] - y_mid) + y_mid
             )
-            if (hatch_zero_counts) and (num_reads == 0):
+            if (not hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
                 y_max = np.max(path.vertices[:, 1])
                 y_min = np.min(path.vertices[:, 1])
@@ -137,11 +141,11 @@ def format_func(value, tick_number):
     return r"$10^{{{}}}$".format(int(value))
 
 
-def plot_incidence(data: pd.DataFrame, input_data: pd.DataFrame) -> plt.Figure:
+def plot_incidence(
+    data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
+) -> plt.Axes:
     predictor_type = "incidence"
-    fig = plt.figure(figsize=(4, 3))
-    ax = fig.add_subplot(1, 1, 1)
-
+    ax.set_xlim((-15, -3))
     plot_violin(
         ax=ax,
         data=data[
@@ -166,7 +170,8 @@ def plot_incidence(data: pd.DataFrame, input_data: pd.DataFrame) -> plt.Figure:
         ascending=[False, True, False, True, False],
         violin_scale=2.0,
     )
-    ax.set_xlim(-13.0, -3.0)
+    ax.set_xticks(list(range(-15, -1, 2)))
+
     separate_viruses(ax)
     adjust_axes(ax, predictor_type=predictor_type)
     legend = ax.legend(
@@ -178,15 +183,17 @@ def plot_incidence(data: pd.DataFrame, input_data: pd.DataFrame) -> plt.Figure:
     )
     for legend_handle in legend.legend_handles:  # type: ignore
         legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
-    return fig
+
+    ax_title = ax.set_title("a", fontweight="bold")
+    ax_title.set_position((-0.22, 0))
+    return ax
 
 
 def plot_prevalence(
-    data: pd.DataFrame, input_data: pd.DataFrame
-) -> plt.Figure:
+    data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
+) -> plt.Axes:
     predictor_type = "prevalence"
-    fig = plt.figure(figsize=(4, 6))
-    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim((-15, -3))
     plot_violin(
         ax=ax,
         data=data[
@@ -207,9 +214,8 @@ def plot_prevalence(
         ascending=[False, True, False, True, False],
         violin_scale=1.5,
     )
-    ax.set_xlim((-15, -7))
-    ax.set_xlim(-15, -7)
-    ax.set_xticks(list(range(-15, -5, 2)))
+    ax.set_xlim((-15, -3))
+    ax.set_xticks(list(range(-15, -1, 2)))
     separate_viruses(ax)
     # TODO Get these values automatically
     num_rna_1 = 2
@@ -221,7 +227,7 @@ def plot_prevalence(
         color="k",
         linewidth=0.5,
     )
-    text_x = np.log10(1.1e-7)
+    text_x = np.log10(1.1e-3)
     ax.text(text_x, -0.4, "RNA viruses\nSelection Round 1", va="top")
     ax.text(
         text_x, num_rna_1 - 0.4, "DNA viruses\nSelection Round 1", va="top"
@@ -242,79 +248,11 @@ def plot_prevalence(
     )
     for legend_handle in legend.legend_handles:  # type: ignore
         legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
-    return fig
 
+    ax_title = ax.set_title("b", fontweight="bold")
+    ax_title.set_position((-0.22, 0))
 
-def plot_three_virus(
-    data: pd.DataFrame,
-    input_data: pd.DataFrame,
-    viruses: dict[str, tuple[float, float]],
-    predictor_type: str,
-) -> plt.Figure:
-    fig = plt.figure(figsize=(6, 4))
-    for i, (pathogen, xlim) in enumerate(viruses.items()):
-        ax = fig.add_subplot(1, 3, i + 1)
-        plot_violin(
-            ax=ax,
-            data=data[
-                (data.location != "Overall") & (data.tidy_name == pathogen)
-            ],
-            viral_reads=count_viral_reads(
-                input_data[input_data.tidy_name == pathogen], by_location=True
-            ),
-            y="location",
-            sorting_order=["study", "location"],
-            ascending=[False, True],
-            violin_scale=2.5,
-            hatch_zero_counts=False,
-        )
-        ax.set_xlim(xlim)
-        # TODO Get these values automatically
-        num_spurbeck = 10
-        num_rothman = 8
-        num_crits_christoph = 4
-        ax.hlines(
-            [
-                num_spurbeck - 0.5,
-                num_spurbeck + num_rothman - 0.5,
-                num_spurbeck + num_rothman + num_crits_christoph - 0.5,
-            ],
-            *ax.get_xlim(),
-            linestyle="solid",
-            color="k",
-            linewidth=0.5,
-        )
-        if i == 2:
-            x_text = np.log10(1.2e-5)
-            ax.text(x_text, -0.4, "Spurbeck", va="top")
-            ax.text(
-                x_text,
-                num_spurbeck - 0.4,
-                "Rothman",
-                va="top",
-            )
-            ax.text(
-                x_text,
-                num_spurbeck + num_rothman - 0.4,
-                "Crits-Christoph",
-                va="top",
-            )
-            if predictor_type == "prevalence":
-                ax.text(
-                    x_text,
-                    num_spurbeck + num_rothman + num_crits_christoph - 0.4,
-                    "Brinch",
-                    va="top",
-                )
-
-        adjust_axes(ax, predictor_type=predictor_type)
-        ax.set_title(pathogen)
-        ax.get_legend().remove()
-        if i != 1:
-            ax.set_xlabel("")
-        if i > 0:
-            ax.set_yticklabels([])
-    return fig
+    return ax
 
 
 def count_viral_reads(
@@ -340,51 +278,51 @@ def count_viral_reads(
     return out
 
 
+def composite_figure(
+    data: pd.DataFrame,
+    input_data: pd.DataFrame,
+) -> plt.Figure:
+    fig = plt.figure(
+        figsize=(5, 8),
+    )
+    gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
+    plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
+    plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]))
+    return fig
+
+
 def save_plot(fig, figdir: Path, name: str) -> None:
     for ext in ["pdf", "png"]:
-        fig.savefig(figdir / f"{name}.{ext}", bbox_inches="tight", dpi=600)
+        fig.savefig(
+            figdir / f"{name}.{ext}",
+            bbox_inches="tight",
+            dpi=600,
+        )
 
 
 def start() -> None:
-    figdir = Path("fig")
+    parent_dir = Path("..")
+    figdir = Path(parent_dir / "figures")
     figdir.mkdir(exist_ok=True)
-    fits_df = pd.read_csv("fits.tsv", sep="\t")
+
+    fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t")
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
-    input_df = pd.read_csv("input.tsv", sep="\t")
+    input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t")
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
+    fits_df = fits_df[fits_df["pathogen"] != "aav5"]  # FIX ME
+    input_df = input_df[input_df["pathogen"] != "aav5"]  # FIX ME
+
     input_df["nucleic_acid"] = input_df.pathogen.map(nucleic_acid)
     input_df["selection_round"] = input_df.pathogen.map(selection_round)
     input_df["observed?"] = input_df.viral_reads > 0
     # For consistency between dataframes (TODO: fix that elsewhere)
     input_df["location"] = input_df.fine_location
-    fig_incidence = plot_incidence(fits_df, input_df)
-    save_plot(fig_incidence, figdir, "incidence-violin")
-    fig_prevalence = plot_prevalence(fits_df, input_df)
-    save_plot(fig_prevalence, figdir, "prevalence-violin")
-    incidence_viruses = {
-        "Norovirus (GII)": (-9.0, -2.0),
-        "Norovirus (GI)": (-9.0, -2.0),
-        "SARS-COV-2": (-11.0, -5.0),
-    }
-    fig_three_virus_incidence = plot_three_virus(
-        fits_df, input_df, incidence_viruses, "incidence"
-    )
-    save_plot(
-        fig_three_virus_incidence, figdir, "by_location_incidence-violin"
-    )
-    prevalence_viruses = {
-        "JCV": (-14.0, -7.0),
-        "BKV": (-14.0, -7.0),
-        "MCV": (-14.0, -7.0),
-    }
-    fig_three_virus_prevalence = plot_three_virus(
-        fits_df, input_df, prevalence_viruses, "prevalence"
-    )
-    save_plot(
-        fig_three_virus_prevalence, figdir, "by_location_prevalence-violin"
-    )
+
+    fig = composite_figure(fits_df, input_df)
+    fig.show()
+    save_plot(fig, figdir, "composite_fig_4")
 
 
 if __name__ == "__main__":
