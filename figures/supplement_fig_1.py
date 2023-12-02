@@ -1,14 +1,14 @@
-import os
 import gzip
-import json
-import subprocess
 import itertools
-import matplotlib.pyplot as plt  # type: ignore
-import pandas as pd
-import numpy as np
-from scipy.stats import gmean, mannwhitneyu
-import seaborn as sns
+import json
+import os
+import subprocess
 
+import matplotlib.pyplot as plt  # type: ignore
+import numpy as np
+import pandas as pd
+import seaborn as sns  # type: ignore
+from scipy.stats import gmean, mannwhitneyu  # type: ignore
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 
