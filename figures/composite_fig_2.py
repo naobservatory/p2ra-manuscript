@@ -281,8 +281,8 @@ def all_incidence_figure(
     df_flu = df.dropna(
         subset=["influenza"]
     )  # dropping influenza values for days where no influenza estimates were created.
-    cut_off = 10e-3
-    mask = df_flu["influenza"] < cut_off
+    INCIDENCE_CUT_OFF = 10e-3
+    mask = df_flu["influenza"] < INCIDENCE_CUT_OFF
 
     df_flu.loc[mask, "influenza"] = np.nan
 
@@ -307,7 +307,6 @@ def all_incidence_figure(
             alpha=0.1,
         )
         ax2.text(
-            # middle value of dates
             min(dates) + (max(dates) - min(dates)) / 2,
             max_y_axis,
             transform_study_name(study),
@@ -424,20 +423,18 @@ def start():
 
     ax1 = fig.add_subplot(gs[0, :])
 
-    ax2 = fig.add_subplot(gs[1, :])  # , sharex=ax3)
+    ax2 = fig.add_subplot(gs[1, :])
 
     ax1 = prevalence_bar_chart(ax1, barplot_colors)
     ax2 = all_incidence_figure(
         df,
         sample_dates,
         ax2,
-        # ax3,
         transform_study_name,
         virus_plot_colors,
         study_coverage_colors,
     )
-    # show figures
-    # plt.show()
+
     plt.tight_layout()
     plt.savefig(
         "composite_fig_2.pdf",
