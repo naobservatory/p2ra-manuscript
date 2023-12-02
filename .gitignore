@@ -147,6 +147,14 @@ settings.json
 fits.tsv
 fig/*
 figures/*.png
+<<<<<<< HEAD
+figures/archive/*
+manual_figures/*
+
+# MGS ouput
+cladecounts/*
+humanviruses/*
+=======
 figures/*.pdf
 figures/archive/*
 fits_summary.tsv
