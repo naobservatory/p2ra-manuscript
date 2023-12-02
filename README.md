@@ -1,8 +1,11 @@
-## Prevalence to Relative Abundance Project
+# Predicting Virus Relative Abundance in Wastewater
+Simon L. Grimm, Jeff T. Kaufman, Daniel Rice, Michael M. McLaren, Charlie Whittaker, William J. Bradshaw & Kevin M. Esvelt
 
-In this project we're attempting to understand how the prevalence of
-human pathogens translates into the relative abundance we see in wastewater
-metagenomics.  This work is split across two repositories: in this repo we're
+## Abstract
+Detecting novel pathogens at an early stage requires robust early warning that is both sensitive and pathogen-agnostic. Wastewater metagenomic sequencing (W-MGS) could enable highly pathogen-agnostic disease monitoring, but its sensitivity and financial feasibility are dependent on the relative abundance of novel pathogen sequences in W-MGS data. Here we collate W-MGS data from a diverse range of studies to characterize the relative abundance of known viruses in wastewater samples. We develop a Bayesian statistical model to integrate a subset of these data with epidemiological estimates of incidence and prevalence, and use it to estimate the expected relative abundance of different viral pathogens for a given prevalence or incidence in the community. Our results reveal pronounced variation between sites and studies, with estimates differing by one to three orders of magnitude for the same pathogen. For example, the expected relative abundance of SARS-CoV-2 at weekly incidence of 1% of the population varied between 10-7 and 10-10. Integrating these estimates with a simple cost model highlights substantial variation in the volume of W-MGS required to detect these pathogens. The mean sequencing cost of identifying 100 reads from a new SARS-CoV-2-like pathogen at 1% cumulative incidence was $2,579,000. A Norovirus-like pathogen which sheds more would require sequencing costs of $18,000. This model, and its parameter estimates, represent an important resource for future investigation into the performance of wastewater MGS, and can be extended to incorporate new wastewater datasets as they become available.
+
+### Repository structure
+This work is split across two repositories: in this repo we are
 collecting prevalence estimates and building the model, while determining
 relative abundances from existing data is in the
 [mgs-pipeline](https://github.com/naobservatory/mgs-pipeline) repo.
