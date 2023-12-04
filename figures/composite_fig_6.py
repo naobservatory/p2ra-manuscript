@@ -4,9 +4,9 @@ import csv
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt  # type: ignore
+import numpy as np
 from matplotlib.lines import Line2D  # type: ignore
 from scipy.stats import gmean
-import numpy as np
 
 PERCENTILES = [5, 25, 50, 75, 95]
 

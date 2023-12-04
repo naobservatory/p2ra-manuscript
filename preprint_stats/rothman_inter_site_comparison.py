@@ -1,8 +1,9 @@
 import csv
+from collections import defaultdict
+from math import log
+
 import pandas as pd
 from scipy.stats import gmean
-from math import log
-from collections import defaultdict
 
 PERCENTILES = ["5%", "25%", "50%", "75%", "95%"]
 

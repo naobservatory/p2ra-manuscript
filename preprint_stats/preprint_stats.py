@@ -1,9 +1,9 @@
-import os
 import json
+import os
 import subprocess
+
 import numpy as np
 from scipy.stats import gmean
-
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 
