@@ -151,7 +151,6 @@ def plot_three_virus(
     fig_title: str,
     axes: list[plt.Axes],
 ) -> list[plt.Axes]:
-
     final_axes = []
     for i, ((pathogen, xlim), ax) in enumerate(zip(viruses.items(), axes)):
         plot_violin(
