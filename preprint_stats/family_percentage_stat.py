@@ -1,17 +1,16 @@
-import os
 import gzip
 import json
+import os
 import subprocess
+
 import matplotlib.pyplot as plt  # type: ignore
-from matplotlib.gridspec import GridSpec
 import matplotlib.ticker as ticker
-
-import pandas as pd
-from scipy.stats import gmean
 import numpy as np
-from PIL import Image
+import pandas as pd
 import seaborn as sns
-
+from matplotlib.gridspec import GridSpec
+from PIL import Image
+from scipy.stats import gmean
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 

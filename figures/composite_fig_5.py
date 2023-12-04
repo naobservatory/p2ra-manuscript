@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 sys.path.append("..")
 
@@ -149,10 +148,8 @@ def plot_three_virus(
     viruses: dict[str, tuple[float, float]],
     predictor_type: str,
     fig_title: str,
-
     axes: list[plt.Axes],
 ) -> list[plt.Axes]:
-
     final_axes = []
     for i, ((pathogen, xlim), ax) in enumerate(zip(viruses.items(), axes)):
         plot_violin(
@@ -259,9 +256,7 @@ def composite_figure(
     input_data: pd.DataFrame,
 ) -> plt.Figure:
     fig = plt.figure(
-
         figsize=(7, 10),
-
     )
 
     gs = fig.add_gridspec(2, 3, height_ratios=[7, 7], hspace=0.2)
