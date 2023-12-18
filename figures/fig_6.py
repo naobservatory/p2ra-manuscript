@@ -138,6 +138,7 @@ def start():
                     ax.set_title(
                         f"Detection Threshold: {detection_threshold}",
                         loc="center",
+                        fontdict={"fontsize": 10},
                     )
 
                 color = f"C{i}"
@@ -171,9 +172,11 @@ def start():
                     )
 
                 ax.set_xticks([1e-4, 1e-3, 1e-2, 1e-1])
-                ax.set_xticklabels(["0.01%", "0.1%", "1%", "10%"])
+                ax.set_xticklabels(["0.01%", "0.1%", "1%", "10%"], fontsize=8)
                 ax.set_yticks([1e3, 1e6, 1e9, 1e12, 1e15])
+                ax.tick_params(axis="y", labelsize=8)
                 ax.set_xlim(1e-4, 1e-1)
+
                 ax.grid(
                     which="major",
                     linestyle="-",
@@ -187,7 +190,7 @@ def start():
     for i, (top_ax, bottom_ax) in enumerate(zip(top_axes, bottom_axes)):
         if i == 0:
             for ax in top_ax, bottom_ax:
-                ax.set_ylabel("Reads required for detection")
+                ax.set_ylabel("Reads per week")
         else:
             for ax in top_ax, bottom_ax:
                 ax.tick_params(axis="y", which="both", left=False, right=False)
@@ -196,18 +199,33 @@ def start():
 
     fig.axes[0].text(
         -0.35,
-        1.08,
+        1.2,
         "a",
         fontweight="bold",
+        fontdict={"fontsize": 12},
+        transform=fig.axes[0].transAxes,
+    )
+    fig.axes[0].text(
+        -0.25,
+        1.2,
+        "(Norovirus GII)",
         fontdict={"fontsize": 12},
         transform=fig.axes[0].transAxes,
     )
 
     fig.axes[3].text(
         -0.35,
-        1.08,
+        1.1,
         "b",
         fontweight="bold",
+        fontdict={"fontsize": 12},
+        transform=fig.axes[3].transAxes,
+    )
+
+    fig.axes[3].text(
+        -0.25,
+        1.1,
+        "(SARS-COV-2)",
         fontdict={"fontsize": 12},
         transform=fig.axes[3].transAxes,
     )
