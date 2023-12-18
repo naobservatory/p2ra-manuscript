@@ -64,7 +64,7 @@ def get_cost(
 
 def start():
     data = read_data()
-    DOLLAR_PER_1B_READS = 8000
+    DOLLAR_PER_1B_READS = 5500
     weeks_per_year = 52
 
     TARGET_INCIDENCE = 0.01
