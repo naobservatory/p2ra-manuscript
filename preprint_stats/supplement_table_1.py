@@ -1,7 +1,8 @@
-import os
-import json
 import gzip
+import json
+import os
 import subprocess
+
 from scipy.stats import gmean
 
 if os.path.basename(os.getcwd()) != "preprint_stats":
