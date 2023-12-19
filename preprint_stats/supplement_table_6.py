@@ -25,14 +25,11 @@ def tidy_number(reads_required=int) -> str:
     if is_negative:
         exponent = exponent[1:]
 
-    # Remove the leading zero from the exponent if it's there
     exponent = exponent.lstrip("0")
 
-    # Add back the superscript minus if the exponent was negative
     if is_negative:
         exponent = "⁻" + exponent
 
-    # Now replace the digits with superscript characters
     superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
     exponent = exponent.translate(superscript_map)
 
@@ -48,10 +45,6 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
             predictor_type = row["predictor_type"]
             study = row["study"]
             location = row["location"]
-            if (
-                virus == "AAV5"
-            ):  # FIXME: Remove this when AAV5 is dropped earlier.
-                continue
             data[virus, predictor_type, study, location] = SummaryStats(
                 mean=tidy_number(float(row["mean"])),
                 std=tidy_number(float(row["std"])),
@@ -82,7 +75,7 @@ def create_tsv():
 
     headers = ["Virus", "Study", "Median", "Lower", "Upper"]
 
-    with open("output_summary.tsv", "w", newline="") as file:
+    with open("supplement_table_6.tsv", "w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=headers, delimiter="\t")
         writer.writeheader()
 
