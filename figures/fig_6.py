@@ -107,6 +107,15 @@ def start():
         figsize=(9, 6),
     )
 
+    colors = [
+        "#56B4E9",
+        "#E69F00",
+        "#0072B2",
+        "#DC143C",
+    ]
+    # line_styles = ["-", "--", "-.", ":"]
+    line_styles = ["-", "-", "-", "-"]
+
     for axes, detection_threshold in zip(
         zip(top_axes, bottom_axes), DETECTION_THRESHOLDS
     ):
@@ -141,24 +150,25 @@ def start():
                         fontdict={"fontsize": 10},
                     )
 
-                color = f"C{i}"
-
+                color = colors[i]
+                linestyle = line_styles[i]
                 plot_lines(
                     ax=ax,
                     median=study_median,
                     lower=study_lower,
                     upper=study_upper,
                     label=f"{study_labels[study]}",
-                    linestyle="-",
+                    linestyle=linestyle,
                     color=color,
                     cumulative_incidence=cumulative_incidence,
                 )
 
                 if i == len(studies) - 1:
+                    color = colors[i + 1]
+                    linestyle = line_styles[i + 1]
                     geomean_median = gmean(geomean_dict["median"])
                     geomean_lower = gmean(geomean_dict["lower"])
                     geomean_upper = gmean(geomean_dict["upper"])
-                    color = f"C{i + 1}"
 
                     plot_lines(
                         ax,
@@ -166,11 +176,13 @@ def start():
                         lower=geomean_lower,
                         upper=geomean_upper,
                         label="Mean (geometric)",
-                        linestyle="-",
+                        linestyle=linestyle,
                         color=color,
                         cumulative_incidence=cumulative_incidence,
                     )
 
+                print(color)
+                print(i)
                 ax.set_xticks([1e-4, 1e-3, 1e-2, 1e-1])
                 ax.set_xticklabels(["0.01%", "0.1%", "1%", "10%"], fontsize=8)
                 ax.set_yticks([1e3, 1e6, 1e9, 1e12, 1e15])
@@ -198,7 +210,7 @@ def start():
         bottom_ax.set_xlabel("Cumulative Incidence")
 
     fig.axes[0].text(
-        -0.35,
+        -0.26,
         1.2,
         "a",
         fontweight="bold",
@@ -206,7 +218,7 @@ def start():
         transform=fig.axes[0].transAxes,
     )
     fig.axes[0].text(
-        -0.25,
+        -0.16,
         1.2,
         "(Norovirus GII)",
         fontdict={"fontsize": 12},
@@ -214,7 +226,7 @@ def start():
     )
 
     fig.axes[3].text(
-        -0.35,
+        -0.26,
         1.1,
         "b",
         fontweight="bold",
@@ -223,7 +235,7 @@ def start():
     )
 
     fig.axes[3].text(
-        -0.25,
+        -0.16,
         1.1,
         "(SARS-COV-2)",
         fontdict={"fontsize": 12},

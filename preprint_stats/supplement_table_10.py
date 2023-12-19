@@ -37,72 +37,50 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     return data
 
 
-def get_reads_required(
-    data=dict,
-    cumulative_incidence=int,
-    detection_threshold=np.ndarray,
-    virus=str,
-    predictor_type=str,
-    study=str,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    stats = data[virus, predictor_type, study, "Overall"]
+def get_cost(
+    reads_required=list,
+    detection_threshold=int,
+    TARGET_INCIDENCE=float,
+    DOLLAR_PER_1B_READS=int,
+    weeks_per_year=int,
+):
+    costs = []
 
-    median_reads = detection_threshold / (
-        100 * stats.percentiles[50] * cumulative_incidence
-    )
-    lower_reads = detection_threshold / (
-        100 * stats.percentiles[25] * cumulative_incidence
-    )
-    upper_reads = detection_threshold / (
-        100 * stats.percentiles[75] * cumulative_incidence
-    )
+    for reads in reads_required:
+        cost = round(
+            detection_threshold
+            / (100 * reads * TARGET_INCIDENCE)
+            * weeks_per_year
+            * DOLLAR_PER_1B_READS
+            / 1e9
+        )
 
-    return median_reads, lower_reads, upper_reads
+        tidy_cost = f"${cost:,}"
+        costs.append(tidy_cost)
+    tidy_median_cost, tidy_lower_cost, tidy_upper_cost = costs
 
-
-def tidy_number(reads_required=int) -> str:
-    sci_notation = f"{reads_required:.2e}"
-
-    coefficient, exponent = sci_notation.split("e")
-
-    # Remove the leading '+' from the exponent
-    exponent = exponent.replace("+", "")
-    # Remove the leading zero from the exponent if it's there
-    if exponent.startswith("0") and len(exponent) > 1:
-        exponent = exponent[1:]
-
-    # Now replace the digits with superscript characters
-    exponent = (
-        exponent.replace("0", "⁰")
-        .replace("1", "¹")
-        .replace("2", "²")
-        .replace("3", "³")
-        .replace("4", "⁴")
-        .replace("5", "⁵")
-        .replace("6", "⁶")
-        .replace("7", "⁷")
-        .replace("8", "⁸")
-        .replace("9", "⁹")
-    )
-
-    return f"{coefficient} x 10{exponent}"
-
-
-# def tidy_number(reads_required=int) -> str:
-#     scientific_notation = "{:.2e} reads".format(round(reads_required))
+    return tidy_median_cost, tidy_lower_cost, tidy_upper_cost
 
 
 def start():
     data = read_data()
+    DOLLAR_PER_1B_READS = 5500
+    weeks_per_year = 52
+
     TARGET_INCIDENCE = 0.01
     TARGET_THRESHOLDS = [10, 100, 1000]
+
     viruses = ["Norovirus (GII)", "SARS-COV-2"]
     study_labels = {
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
         "spurbeck": "Spurbeck",
     }
-    with open("read_estimates.tsv", mode="w", newline="") as file:
+    with open(
+        f"supplement_table_10.tsv",
+        mode="w",
+        newline="",
+    ) as file:
         tsv_writer = csv.writer(file, delimiter="\t")
         tsv_writer.writerow(
             [
@@ -122,34 +100,36 @@ def start():
                     "upper": [],
                 }
                 studies = study_labels.keys()
+
                 for i, study in enumerate(studies):
-                    (
-                        study_median,
-                        study_lower,
-                        study_upper,
-                    ) = get_reads_required(
-                        data,
-                        cumulative_incidence=TARGET_INCIDENCE,
-                        detection_threshold=detection_threshold,
-                        virus=virus,
-                        predictor_type="incidence",
-                        study=study,
-                    )
+                    stats = data[virus, "incidence", study, "Overall"]
+                    study_median = stats.percentiles[50]
+                    study_lower = stats.percentiles[25]
+                    study_upper = stats.percentiles[75]
 
                     geomean_dict["median"].append(study_median)
                     geomean_dict["lower"].append(study_lower)
                     geomean_dict["upper"].append(study_upper)
 
-                    tidy_median = tidy_number(study_median)
-                    tidy_lower = tidy_number(study_lower)
-                    tidy_upper = tidy_number(study_upper)
+                    (
+                        tidy_median_cost,
+                        tidy_lower_cost,
+                        tidy_upper_cost,
+                    ) = get_cost(
+                        [study_median, study_lower, study_upper],
+                        detection_threshold,
+                        TARGET_INCIDENCE,
+                        DOLLAR_PER_1B_READS,
+                        weeks_per_year,
+                    )
+
                     tsv_writer.writerow(
                         [
                             virus,
                             study_labels[study],
-                            tidy_median,
-                            tidy_lower,
-                            tidy_upper,
+                            tidy_median_cost,
+                            tidy_lower_cost,
+                            tidy_upper_cost,
                             detection_threshold,
                         ]
                     )
@@ -158,17 +138,25 @@ def start():
                         geomean_lower = gmean(geomean_dict["lower"])
                         geomean_upper = gmean(geomean_dict["upper"])
 
-                        tidy_median = tidy_number(geomean_median)
-                        tidy_lower = tidy_number(geomean_lower)
-                        tidy_upper = tidy_number(geomean_upper)
+                        (
+                            tidy_median_cost,
+                            tidy_lower_cost,
+                            tidy_upper_cost,
+                        ) = get_cost(
+                            [geomean_median, geomean_lower, geomean_upper],
+                            detection_threshold,
+                            TARGET_INCIDENCE,
+                            DOLLAR_PER_1B_READS,
+                            weeks_per_year,
+                        )
 
                         tsv_writer.writerow(
                             [
                                 virus,
                                 "Mean (geometric)",
-                                tidy_median,
-                                tidy_lower,
-                                tidy_upper,
+                                tidy_median_cost,
+                                tidy_lower_cost,
+                                tidy_upper_cost,
                                 detection_threshold,
                             ]
                         )
