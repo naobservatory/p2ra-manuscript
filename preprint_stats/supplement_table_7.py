@@ -13,13 +13,12 @@ def reads_df() -> pd.DataFrame:
     return df
 
 
-def spurbeck_fits_data() -> pd.DataFrame:
+def rothman_fits_data() -> pd.DataFrame:
     data = {
         "predictor_type": [],
         "virus": [],
         "study": [],
         "location": [],
-        "enriched": [],
     }
     for p in PERCENTILES:
         data[f"{p}"] = []
@@ -29,15 +28,8 @@ def spurbeck_fits_data() -> pd.DataFrame:
         for row in reader:
             if row["location"] == "Overall":
                 continue
-
-            if row["study"] != "spurbeck":
+            if row["study"] != "rothman":
                 continue
-
-            if row["location"] in ["E", "F", "G", "H"]:
-                data["enriched"].append(True)
-            else:
-                data["enriched"].append(False)
-
             data["predictor_type"].append(row["predictor_type"])
             data["virus"].append(row["tidy_name"])
             data["study"].append(row["study"])
@@ -46,6 +38,7 @@ def spurbeck_fits_data() -> pd.DataFrame:
                 data[f"{p}"].append(abs(log(float(row[f"{p}"]), 10)))
 
     df = pd.DataFrame.from_dict(data)
+
     return df
 
 
@@ -63,25 +56,24 @@ def compute_geo_mean_ratio(df: pd.DataFrame) -> pd.DataFrame:
         if virus not in target_viruses:
             continue
         virus_df = df[df["virus"] == virus]
-        enriched_virus_df = virus_df[virus_df["enriched"]]
-        non_enriched_virus_df = virus_df[~virus_df["enriched"]]
+        htp_df = virus_df[virus_df["location"] == "HTP"]
+
+        non_htp_df = virus_df[virus_df["location"] != "HTP"]
+
         gmean_variance["virus"].append(virus)
         for quantile in PERCENTILES:
-            enriched_gm = gmean(enriched_virus_df[quantile].dropna())
-            non_enriched_gm = (
-                gmean(non_enriched_virus_df[quantile].dropna()),
-            )
-            variance = float(enriched_gm - non_enriched_gm)
+            non_htp_quantile_gm = (gmean(non_htp_df[quantile].dropna()),)
+            htp_quantile = gmean(htp_df[quantile].dropna())
+            variance = float(htp_quantile - non_htp_quantile_gm)
 
             gmean_variance[f"Difference at {quantile}"].append(
                 round(variance, 2)
             )
-
     return pd.DataFrame(gmean_variance)
 
 
 def start():
-    df_fits = spurbeck_fits_data()
+    df_fits = rothman_fits_data()
 
     variance_df = compute_geo_mean_ratio(df_fits)
 

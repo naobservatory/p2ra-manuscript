@@ -1,103 +1,91 @@
 import csv
-from dataclasses import dataclass
+from collections import defaultdict
+from math import log
 
-import matplotlib.pyplot as plt  # type: ignore
-import numpy as np
+import pandas as pd
+from scipy.stats import gmean
 
-PERCENTILES = [5, 25, 50, 75, 95]
-
-
-@dataclass
-class SummaryStats:
-    mean: float
-    std: float
-    min: float
-    percentiles: dict[int, float]
-    max: float
+PERCENTILES = ["5%", "25%", "50%", "75%", "95%"]
 
 
-def tidy_number(reads_required=int) -> str:
-    sci_notation = f"{reads_required:.2e}"
-
-    coefficient, exponent = sci_notation.split("e")
-
-    is_negative = exponent.startswith("-")
-    if is_negative:
-        exponent = exponent[1:]
-
-    exponent = exponent.lstrip("0")
-
-    if is_negative:
-        exponent = "⁻" + exponent
-
-    superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
-    exponent = exponent.translate(superscript_map)
-
-    return f"{coefficient} x 10{exponent}"
+def reads_df() -> pd.DataFrame:
+    df = pd.read_csv("input.tsv", sep="\t")
+    return df
 
 
-def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
-    data = {}
+def spurbeck_fits_data() -> pd.DataFrame:
+    data = {
+        "predictor_type": [],
+        "virus": [],
+        "study": [],
+        "location": [],
+        "enriched": [],
+    }
+    for p in PERCENTILES:
+        data[f"{p}"] = []
+
     with open("fits_summary.tsv") as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
-            virus = row["tidy_name"]
-            predictor_type = row["predictor_type"]
-            study = row["study"]
-            location = row["location"]
-            data[virus, predictor_type, study, location] = SummaryStats(
-                mean=tidy_number(float(row["mean"])),
-                std=tidy_number(float(row["std"])),
-                min=tidy_number(float(row["min"])),
-                percentiles={
-                    p: tidy_number(float(row[f"{p}%"])) for p in PERCENTILES
-                },
-                max=tidy_number(float(row["max"])),
+            if row["location"] == "Overall":
+                continue
+
+            if row["study"] != "spurbeck":
+                continue
+
+            if row["location"] in ["E", "F", "G", "H"]:
+                data["enriched"].append(True)
+            else:
+                data["enriched"].append(False)
+
+            data["predictor_type"].append(row["predictor_type"])
+            data["virus"].append(row["tidy_name"])
+            data["study"].append(row["study"])
+            data["location"].append(row["location"])
+            for p in PERCENTILES:
+                data[f"{p}"].append(abs(log(float(row[f"{p}"]), 10)))
+
+    df = pd.DataFrame.from_dict(data)
+    return df
+
+
+def compute_geo_mean_ratio(df: pd.DataFrame) -> pd.DataFrame:
+    target_viruses = [
+        "Norovirus (GI)",
+        "Norovirus (GII)",
+        "SARS-COV-2",
+        "MCV",
+        "JCV",
+        "BKV",
+    ]
+    gmean_variance = defaultdict(list)
+    for virus in df["virus"].unique():
+        if virus not in target_viruses:
+            continue
+        virus_df = df[df["virus"] == virus]
+        enriched_virus_df = virus_df[virus_df["enriched"]]
+        non_enriched_virus_df = virus_df[~virus_df["enriched"]]
+        gmean_variance["virus"].append(virus)
+        for quantile in PERCENTILES:
+            enriched_gm = gmean(enriched_virus_df[quantile].dropna())
+            non_enriched_gm = (
+                gmean(non_enriched_virus_df[quantile].dropna()),
             )
-    return data
+            variance = float(enriched_gm - non_enriched_gm)
 
-
-def create_tsv():
-    data = read_data()
-    viruses = set()
-    for entry in data.keys():
-        virus, predictor_type = entry[:2]
-        viruses.add((virus, predictor_type))
-
-    sorted_viruses = sorted(viruses, key=lambda x: (x[1], x[0]))
-
-    study_tidy = {
-        "rothman": "Rothman",
-        "crits_christoph": "Crits-Christoph",
-        "spurbeck": "Spurbeck",
-        "brinch": "Brinch",
-    }
-
-    headers = ["Virus", "Study", "Median", "Lower", "Upper"]
-
-    with open("supplement_table_6.tsv", "w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=headers, delimiter="\t")
-        writer.writeheader()
-
-        for virus, predictor_type in sorted_viruses:
-            studies = ["rothman", "crits_christoph", "spurbeck"] + (
-                ["brinch"] if predictor_type == "prevalence" else []
+            gmean_variance[f"Difference at {quantile}"].append(
+                round(variance, 2)
             )
-            for study in studies:
-                stats = data[virus, predictor_type, study, "Overall"]
-                writer.writerow(
-                    {
-                        "Virus": virus,
-                        "Study": study_tidy[study],
-                        "Median": stats.percentiles[50],
-                        "Lower": stats.percentiles[5],
-                        "Upper": stats.percentiles[95],
-                    }
-                )
+
+    return pd.DataFrame(gmean_variance)
 
 
 def start():
-    create_tsv()
+    df_fits = spurbeck_fits_data()
+
+    variance_df = compute_geo_mean_ratio(df_fits)
+
+    variance_df.to_csv("supplement_table_6.tsv", sep="\t", index=False)
 
 
 if __name__ == "__main__":
