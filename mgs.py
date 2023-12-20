@@ -68,11 +68,11 @@ class SampleAttributes(BaseModel):
     country: str
     state: Optional[str] = None
     county: Optional[str] = None
-    location: str
+    location: Optional[str] = None
     fine_location: Optional[str] = None
     # Fixme: Not all the dates are real dates
     date: date | str
-    reads: int
+    reads: Optional[int] = None
     enrichment: Optional[Enrichment] = None
     method: Optional[str] = None
 

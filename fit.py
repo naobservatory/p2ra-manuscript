@@ -22,8 +22,8 @@ def summarize_output(coeffs: pd.DataFrame) -> pd.DataFrame:
 
 
 def start(num_samples: int, plot: bool) -> None:
-    branch = "simon-validation-exclusion-run"
-    print("Using mgs-pipeline branch simon-validation-exclusion-run")
+    branch = "simon-p2ra-manuscript"
+    print("Using mgs-pipeline branch simon-p2ra-manuscript")
     figdir = Path("fig")
     if plot:
         figdir.mkdir(exist_ok=True)
