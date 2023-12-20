@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import csv
+import os
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt  # type: ignore
@@ -9,6 +10,9 @@ from matplotlib.lines import Line2D  # type: ignore
 from scipy.stats import gmean
 
 PERCENTILES = [5, 25, 50, 75, 95]
+
+if os.path.basename(os.getcwd()) != "figures":
+    raise RuntimeError("Run this script from figures/")
 
 
 @dataclass
@@ -107,13 +111,7 @@ def start():
         figsize=(9, 6),
     )
 
-    colors = [
-        "#56B4E9",
-        "#E69F00",
-        "#0072B2",
-        "#DC143C",
-    ]
-    # line_styles = ["-", "--", "-.", ":"]
+    colors = ["#56B4E9", "#E69F00", "#DC143C", "#252525"]
     line_styles = ["-", "-", "-", "-"]
 
     for axes, detection_threshold in zip(
@@ -181,8 +179,6 @@ def start():
                         cumulative_incidence=cumulative_incidence,
                     )
 
-                print(color)
-                print(i)
                 ax.set_xticks([1e-4, 1e-3, 1e-2, 1e-1])
                 ax.set_xticklabels(["0.01%", "0.1%", "1%", "10%"], fontsize=8)
                 ax.set_yticks([1e3, 1e6, 1e9, 1e12, 1e15])
@@ -253,7 +249,7 @@ def start():
 
     fig.tight_layout
     fig.show()
-    fig.savefig("fig_6.png", bbox_inches="tight", dpi=600)
+    fig.savefig("fig_5.png", bbox_inches="tight", dpi=600)
 
 
 if __name__ == "__main__":
