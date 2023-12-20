@@ -15,9 +15,7 @@ import seaborn as sns  # type: ignore
 from matplotlib.gridspec import GridSpec  # type: ignore
 
 if os.path.basename(os.getcwd()) != "figures":
-    print("Run this script from the figures directory.")
-    exit()
-
+    raise RuntimeError("Run this script from figures/")
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 
@@ -215,7 +213,6 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
     box_plot_data = []
     bar_plot_data = []
     for study in studies:
-        # Dropping studies that aren't WTP based
         if study not in [
             "Bengtsson-Palme 2016",
             "Munk 2022",
