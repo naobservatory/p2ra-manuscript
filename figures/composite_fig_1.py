@@ -274,11 +274,11 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                             clade_assignments,
                             _,
                         ) = line.strip().split("\t")
-                        clade_hits = int(clade_assignments)
+                        clade_assignments = int(clade_assignments)
                         line_taxid = int(line_taxid)
 
-                        human_virus_counts[line_taxid] = clade_hits
-                        human_virus_reads += int(clade_hits)
+                        human_virus_counts[line_taxid] = clade_assignments 
+                        human_virus_reads += int(clade_assignments)
 
                     human_virus_relative_abundance = (
                         human_virus_reads / metadata_samples[sample]["reads"]
@@ -319,11 +319,11 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                             _,
                         ) = line.strip().split()
                         taxid = int(line_taxid)
-                        clade_hits = int(clade_assignments)
+                        clade_assignments = int(clade_assignments)
                         if taxid in target_taxa:
                             nucleic_acid_type = target_taxa[taxid][1]
                             relative_abundance = (
-                                clade_hits / metadata_samples[sample]["reads"]
+                                clade_assignments / metadata_samples[sample]["reads"]
                             )
 
                             taxa_abundances[
