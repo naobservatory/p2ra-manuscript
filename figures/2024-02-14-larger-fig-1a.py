@@ -37,7 +37,7 @@ studies = list(metadata_papers.keys())
 
 
 target_taxa = {
-    2759: ("eukaryota", "Eukaryota"), 
+    9606: ("homo sapiens", "Homo Sapiens"), 
     2: ("bacteria", "Bacteria"),    
     2157: ("archaea", "Archaea"),
     10239: ("viruses", "Viruses"),
@@ -69,7 +69,7 @@ def shape_boxplot_df(boxplot_df: pd.DataFrame) -> pd.DataFrame:
     ].melt(
         id_vars=["study", "sample"],
         value_vars=[
-            "Eukaryota",
+            "Homo Sapiens",
             "Bacteria",
             "Archaea",
             "Viruses",
@@ -172,13 +172,9 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                         taxid = int(line_taxid)
                         clade_assignments = int(clade_assignments)
                         if taxid in target_taxa:
-                            #print(line)
-                            #print(line_taxid, clade_assignments)
-                            #print(target_taxa[taxid][1])
                             relative_abundance = (
                                 clade_assignments / metadata_samples[sample]["reads"]
                             )
-
                             taxa_abundances[
                                 target_taxa[taxid][1]
                             ] += relative_abundance
@@ -190,7 +186,6 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                             **taxa_abundances,
                         }
                     )
-    #print(box_plot_data)
     boxplot_df = pd.DataFrame(box_plot_data)
     boxplot_df = shape_boxplot_df(boxplot_df)
     study_nucleic_acid_mapping = get_study_nucleic_acid_mapping() 
