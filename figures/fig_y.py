@@ -24,10 +24,10 @@ def selection_round(pathogen: str) -> str:
 
 def study_name(study: str) -> str:
     return {
-        "brinch": "Brinch (DNA)",
-        "crits_christoph": "Crits-Christoph",
-        "rothman": "Rothman",
-        "spurbeck": "Spurbeck",
+        "crits_christoph_unenriched": "Crits-Christoph\nUnenriched",
+        "crits_christoph_panel": "Crits-Christoph\nPanel-enriched",
+        "rothman_unenriched": "Rothman\nUnenriched",
+        "rothman_panel": "Rothman\nPanel-enriched",
     }[study]
 
 
@@ -87,6 +87,19 @@ def plot_violin(
         sorting_order, ascending=ascending
     ).reset_index()
     sns_colors = sns.color_palette().as_hex()
+    
+    #study_order = [
+    #    "Rothman\nPanel-enriched",
+    #    "Rothman\nUnenriched",
+    #    "Crits-Christoph\nPanel-enriched",
+    #    "Crits-Christoph\nUnenriched",
+    #]
+
+    palette = {
+        "Rothman\nPanel-enriched": "#15537d",
+        "Rothman\nUnenriched": "#78add2",
+        "Crits-Christoph\nPanel-enriched": "#cc650b",
+        "Crits-Christoph\nUnenriched": "#ff983e"}
     sns.violinplot(
         ax=ax,
         data=data,
@@ -95,10 +108,7 @@ def plot_violin(
         order=plotting_order[y].unique(),
         hue="study",
         hue_order=plotting_order.study.unique(),
-        palette={
-            "Rothman": sns_colors[1],
-            "Crits-Christoph": sns_colors[0],
-        },
+        palette=palette,
         inner=None,
         linewidth=0.0,
         bw=0.5,
@@ -243,15 +253,8 @@ def plot_prevalence(
         va="top",
     )
     adjust_axes(ax, predictor_type=predictor_type)
-    legend = ax.legend(
-        title="MGS study",
-        bbox_to_anchor=(1.02, 0),
-        loc="lower left",
-        borderaxespad=0,
-        frameon=False,
-    )
-    for legend_handle in legend.legend_handles:  # type: ignore
-        legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
+    # no legend
+    ax.get_legend().remove()
 
     ax_title = ax.set_title("b", fontweight="bold")
     ax_title.set_position((-0.22, 0))
@@ -309,10 +312,26 @@ def start() -> None:
     figdir = Path(parent_dir / "figures")
     figdir.mkdir(exist_ok=True)
 
-    fits_df = pd.read_csv(parent_dir / "panel_fits.tsv", sep="\t")
+    panel_fits_df = pd.read_csv(parent_dir / "panel_fits.tsv", sep="\t")
+    unenriched_fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t") 
+    unenriched_fits_df = unenriched_fits_df[~unenriched_fits_df.study.isin(["spurbeck", "brinch"])]
+    panel_fits_df["study"] = panel_fits_df["study"] + "_panel"
+    unenriched_fits_df["study"] = unenriched_fits_df["study"] + "_unenriched"
+
+    fits_df = pd.concat([panel_fits_df, unenriched_fits_df], axis=0,)
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
-    input_df = pd.read_csv(parent_dir / "panel_input.tsv", sep="\t")
+
+    panel_input_df = pd.read_csv(parent_dir / "panel_input.tsv", sep="\t")
+    
+    unenriched_input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t") 
+    unenriched_input_df = unenriched_input_df[~unenriched_input_df.study.isin(["spurbeck", "brinch"])]
+ 
+    unenriched_input_df["study"] = unenriched_input_df["study"] + "_unenriched"
+    panel_input_df["study"] = panel_input_df["study"] + "_panel"
+    input_df = pd.concat([panel_input_df, unenriched_input_df], axis=0,)
+    
+
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
     fits_df = fits_df[fits_df["pathogen"] != "aav5"]  # FIX ME
