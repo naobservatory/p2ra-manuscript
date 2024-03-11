@@ -87,7 +87,7 @@ def plot_violin(
         sorting_order, ascending=ascending
     ).reset_index()
     sns_colors = sns.color_palette().as_hex()
-    
+    print(sns_colors)    
     #study_order = [
     #    "Rothman\nPanel-enriched",
     #    "Rothman\nUnenriched",
@@ -96,10 +96,10 @@ def plot_violin(
     #]
 
     palette = {
-        "Rothman\nPanel-enriched": "#15537d",
-        "Rothman\nUnenriched": "#78add2",
-        "Crits-Christoph\nPanel-enriched": "#cc650b",
-        "Crits-Christoph\nUnenriched": "#ff983e"}
+        "Rothman\nPanel-enriched": "#9467bd",
+        "Rothman\nUnenriched": "#ff7f0e",
+        "Crits-Christoph\nPanel-enriched": "#17becf",
+        "Crits-Christoph\nUnenriched": "#2ca02c",}
     sns.violinplot(
         ax=ax,
         data=data,
