@@ -210,15 +210,15 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                 )
 
     viral_composition_df = pd.DataFrame(viral_composition_data)
-    viral_composition_df = shape_vir_comp_df(viral_composition_df)
+    #viral_composition_df = shape_vir_comp_df(viral_composition_df)
 
     hv_genus_df = pd.DataFrame(hv_genus_data)
-    hv_genus_df = shape_hv_genus_df(hv_genus_df)
+    #hv_genus_df = shape_hv_genus_df(hv_genus_df)
 
-    study_nucleic_acid_mapping = get_study_nucleic_acid_mapping()
+    #study_nucleic_acid_mapping = get_study_nucleic_acid_mapping()
 
-    viral_composition_df = order_df(viral_composition_df, study_nucleic_acid_mapping)
-    hv_genus_df = order_df(hv_genus_df, study_nucleic_acid_mapping)
+    #viral_composition_df = order_df(viral_composition_df, study_nucleic_acid_mapping)
+    #hv_genus_df = order_df(hv_genus_df, study_nucleic_acid_mapping)
 
 
     return viral_composition_df, hv_genus_df
@@ -540,22 +540,22 @@ def start():
 
     boxplot_df, barplot_df = assemble_plotting_dfs()
 
-    fig = plt.figure(
-        figsize=(9, 11),
-    )
-#
-    gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
-#
-    boxplot_ax = boxplot(
-        fig.add_subplot(gs[0, :]),
-        boxplot_df,
-    )
-#
-    study_order = [text.get_text() for text in boxplot_ax.get_yticklabels()]
-#
-    barplot(fig.add_subplot(gs[1, :]), barplot_df, study_order)
-#
-    plt.tight_layout()
+    #fig = plt.figure(
+    #    figsize=(9, 11),
+    #)
+##
+    #gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
+##
+    #boxplot_ax = boxplot(
+    #    fig.add_subplot(gs[0, :]),
+    #    boxplot_df,
+    #)
+##
+    #study_order = [text.get_text() for text in boxplot_ax.get_yticklabels()]
+##
+    #barplot(fig.add_subplot(gs[1, :]), barplot_df, study_order)
+##
+    #plt.tight_layout()
     print("Watch out, this doesn't include Rothman atm.")
     print("Watch out, Bengtsson-Palme has no information on RNA vs DNA.")
     print("You still need to fix the unknown virus issue in hv_clade_counts.")
