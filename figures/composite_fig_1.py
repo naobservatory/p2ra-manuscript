@@ -210,15 +210,15 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                 )
 
     viral_composition_df = pd.DataFrame(viral_composition_data)
-    #viral_composition_df = shape_vir_comp_df(viral_composition_df)
+    viral_composition_df = shape_vir_comp_df(viral_composition_df)
 
     hv_genus_df = pd.DataFrame(hv_genus_data)
-    #hv_genus_df = shape_hv_genus_df(hv_genus_df)
+    hv_genus_df = shape_hv_genus_df(hv_genus_df)
 
-    #study_nucleic_acid_mapping = get_study_nucleic_acid_mapping()
+    study_nucleic_acid_mapping = get_study_nucleic_acid_mapping()
 
-    #viral_composition_df = order_df(viral_composition_df, study_nucleic_acid_mapping)
-    #hv_genus_df = order_df(hv_genus_df, study_nucleic_acid_mapping)
+    viral_composition_df = order_df(viral_composition_df, study_nucleic_acid_mapping)
+    hv_genus_df = order_df(hv_genus_df, study_nucleic_acid_mapping)
 
 
     return viral_composition_df, hv_genus_df
@@ -331,10 +331,14 @@ def get_study_nucleic_acid_mapping() -> dict[str, str]:
         for study, metadata in metadata_papers.items()
     }
 
-    if "Brumfield 2022" in study_nucleic_acid_mapping:
-        study_nucleic_acid_mapping["Brumfield 2022\n(DNA Subset)"] = "DNA"
-        study_nucleic_acid_mapping["Brumfield 2022\n(RNA Subset)"] = "RNA"
-        del study_nucleic_acid_mapping["Brumfield 2022"]
+    study_nucleic_acid_mapping = { # To clean up
+        study.split()[0]: na_type for study, na_type in study_nucleic_acid_mapping.items()
+    }
+
+    #if "Brumfield 2022" in study_nucleic_acid_mapping:
+    #    study_nucleic_acid_mapping["Brumfield 2022\n(DNA Subset)"] = "DNA"
+    #    study_nucleic_acid_mapping["Brumfield 2022\n(RNA Subset)"] = "RNA"
+    #    del study_nucleic_acid_mapping["Brumfield 2022"]
     return study_nucleic_acid_mapping
 
 
@@ -470,7 +474,7 @@ def boxplot(
 
 
 def barplot(
-    ax: plt.Axes, barplot_df: pd.DataFrame, study_order: list
+    ax: plt.Axes, barplot_df: pd.DataFrame #, study_order: list
 ) -> plt.Axes:
     ten_color_palette = [
         "#8dd3c7",
@@ -487,7 +491,7 @@ def barplot(
 
     barplot_df.set_index("study", inplace=True)
 
-    barplot_df.loc[study_order].plot(
+    barplot_df.plot( #loc[study_order].plot(
         kind="barh",
         stacked=True,
         color=ten_color_palette,
@@ -540,11 +544,11 @@ def start():
 
     boxplot_df, barplot_df = assemble_plotting_dfs()
 
-    #fig = plt.figure(
-    #    figsize=(9, 11),
-    #)
+    fig = plt.figure(
+        figsize=(9, 11),
+    )
 ##
-    #gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
+    gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
 ##
     #boxplot_ax = boxplot(
     #    fig.add_subplot(gs[0, :]),
@@ -553,15 +557,16 @@ def start():
 ##
     #study_order = [text.get_text() for text in boxplot_ax.get_yticklabels()]
 ##
-    #barplot(fig.add_subplot(gs[1, :]), barplot_df, study_order)
+    barplot(fig.add_subplot(gs[1, :]), barplot_df) #, study_order)
 ##
-    #plt.tight_layout()
+    plt.tight_layout()
     print("Watch out, this doesn't include Rothman atm.")
     print("Watch out, Bengtsson-Palme has no information on RNA vs DNA.")
     print("You still need to fix the unknown virus issue in hv_clade_counts.")
     print("is relative abundance based on filtered reads as denominator?")
+    print("Clean up get_study_nucleic_acid_mapping")
 
-    #save_plot(fig, figdir, "composite_fig_1")
+    save_plot(fig, figdir, "composite_fig_1")
 
 
 if __name__ == "__main__":
