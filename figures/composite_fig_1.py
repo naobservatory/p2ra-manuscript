@@ -44,7 +44,7 @@ TARGET_STUDY_METADATA = {
     "Yang 2020": ["PRJNA645711"],
     "Spurbeck 2023": ["PRJNA924011"],
     "CC 2021": ["PRJNA661613"],
-    # "Rothman 2021": ["PRJNA729801"], # not yet run through the pipeline
+    "Rothman 2021": ["PRJNA729801"],  # not yet run through the pipeline
 }
 #
 #    "Bengtsson-Palme 2016": {
@@ -169,6 +169,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
             fine_taxonomy = pd.read_csv(
                 f"../taxonomy/{study_bioproject}/kraken_reports.tsv", sep="\t"
             )
+
             fine_taxonomy_dfs = {
                 sample: df for sample, df in fine_taxonomy.groupby("sample")
             }
@@ -186,6 +187,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
             )
 
             samples = metadata_samples.keys()
+            modified_study = study
 
             if study == "Bengtsson-Palme 2016":
                 samples = [
@@ -195,6 +197,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                         "Inlet"
                     )
                 ]
+                modified_study = "Bengtsson-\nPalme 2016"
 
             if study == "Ng 2019":
                 samples = [
@@ -205,7 +208,23 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
             for sample in samples:
 
-                if metadata_samples[sample].get("enrichment") == "panel":
+                if study == "Brumfield 2022":
+                    if metadata_samples[sample].get("na_type") == "RNA":
+                        print("brumfield is rna")
+                        modified_study = "Brumfield 2022\n(RNA Subset)"
+                    elif metadata_samples[sample].get("na_type") == "DNA":
+                        print("brumfield is dna")
+                        modified_study = "Brumfield 2022\n(DNA Subset)"
+
+                # print(metadata_samples[sample])
+                # print(
+                #    metadata_samples[sample].get("enrichment"), study, sample
+                # )
+                if (
+                    metadata_samples[sample].get("enrichment") == "enriched"
+                    or metadata_samples[sample].get("enrichment") == "1"
+                ):
+                    print(f"{sample} from study {modified_study} is panel")
                     continue
 
                 total_reads = sample_read_pairs[sample]
@@ -232,7 +251,11 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                 )
 
                 hv_family_data.append(
-                    {"study": study, "sample": sample, **hv_family_counts_dict}
+                    {
+                        "study": modified_study,
+                        "sample": sample,
+                        **hv_family_counts_dict,
+                    }
                 )
 
                 sample_fine_taxonomy = fine_taxonomy_dfs[sample]
@@ -260,7 +283,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
                 viral_composition_data.append(
                     {
-                        "study": study,
+                        "study": modified_study,
                         "sample": sample,
                         "Human-Infecting Viruses": hv_relative_abundance,
                         **taxa_abundances,
@@ -300,6 +323,7 @@ def shape_hv_family_df(hv_family_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
+    print(viral_composition_df["study"].unique())
 
     viral_composition_df = viral_composition_df.melt(
         id_vars=["study", "sample"],
@@ -333,7 +357,7 @@ def order_df(
         key=lambda col: col.map({k: i for i, k in enumerate(na_type_order)}),
     )
 
-    df["study"] = df["study"].str.replace("-", "-\n")
+    # df["study"] = df["study"].str.replace("-", "-\n")
 
     return df
 
@@ -363,9 +387,9 @@ def boxplot(
         "Brinch 2020",
         "Ng 2019",
         "Maritz 2019",
-        "Brumfield 2022",
-        # "Brumfield 2022\n(RNA Subset)",
-        # "Rothman 2021",
+        "Brumfield 2022\n(DNA Subset)",
+        "Brumfield 2022\n(RNA Subset)",
+        "Rothman 2021",
         "Yang 2020",
         "Spurbeck 2023",
         "CC 2021",
@@ -433,14 +457,22 @@ def boxplot(
 
 def get_study_nucleic_acid_mapping() -> dict[str, str]:
     study_nucleic_acid_mapping = {
-        study: metadata["na_type"]
-        for study, metadata in metadata_papers.items()
+        "Bengtsson-\nPalme 2016": "DNA",
+        "Munk 2022": "DNA",
+        "Brinch 2020": "DNA",
+        "Ng 2019": "DNA",
+        "Maritz 2019": "DNA",
+        "Brumfield 2022": "DNA + RNA",
+        "Rothman 2021": "RNA",
+        "Yang 2020": "RNA",
+        "Spurbeck 2023": "RNA",
+        "CC 2021": "RNA",
     }
 
-    # if "Brumfield 2022" in study_nucleic_acid_mapping:
-    #    study_nucleic_acid_mapping["Brumfield 2022\n(DNA Subset)"] = "DNA"
-    #    study_nucleic_acid_mapping["Brumfield 2022\n(RNA Subset)"] = "RNA"
-    #    del study_nucleic_acid_mapping["Brumfield 2022"]
+    if "Brumfield 2022" in study_nucleic_acid_mapping:
+        study_nucleic_acid_mapping["Brumfield 2022\n(DNA Subset)"] = "DNA"
+        study_nucleic_acid_mapping["Brumfield 2022\n(RNA Subset)"] = "RNA"
+        del study_nucleic_acid_mapping["Brumfield 2022"]
     return study_nucleic_acid_mapping
 
 
@@ -449,14 +481,18 @@ def return_study_order(viral_composition_df: pd.DataFrame) -> list[str]:
     viral_composition_df["na_type"] = viral_composition_df["study"].map(
         study_nucleic_acid_mapping
     )
-    order = (
-        viral_composition_df[viral_composition_df["na_type"] == "DNA"][
-            "study"
-        ].unique()
+    study_order = (
+        viral_composition_df[viral_composition_df["na_type"] == "DNA"]["study"]
+        .unique()
+        .tolist()
         + viral_composition_df[viral_composition_df["na_type"] == "RNA"][
             "study"
-        ].unique()
+        ]
+        .unique()
+        .tolist()
     )
+
+    return study_order
 
 
 def barplot(
@@ -475,9 +511,25 @@ def barplot(
         "#d9d9d9",
     ]
 
-    hv_family_df.set_index("study", inplace=True)
+    order = [
+        "Bengtsson-\nPalme 2016",
+        "Munk 2022",
+        "Brinch 2020",
+        "Ng 2019",
+        "Maritz 2019",
+        "Brumfield 2022\n(DNA Subset)",
+        "Brumfield 2022\n(RNA Subset)",
+        "Rothman 2021",
+        "Yang 2020",
+        "Spurbeck 2023",
+        "CC 2021",
+    ]
 
-    hv_family_df.loc[study_order].plot(
+    hv_family_df.set_index("study", inplace=True)
+    print(hv_family_df)
+    print(order)
+
+    hv_family_df.loc[order].plot(
         kind="barh",
         stacked=True,
         color=ten_color_palette,
@@ -559,7 +611,7 @@ def start():
         viral_composition_df,
     )
 
-    study_order = [text.get_text() for text in boxplot_ax.get_yticklabels()]
+    study_order = return_study_order(viral_composition_df)
 
     barplot(fig.add_subplot(gs[1, :]), hv_family_df, study_order)
     ##
