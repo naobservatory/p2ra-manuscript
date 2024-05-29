@@ -26,7 +26,10 @@ target_bioprojects = {
     "crits_christoph": [BioProject("CC-PRJNA661613")],
     "rothman": [BioProject("Rothman-PRJNA729801")],
     "spurbeck": [BioProject("Spurbeck-PRJNA924011")],
-    "brinch": [BioProject("Brinch-PRJEB13832"), BioProject("Brinch-PRJEB34633")],
+    "brinch": [
+        BioProject("Brinch-PRJEB13832"),
+        BioProject("Brinch-PRJEB34633"),
+    ],
 }
 
 
@@ -49,20 +52,29 @@ class SampleAttributes(BaseModel):
 
 
 def european_to_iso(date):
-    dd,mm,yyyy = date.split("/")
-    return "%s-%s-%s"%(yyyy,mm,dd)
+    dd, mm, yyyy = date.split("/")
+    return "%s-%s-%s" % (yyyy, mm, dd)
+
 
 def parse_metadata(record, paper):
     if paper == "rothman":
-        sample,library,date,location,enrichment,sample_alias,dataset,bioproject = record
-        wtp = sample_alias.split("_")[0] 
+        (
+            sample,
+            library,
+            date,
+            location,
+            enrichment,
+            sample_alias,
+            dataset,
+            bioproject,
+        ) = record
+        wtp = sample_alias.split("_")[0]
         if wtp == "JW":
             # Rothman confirmed over email that JW = JWPCP.
             wtp = "JWPCP"
 
-
         return sample, SampleAttributes(
-            country = "United States",
+            country="United States",
             date=date,
             state="California",
             location="Los Angeles",
@@ -88,7 +100,17 @@ def parse_metadata(record, paper):
             enrichment="panel" if enrichment == "1" else "viral",
         )
     elif paper == "crits_christoph":
-        library,sample,location,date,method,enrichment,sample_alias,dataset,bioproject = record
+        (
+            library,
+            sample,
+            location,
+            date,
+            method,
+            enrichment,
+            sample_alias,
+            dataset,
+            bioproject,
+        ) = record
         return sample, SampleAttributes(
             date=european_to_iso(date),
             country="United States",
@@ -105,7 +127,16 @@ def parse_metadata(record, paper):
             enrichment="panel" if enrichment == "enriched" else "viral",
         )
     elif paper == "spurbeck":
-        library,sample,group,date,instrument_model,sample_alias,bioproject,dataset = record
+        (
+            library,
+            sample,
+            group,
+            date,
+            instrument_model,
+            sample_alias,
+            bioproject,
+            dataset,
+        ) = record
         return sample, SampleAttributes(
             date=european_to_iso(date),
             country="United States",
@@ -140,7 +171,7 @@ def parse_metadata(record, paper):
             }[group],
         )
     elif paper == "brinch":
-        library,sample,location,date = record 
+        library, sample, location, date = record
         return sample, SampleAttributes(
             date=date,
             country="Denmark",
@@ -155,13 +186,15 @@ import pprint
 
 SampleCounts = dict[TaxID, dict[Sample, int]]
 
-metadata_bioprojects = {} 
+metadata_bioprojects = {}
 metadata_samples = {}
 sample_counts = defaultdict(dict)
 for paper, bioprojects in target_bioprojects.items():
     for bioproject in bioprojects:
         samples = []
-        with open (os.path.join(BIOPROJECTS_DIR, bioproject, "sample-metadata.csv")) as inf:
+        with open(
+            os.path.join(BIOPROJECTS_DIR, bioproject, "sample-metadata.csv")
+        ) as inf:
             for i, record in enumerate(csv.reader(inf)):
                 if i == 0:
                     continue
@@ -169,27 +202,40 @@ for paper, bioprojects in target_bioprojects.items():
                 samples.append(sample)
                 metadata_samples[sample] = sample_attributes
         metadata_bioprojects[bioproject] = samples
-        with open (os.path.join(BIOPROJECTS_DIR, bioproject, "hv_clade_counts.tsv")) as inf:
+        with open(
+            os.path.join(BIOPROJECTS_DIR, bioproject, "hv_clade_counts.tsv")
+        ) as inf:
             for i, row in enumerate(inf):
                 if i == 0:
                     continue
-                taxid, name, rank, parent_taxid, sample, n_reads_direct, n_reads_clade = row.rstrip("\n").split("\t")
+                (
+                    taxid,
+                    name,
+                    rank,
+                    parent_taxid,
+                    sample,
+                    n_reads_direct,
+                    n_reads_clade,
+                ) = row.rstrip("\n").split("\t")
                 taxid = int(taxid)
                 n_reads_direct = int(n_reads_direct)
                 if n_reads_direct:
                     sample_counts[taxid][sample] = n_reads_direct
-        with open(os.path.join(BIOPROJECTS_DIR, bioproject, "qc_basic_stats.tsv")) as inf:
+        with open(
+            os.path.join(BIOPROJECTS_DIR, bioproject, "qc_basic_stats.tsv")
+        ) as inf:
             for i, row in enumerate(inf):
                 row = row.rstrip("\n").split("\t")
 
                 if i == 0:
-                    cols = row 
+                    cols = row
                     continue
-                 
-                metadata_samples[row[cols.index("sample")]].reads = int(row[cols.index("n_read_pairs")])
+
+                metadata_samples[row[cols.index("sample")]].reads = int(
+                    row[cols.index("n_read_pairs")]
+                )
 
 
-                
 def load_tax_tree() -> Tree[TaxID]:
     with open("human_virus_tree-2022-12.json") as inf:
         data = json.load(inf)
@@ -200,9 +246,11 @@ def make_count_tree(
     taxtree: Tree[TaxID], sample_counts: SampleCounts
 ) -> Tree[tuple[TaxID, Counter[Sample]]]:
     return taxtree.map(
-        lambda taxid: (taxid, Counter(sample_counts[taxid]))
-        if taxid in sample_counts
-        else (taxid, Counter()),
+        lambda taxid: (
+            (taxid, Counter(sample_counts[taxid]))
+            if taxid in sample_counts
+            else (taxid, Counter())
+        ),
     )
 
 
@@ -226,8 +274,7 @@ class MGSData:
     tax_tree: Tree[TaxID]
 
     @staticmethod
-    def from_repo(
-    ):
+    def from_repo():
         return MGSData(
             bioprojects=metadata_bioprojects,
             sample_attrs=metadata_samples,
