@@ -1,18 +1,11 @@
-import csv
-import sys as sys
-
-sys.path.append("..")
-
-import datetime as dt
-from dataclasses import dataclass
-
 import matplotlib as mpl  # type: ignore
 import matplotlib.dates as mdates  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as mticker  # type: ignore
+import sys as sys
 import numpy as np
 import pandas as pd
-from matplotlib.gridspec import GridSpec  # type: ignore
+import sys as sys
 
 import mgs
 import pathogens
@@ -40,7 +33,6 @@ def get_averaged_incidence(df, pathogen_name):
             ).people,
             axis=1,
         )
-
         incidence = np.average(group["incidence"], weights=weights)
         averaged_incidence.append((date, incidence))
 
