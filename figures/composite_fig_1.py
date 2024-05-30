@@ -222,7 +222,6 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     metadata_samples[sample].get("enrichment") == "enriched"
                     or metadata_samples[sample].get("enrichment") == "1"
                 ):
-                    print(f"{sample} from study {modified_study} is panel")
                     continue
 
                 total_reads = sample_read_pairs[sample]
@@ -572,7 +571,6 @@ def start():
 
     viral_composition_df = shape_vir_comp_df(viral_composition_df)
 
-
     hv_family_df = shape_hv_family_df(hv_family_df)
 
     study_nucleic_acid_mapping = get_study_nucleic_acid_mapping()
@@ -585,10 +583,10 @@ def start():
     fig = plt.figure(
         figsize=(9, 11),
     )
-    ##
+
     gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
-    ##
-    boxplot_ax = boxplot(
+
+    boxplot(
         fig.add_subplot(gs[0, :]),
         viral_composition_df,
     )
