@@ -21,9 +21,10 @@ dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 with open(os.path.join(dashboard, "metadata_papers.json")) as inf:
     metadata_papers = json.load(inf)
 
+BIOPROJECT_DIR = "bioprojects"
 
-if not os.path.exists("../taxonomy"):
-    os.mkdir("../taxonomy")
+if not os.path.exists(f"../bioprojects"):
+    os.mkdir("../bioprojects")
 
 
 TARGET_STUDY_METADATA = {
@@ -94,7 +95,7 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
             study_author = study.split()[0]
             if fname == "sample-metadata":
                 if not os.path.exists(
-                    f"../taxonomy/{study_author}-{bioproject}/{fname}.csv"
+                    f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.csv"
                 ):
                     subprocess.run(
                         [
@@ -102,12 +103,12 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
                             "s3",
                             "cp",
                             f"s3://nao-mgs-wb/{study_author}-{bioproject}/output/{fname}.csv",
-                            f"../taxonomy/{study_author}-{bioproject}/{fname}.csv",
+                            f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.csv",
                         ]
                     )
             else:
                 if not os.path.exists(
-                    f"../taxonomy/{study_author}-{bioproject}/{fname}.tsv"
+                    f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv"
                 ):
                     subprocess.run(
                         [
@@ -115,14 +116,14 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
                             "s3",
                             "cp",
                             f"s3://nao-mgs-wb/{study_author}-{bioproject}/output/{fname}.tsv.gz",
-                            f"../taxonomy/{study_author}-{bioproject}/{fname}.tsv.gz",
+                            f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv.gz",
                         ]
                     )
                     subprocess.run(
                         [
                             "gzip",
                             "-d",
-                            f"../taxonomy/{study_author}-{bioproject}/{fname}.tsv.gz",
+                            f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv.gz",
                         ]
                     )
 
@@ -157,7 +158,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
             metadata_samples = {}
             with open(
-                f"../taxonomy/{study_bioproject}/sample-metadata.csv",
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/sample-metadata.csv",
                 mode="r",
                 encoding="utf-8-sig",
             ) as file:
@@ -166,20 +167,23 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     sample = row.pop("sample")
                     metadata_samples[sample] = row
 
-            fine_taxonomy = pd.read_csv(
-                f"../taxonomy/{study_bioproject}/kraken_reports.tsv", sep="\t"
+            fine_counts = pd.read_csv(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/kraken_reports.tsv",
+                sep="\t",
             )
 
-            fine_taxonomy_dfs = {
-                sample: df for sample, df in fine_taxonomy.groupby("sample")
+            fine_counts_dfs = {
+                sample: df for sample, df in fine_counts.groupby("sample")
             }
 
             hv_clade_counts = pd.read_csv(
-                f"../taxonomy/{study_bioproject}/hv_clade_counts.tsv", sep="\t"
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts.tsv",
+                sep="\t",
             )
 
             qc_basic_stats = pd.read_csv(
-                f"../taxonomy/{study_bioproject}/qc_basic_stats.tsv", sep="\t"
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/qc_basic_stats.tsv",
+                sep="\t",
             )
 
             sample_read_pairs = dict(
@@ -210,16 +214,10 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
                 if study == "Brumfield 2022":
                     if metadata_samples[sample].get("na_type") == "RNA":
-                        print("brumfield is rna")
                         modified_study = "Brumfield 2022\n(RNA Subset)"
                     elif metadata_samples[sample].get("na_type") == "DNA":
-                        print("brumfield is dna")
                         modified_study = "Brumfield 2022\n(DNA Subset)"
 
-                # print(metadata_samples[sample])
-                # print(
-                #    metadata_samples[sample].get("enrichment"), study, sample
-                # )
                 if (
                     metadata_samples[sample].get("enrichment") == "enriched"
                     or metadata_samples[sample].get("enrichment") == "1"
@@ -258,9 +256,9 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     }
                 )
 
-                sample_fine_taxonomy = fine_taxonomy_dfs[sample]
+                sample_fine_counts = fine_counts_dfs[sample]
 
-                tax_reads_dict = sample_fine_taxonomy.set_index("taxid")[
+                tax_reads_dict = sample_fine_counts.set_index("taxid")[
                     "n_reads_clade"
                 ].to_dict()
 
@@ -323,7 +321,6 @@ def shape_hv_family_df(hv_family_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
-    print(viral_composition_df["study"].unique())
 
     viral_composition_df = viral_composition_df.melt(
         id_vars=["study", "sample"],
@@ -333,7 +330,7 @@ def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
             "RNA Viruses",
             "DNA Viruses",
         ],
-        var_name="Identifier",
+        var_name="Group",
         value_name="Relative Abundance",
     )
 
@@ -367,20 +364,6 @@ def boxplot(
     viral_composition_df: pd.DataFrame,
 ) -> plt.Axes:
 
-    # order = [
-    #    "Bengtsson-\nPalme 2016",
-    #    "Munk 2022",
-    #    "Brinch 2020",
-    #    "Ng 2019",
-    #    "Maritz 2019",
-    #    "Brumfield 2022\n(DNA Subset)",
-    #    "Brumfield 2022\n(RNA Subset)",
-    #    "Rothman 2021",
-    #    "Yang 2020",
-    #    "Spurbeck 2023",
-    #    "Crits-\nChristoph 2021",
-    # ]
-
     order = [
         "Bengtsson-\nPalme 2016",
         "Munk 2022",
@@ -399,7 +382,7 @@ def boxplot(
         data=viral_composition_df,
         y="study",
         x="Relative Abundance",
-        hue="Identifier",
+        hue="Group",
         order=order,
         width=0.7,
         showfliers=False,
@@ -526,8 +509,6 @@ def barplot(
     ]
 
     hv_family_df.set_index("study", inplace=True)
-    print(hv_family_df)
-    print(order)
 
     hv_family_df.loc[order].plot(
         kind="barh",
@@ -590,6 +571,7 @@ def start():
         viral_composition_df, hv_family_df = assemble_plotting_dfs()
 
     viral_composition_df = shape_vir_comp_df(viral_composition_df)
+
 
     hv_family_df = shape_hv_family_df(hv_family_df)
 
