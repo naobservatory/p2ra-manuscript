@@ -357,6 +357,23 @@ def boxplot(
         ax=ax,
     )
 
+    # Calculate and print median relative abundance of human-infecting viruses for each study
+    median_abundances = (
+        viral_composition_df[
+            viral_composition_df["Group"] == "Human-Infecting Viruses"
+        ]
+        .groupby("study")["Relative Abundance"]
+        .median()
+    )
+
+    exp_median_abundances = median_abundances.apply(lambda x: 10**x)
+
+    print(
+        "Median relative abundance of human-infecting viruses for each study:"
+    )
+    for study, abundance in exp_median_abundances.items():
+        print(f"{study}: {abundance:.2e}")
+
     ax_title = ax.set_title("a", fontweight="bold")
     ax.set_xlabel("Relative abundance among all reads")
 
@@ -388,7 +405,6 @@ def boxplot(
         fontsize=10,
         frameon=False,
     )
-    # change x labels to log scale (8 -> 10^8)
 
     for i in range(-7, 0):
         ax.axvline(i, color="grey", linewidth=0.3, linestyle=":")
