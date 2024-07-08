@@ -45,40 +45,9 @@ TARGET_STUDY_METADATA = {
     "Yang 2020": ["PRJNA645711"],
     "Spurbeck 2023": ["PRJNA924011"],
     "CC 2021": ["PRJNA661613"],
-    "Rothman 2021": ["PRJNA729801"],  # not yet run through the pipeline
+    "Rothman 2021": ["PRJNA729801"],
 }
-#
-#    "Bengtsson-Palme 2016": {
-#        "bioprojects": ["PRJEB14051"],
-#    },
-#    "Munk 2022": {
-#        "bioprojects": ["PRJEB13831", "PRJEB27054", "PRJEB27621",
-#        "PRJEB40798", "PRJEB40815", "PRJEB40816", "PRJEB51229"],
-#    },
-#    "Brinch 2020": {
-#        "bioprojects": ["PRJEB13832", "PRJEB34633"],
-#    },
-#    "Ng 2019": {
-#        "bioprojects": ["PRJNA438174"],
-#    },
-#    "Maritz 2019": {
-#        "bioprojects": ["PRJEB28033"],
-#    },
-#    "Brumfield 2022": {
-#        "bioprojects": ["PRJNA812772"],
-#    },
-#    "Yang 2020": {
-#        "bioprojects": ["PRJNA645711"],
-#    },
-#    "Spurbeck 2023": {
-#        "bioprojects": ["PRJNA924011"],
-#    },
-#    "CC 2021": {
-#        "bioprojects": ["PRJNA661613"],
-#    },
-#    #"Rothman 2021": { # not yet run through the pipeline
-#    #    "bioprojects": ["PRJNA729801"],
-#
+
 
 sample_files = [
     "taxonomic_composition",
@@ -596,8 +565,6 @@ def start():
     barplot(fig.add_subplot(gs[1, :]), hv_family_df, study_order)
     ##
     plt.tight_layout()
-    print("Watch out, this doesn't include Rothman atm.")
-    print("Watch out, Brumfield has not been split.")
     print("You still need to fix the unknown virus issue in hv_clade_counts.")
     print("is relative abundance based on filtered reads as denominator?")
     print("Clean up get_study_nucleic_acid_mapping")
