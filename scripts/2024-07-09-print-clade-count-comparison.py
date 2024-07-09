@@ -1,8 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from collections import defaultdict
 
 BIOPROJECT_DIR = "bioprojects"
@@ -38,15 +35,6 @@ sample_files = [
 ]
 
 
-def read_clade_counts(file_path):
-    df = pd.read_csv(file_path, sep="\t")
-    sub_df = df[(df["taxid"] == 10239)]["n_reads_clade", "sample"]
-    dict = {}
-    for reads, sample in sub_df.itertuples():
-        dict[sample] = reads
-    return dict
-
-
 def collect_data():
     data = defaultdict(lambda: defaultdict(dict))
     for study, bioprojects in TARGET_STUDY_METADATA.items():
@@ -68,8 +56,7 @@ def collect_data():
                         n_reads_direct,
                         n_reads_clade,
                     ) = line.strip().split("\t")
-                    # if taxid == "10239":  # Check if taxid is 10239 (Viruses)
-                    data[sample][name]["old"] = int(n_reads_clade)
+                    data[sample][name]["new"] = int(n_reads_clade)
             with open(old_file, "r") as f:
                 next(f)
                 for line in f:
@@ -82,8 +69,7 @@ def collect_data():
                         n_reads_direct,
                         n_reads_clade,
                     ) = line.strip().split("\t")
-                    # if taxid == "10239":  # Check if taxid is 10239 (Viruses)
-                    data[sample][name]["new"] = int(n_reads_clade)
+                    data[sample][name]["old"] = int(n_reads_clade)
 
     differences = defaultdict(lambda: defaultdict(list))
     for sample in data.keys():
@@ -91,10 +77,10 @@ def collect_data():
             new_count = data[sample][name].get("new", 0)
             old_count = data[sample][name].get("old", 0)
             differences[sample][name] = int(new_count - old_count)
-    return differences
+    return data, differences
 
 
-differences = collect_data()
+data, differences = collect_data()
 
 df = pd.DataFrame(differences).transpose()
 
@@ -105,9 +91,9 @@ for sample in top_10_df.index:
     row = df.loc[sample]
     sorted_row = row.abs().sort_values(ascending=False)
 
-    top_5 = sorted_row.head(15)
+    top_15 = sorted_row.head(15)
 
     print(f"\nSample: {sample}")
-    for name in top_5.index:
+    for name in top_15.index:
         value = row[name]
-        print(f"{name}: {value}")
+        print(f"{name}: {value} ({data[sample][name].get('new', 0)})")
