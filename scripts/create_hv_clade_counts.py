@@ -25,8 +25,7 @@ TARGET_STUDY_METADATA = {
     "Yang 2020": ["PRJNA645711"],
     "Spurbeck 2023": ["PRJNA924011"],
     "CC 2021": ["PRJNA661613"],
-    "Rothman 2021": ["PRJNA729801"],  # not yet run through the pipeline
-}
+    "Rothman 2021": ["PRJNA729801"],
 
 
 for study, bioprojects in TARGET_STUDY_METADATA.items():
