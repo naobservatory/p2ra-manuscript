@@ -1,17 +1,7 @@
 #!/usr/bin/env python3
 
-import json
 import os
 import subprocess
-from pathlib import Path
-
-import matplotlib.pyplot as plt  # type: ignore
-import matplotlib.ticker as ticker  # type: ignore
-import numpy as np
-import pandas as pd
-import seaborn as sns  # type: ignore
-from matplotlib.gridspec import GridSpec  # type: ignore
-from collections import defaultdict
 
 if not os.path.exists("../bioprojects"):
     os.mkdir("../bioprojects")
