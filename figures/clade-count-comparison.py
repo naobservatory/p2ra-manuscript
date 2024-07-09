@@ -4,10 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import defaultdict
 
-
-dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
-
-
 BIOPROJECT_DIR = "bioprojects"
 
 if not os.path.exists(f"../bioprojects"):
@@ -34,7 +30,6 @@ TARGET_STUDY_METADATA = {
     "CC 2021": ["PRJNA661613"],
     "Rothman 2021": ["PRJNA729801"],
 }
-
 
 sample_files = [
     "hv_clade_counts_new",
