@@ -81,13 +81,19 @@ def collect_data():
                     ) = line.strip().split("\t")
                     if taxid == "10239":  # Check if taxid is 10239 (Viruses)
                         data[sample].append(int(n_reads_clade))
-    new_counts = []
-    old_counts = []
+    counts = {}
+    counts["new"] = []
+    counts["old"] = []
     for key in data.keys():
-        new_counts.append(data[key][0])
-        old_counts.append(data[key][1])
+        counts["new"].append(data[key][0])
+        counts["old"].append(data[key][1])
+    return counts
 
-    return new_counts, old_counts
+
+counts = collect_data()
+
+new_counts = counts["new"]
+old_counts = counts["old"]
 
 
 def plot_comparison():
@@ -100,8 +106,9 @@ def plot_comparison():
     )
 
     # Add diagonal line
-    # max_val = max(data["old"].max(), data["new"].max())
-    # plt.plot([0, max_val], [0, max_val], "r--")
+    plt.plot(
+        [0, 100000], [0, 100000], color="red", linestyle="--", label="y=x"
+    )
 
     plt.xscale("log")
     plt.yscale("log")
@@ -109,7 +116,5 @@ def plot_comparison():
     plt.savefig("hv_clade_counts_comparison.png", dpi=300)
     plt.close()
 
-
-new_counts, old_counts = collect_data()
 
 plot_comparison()
