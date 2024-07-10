@@ -17,9 +17,17 @@ from collections import defaultdict
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 
+DEBUG = None
 
 with open(os.path.join(dashboard, "metadata_papers.json")) as inf:
     metadata_papers = json.load(inf)
+
+current_directory = os.getcwd()
+if not current_directory.endswith("figures"):
+    raise Exception(
+        "Current directory is not 'figures'. Please change to the 'figures' directory to run this script."
+    )
+
 
 BIOPROJECT_DIR = "bioprojects"
 
@@ -95,13 +103,6 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
                             f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv.gz",
                         ]
                     )
-
-
-current_directory = os.getcwd()
-if not current_directory.endswith("figures"):
-    raise Exception(
-        "Current directory is not 'figures'. Please change to the 'figures' directory to run this script."
-    )
 
 
 target_taxa = {
@@ -356,23 +357,23 @@ def boxplot(
         showfliers=False,
         ax=ax,
     )
+    if DEBUG:
+        # Calculate and print median relative abundance of human-infecting viruses for each study
+        median_abundances = (
+            viral_composition_df[
+                viral_composition_df["Group"] == "Human-Infecting Viruses"
+            ]
+            .groupby("study")["Relative Abundance"]
+            .median()
+        )
 
-    # Calculate and print median relative abundance of human-infecting viruses for each study
-    median_abundances = (
-        viral_composition_df[
-            viral_composition_df["Group"] == "Human-Infecting Viruses"
-        ]
-        .groupby("study")["Relative Abundance"]
-        .median()
-    )
+        exp_median_abundances = median_abundances.apply(lambda x: 10**x)
 
-    exp_median_abundances = median_abundances.apply(lambda x: 10**x)
-
-    print(
-        "Median relative abundance of human-infecting viruses for each study:"
-    )
-    for study, abundance in exp_median_abundances.items():
-        print(f"{study}: {abundance:.2e}")
+        print(
+            "Median relative abundance of human-infecting viruses for each study:"
+        )
+        for study, abundance in exp_median_abundances.items():
+            print(f"{study}: {abundance:.2e}")
 
     ax_title = ax.set_title("a", fontweight="bold")
     ax.set_xlabel("Relative abundance among all reads")
