@@ -22,12 +22,10 @@ def summarize_output(coeffs: pd.DataFrame) -> pd.DataFrame:
 
 
 def start(num_samples: int, plot: bool) -> None:
-    branch = "simon-p2ra-manuscript"
-    print("Using mgs-pipeline branch simon-p2ra-manuscript")
     figdir = Path("panel_fig")
     if plot:
         figdir.mkdir(exist_ok=True)
-    mgs_data = MGSData.from_repo(ref=branch)
+    mgs_data = MGSData.from_repo()
     input_data = []
     output_data = []
     for (
@@ -39,7 +37,7 @@ def start(num_samples: int, plot: bool) -> None:
     ) in predictors_by_taxid():
         taxids_str = "_".join(str(t) for t in taxids)
         for study, bioprojects in target_bioprojects.items():
-            if study in ["brinch", "spurbeck"]: 
+            if study in ["brinch", "spurbeck"]:
                 print(f"Skipping {study} for {pathogen_name}")
                 continue
             enrichment = Enrichment.PANEL
