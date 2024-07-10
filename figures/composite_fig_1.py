@@ -17,13 +17,22 @@ from collections import defaultdict
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
 
+DEBUG = None
 
 with open(os.path.join(dashboard, "metadata_papers.json")) as inf:
     metadata_papers = json.load(inf)
 
+current_directory = os.getcwd()
+if not current_directory.endswith("figures"):
+    raise Exception(
+        "Current directory is not 'figures'. Please change to the 'figures' directory to run this script."
+    )
 
-if not os.path.exists("../taxonomy"):
-    os.mkdir("../taxonomy")
+
+BIOPROJECT_DIR = "bioprojects"
+
+if not os.path.exists(f"../bioprojects"):
+    os.mkdir("../bioprojects")
 
 
 TARGET_STUDY_METADATA = {
@@ -44,40 +53,9 @@ TARGET_STUDY_METADATA = {
     "Yang 2020": ["PRJNA645711"],
     "Spurbeck 2023": ["PRJNA924011"],
     "CC 2021": ["PRJNA661613"],
-    "Rothman 2021": ["PRJNA729801"],  # not yet run through the pipeline
+    "Rothman 2021": ["PRJNA729801"],
 }
-#
-#    "Bengtsson-Palme 2016": {
-#        "bioprojects": ["PRJEB14051"],
-#    },
-#    "Munk 2022": {
-#        "bioprojects": ["PRJEB13831", "PRJEB27054", "PRJEB27621",
-#        "PRJEB40798", "PRJEB40815", "PRJEB40816", "PRJEB51229"],
-#    },
-#    "Brinch 2020": {
-#        "bioprojects": ["PRJEB13832", "PRJEB34633"],
-#    },
-#    "Ng 2019": {
-#        "bioprojects": ["PRJNA438174"],
-#    },
-#    "Maritz 2019": {
-#        "bioprojects": ["PRJEB28033"],
-#    },
-#    "Brumfield 2022": {
-#        "bioprojects": ["PRJNA812772"],
-#    },
-#    "Yang 2020": {
-#        "bioprojects": ["PRJNA645711"],
-#    },
-#    "Spurbeck 2023": {
-#        "bioprojects": ["PRJNA924011"],
-#    },
-#    "CC 2021": {
-#        "bioprojects": ["PRJNA661613"],
-#    },
-#    #"Rothman 2021": { # not yet run through the pipeline
-#    #    "bioprojects": ["PRJNA729801"],
-#
+
 
 sample_files = [
     "taxonomic_composition",
@@ -94,7 +72,7 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
             study_author = study.split()[0]
             if fname == "sample-metadata":
                 if not os.path.exists(
-                    f"../taxonomy/{study_author}-{bioproject}/{fname}.csv"
+                    f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.csv"
                 ):
                     subprocess.run(
                         [
@@ -102,12 +80,12 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
                             "s3",
                             "cp",
                             f"s3://nao-mgs-wb/{study_author}-{bioproject}/output/{fname}.csv",
-                            f"../taxonomy/{study_author}-{bioproject}/{fname}.csv",
+                            f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.csv",
                         ]
                     )
             else:
                 if not os.path.exists(
-                    f"../taxonomy/{study_author}-{bioproject}/{fname}.tsv"
+                    f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv"
                 ):
                     subprocess.run(
                         [
@@ -115,23 +93,16 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
                             "s3",
                             "cp",
                             f"s3://nao-mgs-wb/{study_author}-{bioproject}/output/{fname}.tsv.gz",
-                            f"../taxonomy/{study_author}-{bioproject}/{fname}.tsv.gz",
+                            f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv.gz",
                         ]
                     )
                     subprocess.run(
                         [
                             "gzip",
                             "-d",
-                            f"../taxonomy/{study_author}-{bioproject}/{fname}.tsv.gz",
+                            f"../{BIOPROJECT_DIR}/{study_author}-{bioproject}/{fname}.tsv.gz",
                         ]
                     )
-
-
-current_directory = os.getcwd()
-if not current_directory.endswith("figures"):
-    raise Exception(
-        "Current directory is not 'figures'. Please change to the 'figures' directory to run this script."
-    )
 
 
 target_taxa = {
@@ -157,7 +128,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
             metadata_samples = {}
             with open(
-                f"../taxonomy/{study_bioproject}/sample-metadata.csv",
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/sample-metadata.csv",
                 mode="r",
                 encoding="utf-8-sig",
             ) as file:
@@ -166,20 +137,23 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     sample = row.pop("sample")
                     metadata_samples[sample] = row
 
-            fine_taxonomy = pd.read_csv(
-                f"../taxonomy/{study_bioproject}/kraken_reports.tsv", sep="\t"
+            fine_counts = pd.read_csv(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/kraken_reports.tsv",
+                sep="\t",
             )
 
-            fine_taxonomy_dfs = {
-                sample: df for sample, df in fine_taxonomy.groupby("sample")
+            fine_counts_dfs = {
+                sample: df for sample, df in fine_counts.groupby("sample")
             }
 
             hv_clade_counts = pd.read_csv(
-                f"../taxonomy/{study_bioproject}/hv_clade_counts.tsv", sep="\t"
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts.tsv",
+                sep="\t",
             )
 
             qc_basic_stats = pd.read_csv(
-                f"../taxonomy/{study_bioproject}/qc_basic_stats.tsv", sep="\t"
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/qc_basic_stats.tsv",
+                sep="\t",
             )
 
             sample_read_pairs = dict(
@@ -210,21 +184,14 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
                 if study == "Brumfield 2022":
                     if metadata_samples[sample].get("na_type") == "RNA":
-                        print("brumfield is rna")
                         modified_study = "Brumfield 2022\n(RNA Subset)"
                     elif metadata_samples[sample].get("na_type") == "DNA":
-                        print("brumfield is dna")
                         modified_study = "Brumfield 2022\n(DNA Subset)"
 
-                # print(metadata_samples[sample])
-                # print(
-                #    metadata_samples[sample].get("enrichment"), study, sample
-                # )
                 if (
                     metadata_samples[sample].get("enrichment") == "enriched"
                     or metadata_samples[sample].get("enrichment") == "1"
                 ):
-                    print(f"{sample} from study {modified_study} is panel")
                     continue
 
                 total_reads = sample_read_pairs[sample]
@@ -258,9 +225,9 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     }
                 )
 
-                sample_fine_taxonomy = fine_taxonomy_dfs[sample]
+                sample_fine_counts = fine_counts_dfs[sample]
 
-                tax_reads_dict = sample_fine_taxonomy.set_index("taxid")[
+                tax_reads_dict = sample_fine_counts.set_index("taxid")[
                     "n_reads_clade"
                 ].to_dict()
 
@@ -323,7 +290,6 @@ def shape_hv_family_df(hv_family_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
-    print(viral_composition_df["study"].unique())
 
     viral_composition_df = viral_composition_df.melt(
         id_vars=["study", "sample"],
@@ -333,7 +299,7 @@ def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
             "RNA Viruses",
             "DNA Viruses",
         ],
-        var_name="Identifier",
+        var_name="Group",
         value_name="Relative Abundance",
     )
 
@@ -367,20 +333,6 @@ def boxplot(
     viral_composition_df: pd.DataFrame,
 ) -> plt.Axes:
 
-    # order = [
-    #    "Bengtsson-\nPalme 2016",
-    #    "Munk 2022",
-    #    "Brinch 2020",
-    #    "Ng 2019",
-    #    "Maritz 2019",
-    #    "Brumfield 2022\n(DNA Subset)",
-    #    "Brumfield 2022\n(RNA Subset)",
-    #    "Rothman 2021",
-    #    "Yang 2020",
-    #    "Spurbeck 2023",
-    #    "Crits-\nChristoph 2021",
-    # ]
-
     order = [
         "Bengtsson-\nPalme 2016",
         "Munk 2022",
@@ -399,12 +351,29 @@ def boxplot(
         data=viral_composition_df,
         y="study",
         x="Relative Abundance",
-        hue="Identifier",
+        hue="Group",
         order=order,
         width=0.7,
         showfliers=False,
         ax=ax,
     )
+    if DEBUG:
+        # Calculate and print median relative abundance of human-infecting viruses for each study
+        median_abundances = (
+            viral_composition_df[
+                viral_composition_df["Group"] == "Human-Infecting Viruses"
+            ]
+            .groupby("study")["Relative Abundance"]
+            .median()
+        )
+
+        exp_median_abundances = median_abundances.apply(lambda x: 10**x)
+
+        print(
+            "Median relative abundance of human-infecting viruses for each study:"
+        )
+        for study, abundance in exp_median_abundances.items():
+            print(f"{study}: {abundance:.2e}")
 
     ax_title = ax.set_title("a", fontweight="bold")
     ax.set_xlabel("Relative abundance among all reads")
@@ -437,7 +406,6 @@ def boxplot(
         fontsize=10,
         frameon=False,
     )
-    # change x labels to log scale (8 -> 10^8)
 
     for i in range(-7, 0):
         ax.axvline(i, color="grey", linewidth=0.3, linestyle=":")
@@ -526,8 +494,6 @@ def barplot(
     ]
 
     hv_family_df.set_index("study", inplace=True)
-    print(hv_family_df)
-    print(order)
 
     hv_family_df.loc[order].plot(
         kind="barh",
@@ -603,10 +569,10 @@ def start():
     fig = plt.figure(
         figsize=(9, 11),
     )
-    ##
+
     gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
-    ##
-    boxplot_ax = boxplot(
+
+    boxplot(
         fig.add_subplot(gs[0, :]),
         viral_composition_df,
     )
@@ -616,8 +582,6 @@ def start():
     barplot(fig.add_subplot(gs[1, :]), hv_family_df, study_order)
     ##
     plt.tight_layout()
-    print("Watch out, this doesn't include Rothman atm.")
-    print("Watch out, Brumfield has not been split.")
     print("You still need to fix the unknown virus issue in hv_clade_counts.")
     print("is relative abundance based on filtered reads as denominator?")
     print("Clean up get_study_nucleic_acid_mapping")
