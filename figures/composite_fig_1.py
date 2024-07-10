@@ -51,7 +51,7 @@ TARGET_STUDY_METADATA = {
 
 sample_files = [
     "taxonomic_composition",
-    "hv_clade_counts",
+    "hv_clade_counts_new",  # FIXME
     "kraken_reports",
     "qc_basic_stats",
     "sample-metadata",
@@ -146,7 +146,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
             }
 
             hv_clade_counts = pd.read_csv(
-                f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts.tsv",
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts_new.tsv",
                 sep="\t",
             )
 

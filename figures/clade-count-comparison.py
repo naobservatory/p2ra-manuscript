@@ -11,23 +11,23 @@ if not os.path.exists(f"../bioprojects"):
 
 
 TARGET_STUDY_METADATA = {
-    "Bengtsson-Palme 2016": ["PRJEB14051"],
-    "Munk 2022": [
-        "PRJEB13831",
-        "PRJEB27054",
-        "PRJEB27621",
-        "PRJEB40798",
-        "PRJEB40815",
-        "PRJEB40816",
-        "PRJEB51229",
-    ],
-    "Brinch 2020": ["PRJEB13832", "PRJEB34633"],
-    "Ng 2019": ["PRJNA438174"],
-    "Maritz 2019": ["PRJEB28033"],
-    "Brumfield 2022": ["PRJNA812772"],
-    "Yang 2020": ["PRJNA645711"],
-    "Spurbeck 2023": ["PRJNA924011"],
-    "CC 2021": ["PRJNA661613"],
+    # "Bengtsson-Palme 2016": ["PRJEB14051"],
+    # "Munk 2022": [
+    #     "PRJEB13831",
+    #     "PRJEB27054",
+    #     "PRJEB27621",
+    #     "PRJEB40798",
+    #     "PRJEB40815",
+    #     "PRJEB40816",
+    #     "PRJEB51229",
+    # ],
+    # "Brinch 2020": ["PRJEB13832", "PRJEB34633"],
+    # "Ng 2019": ["PRJNA438174"],
+    # "Maritz 2019": ["PRJEB28033"],
+    # "Brumfield 2022": ["PRJNA812772"],
+    # "Yang 2020": ["PRJNA645711"],
+    # "Spurbeck 2023": ["PRJNA924011"],
+    # "CC 2021": ["PRJNA661613"],
     "Rothman 2021": ["PRJNA729801"],
 }
 
