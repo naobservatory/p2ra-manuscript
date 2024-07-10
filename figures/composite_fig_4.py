@@ -48,7 +48,7 @@ def separate_viruses(ax) -> None:
 def adjust_axes(ax, predictor_type: str) -> None:
     yticks = ax.get_yticks()
     # Y-axis is reflected
-    ax.set_ylim([max(yticks) + 0.5, min(yticks - 0.5)])
+    ax.set_ylim([max(yticks) + 0.5, min(yticks) - 0.5])
     ax.tick_params(left=False)
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_func))
     ax.spines["right"].set_visible(False)
@@ -97,8 +97,9 @@ def plot_violin(
         hue_order=plotting_order.study.unique(),
         inner=None,
         linewidth=0.0,
-        bw=0.5,
         scale="area",
+        width=0.5,
+        dodge=0.5,
         scale_hue=False,
         cut=0,
     )
