@@ -55,7 +55,7 @@ def adjust_axes(ax, predictor_type: str) -> None:
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_visible(False)
     ax.vlines(
-        ax.get_xticks()[1:-1],
+        ax.get_xticks()[1:],
         *ax.get_ylim(),
         color="grey",
         linewidth=0.3,
@@ -244,7 +244,7 @@ def plot_prevalence(
         color="k",
         linewidth=0.5,
     )
-    text_x = np.log10(1.1e-3)
+    text_x = np.log10(1.1e-0)
     ax.text(text_x, -0.4, "RNA viruses\nSelection Round 1", va="top")
     ax.text(
         text_x, num_rna_1 - 0.4, "DNA viruses\nSelection Round 1", va="top"
@@ -293,7 +293,7 @@ def composite_figure(
     input_data: pd.DataFrame,
 ) -> plt.Figure:
     fig = plt.figure(
-        figsize=(7, 10),
+        figsize=(5, 8),
     )
     gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
     plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
