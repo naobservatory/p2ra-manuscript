@@ -48,7 +48,7 @@ def separate_viruses(ax) -> None:
 def adjust_axes(ax, predictor_type: str) -> None:
     yticks = ax.get_yticks()
     # Y-axis is reflected
-    ax.set_ylim([max(yticks) + 0.5, min(yticks - 0.5)])
+    ax.set_ylim([max(yticks) + 0.5, min(yticks) - 0.5])
     ax.tick_params(left=False)
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_func))
     ax.spines["right"].set_visible(False)
@@ -87,19 +87,20 @@ def plot_violin(
         sorting_order, ascending=ascending
     ).reset_index()
     sns_colors = sns.color_palette().as_hex()
-    print(sns_colors)    
-    #study_order = [
+    print(sns_colors)
+    # study_order = [
     #    "Rothman\nPanel-enriched",
     #    "Rothman\nUnenriched",
     #    "Crits-Christoph\nPanel-enriched",
     #    "Crits-Christoph\nUnenriched",
-    #]
+    # ]
 
     palette = {
         "Rothman\nPanel-enriched": "#9467bd",
         "Rothman\nUnenriched": "#ff7f0e",
         "Crits-Christoph\nPanel-enriched": "#17becf",
-        "Crits-Christoph\nUnenriched": "#2ca02c",}
+        "Crits-Christoph\nUnenriched": "#2ca02c",
+    }
     sns.violinplot(
         ax=ax,
         data=data,
@@ -113,9 +114,11 @@ def plot_violin(
         linewidth=0.0,
         bw=0.5,
         width=0.7,
+        dodge=0.5,
         scale="area",
         scale_hue=False,
         cut=0,
+        gap=0.3,
     )
     x_min = ax.get_xlim()[0]
     for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
@@ -290,7 +293,7 @@ def composite_figure(
     input_data: pd.DataFrame,
 ) -> plt.Figure:
     fig = plt.figure(
-        figsize=(5, 8),
+        figsize=(7, 10),
     )
     gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
     plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
@@ -313,24 +316,33 @@ def start() -> None:
     figdir.mkdir(exist_ok=True)
 
     panel_fits_df = pd.read_csv(parent_dir / "panel_fits.tsv", sep="\t")
-    unenriched_fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t") 
-    unenriched_fits_df = unenriched_fits_df[~unenriched_fits_df.study.isin(["spurbeck", "brinch"])]
+    unenriched_fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t")
+    unenriched_fits_df = unenriched_fits_df[
+        ~unenriched_fits_df.study.isin(["spurbeck", "brinch"])
+    ]
     panel_fits_df["study"] = panel_fits_df["study"] + "_panel"
     unenriched_fits_df["study"] = unenriched_fits_df["study"] + "_unenriched"
 
-    fits_df = pd.concat([panel_fits_df, unenriched_fits_df], axis=0,)
+    fits_df = pd.concat(
+        [panel_fits_df, unenriched_fits_df],
+        axis=0,
+    )
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
 
     panel_input_df = pd.read_csv(parent_dir / "panel_input.tsv", sep="\t")
-    
-    unenriched_input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t") 
-    unenriched_input_df = unenriched_input_df[~unenriched_input_df.study.isin(["spurbeck", "brinch"])]
- 
+
+    unenriched_input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t")
+    unenriched_input_df = unenriched_input_df[
+        ~unenriched_input_df.study.isin(["spurbeck", "brinch"])
+    ]
+
     unenriched_input_df["study"] = unenriched_input_df["study"] + "_unenriched"
     panel_input_df["study"] = panel_input_df["study"] + "_panel"
-    input_df = pd.concat([panel_input_df, unenriched_input_df], axis=0,)
-    
+    input_df = pd.concat(
+        [panel_input_df, unenriched_input_df],
+        axis=0,
+    )
 
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
@@ -349,4 +361,4 @@ def start() -> None:
 
 
 if __name__ == "__main__":
-    start() 
+    start()
