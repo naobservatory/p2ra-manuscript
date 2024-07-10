@@ -182,8 +182,6 @@ def parse_metadata(record, paper):
         assert False
 
 
-import pprint
-
 SampleCounts = dict[TaxID, dict[Sample, int]]
 
 metadata_bioprojects = {}
