@@ -17,6 +17,16 @@ from tree import Tree
 
 BIOPROJECTS_DIR = "bioprojects"
 
+# Check if we're in the p2ra-manuscript folder
+if not os.path.basename(os.getcwd()) == "p2ra-manuscript":
+    # If not, assume we are in a child directory
+    BIOPROJECTS_DIR = os.path.join("..", "bioprojects")
+    HUMAN_VIRUS_TREE_PATH = os.path.join("..", "human_virus_tree-2022-12.json")
+else:
+    BIOPROJECTS_DIR = "bioprojects"
+    HUMAN_VIRUS_TREE_PATH = "human_virus_tree-2022-12.json"
+
+
 
 BioProject = NewType("BioProject", str)
 Sample = NewType("Sample", str)
