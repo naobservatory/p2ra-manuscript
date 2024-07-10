@@ -97,8 +97,9 @@ def plot_violin(
         hue_order=plotting_order.study.unique(),
         inner=None,
         linewidth=0.0,
-        bw=0.5,
         scale="area",
+        width=0.5,
+        dodge=0.5,
         scale_hue=False,
         cut=0,
     )
