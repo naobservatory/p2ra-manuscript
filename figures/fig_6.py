@@ -2,6 +2,7 @@
 
 import csv
 from dataclasses import dataclass
+import os
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
@@ -9,6 +10,8 @@ from matplotlib.lines import Line2D  # type: ignore
 from scipy.stats import gmean
 
 PERCENTILES = [5, 25, 50, 75, 95]
+
+MODEL_OUTPUT_DIR = "model_output"
 
 
 @dataclass
@@ -22,7 +25,9 @@ class SummaryStats:
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     data = {}
-    with open("../fits_summary.tsv") as datafile:
+    with open(
+        os.path.join("..", MODEL_OUTPUT_DIR, "fits_summary.tsv")
+    ) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
@@ -108,7 +113,7 @@ def start():
     )
 
     colors = [
-        "#56B4E9",
+        "#000000",
         "#E69F00",
         "#0072B2",
         "#DC143C",
@@ -253,7 +258,11 @@ def start():
 
     fig.tight_layout
     fig.show()
-    fig.savefig("fig_6.png", bbox_inches="tight", dpi=600)
+    fig.savefig(
+        os.path.join("..", "fig", "fig_6.png"),
+        bbox_inches="tight",
+        dpi=600,
+    )
 
 
 if __name__ == "__main__":
