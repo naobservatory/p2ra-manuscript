@@ -90,6 +90,6 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
                     "--taxa",
                     "../taxonomy/viral-taxids.tsv",
                     "--output",
-                    f"../bioprojects/{study_author}-{bioproject}/hv_clade_counts_new.tsv",
+                    f"../bioprojects/{study_author}-{bioproject}/hv_clade_counts.tsv",
                 ]
             )
