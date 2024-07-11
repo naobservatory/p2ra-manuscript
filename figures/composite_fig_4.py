@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
+import os
 
 sys.path.append("..")
 
@@ -12,6 +13,8 @@ import pandas as pd
 import seaborn as sns  # type: ignore
 
 from pathogens import pathogens
+
+MODEL_OUTPUT_DIR = "model_output"
 
 
 def nucleic_acid(pathogen: str) -> str:
@@ -303,13 +306,17 @@ def save_plot(fig, figdir: Path, name: str) -> None:
 
 def start() -> None:
     parent_dir = Path("..")
-    figdir = Path(parent_dir / "figures")
+    figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
 
-    fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t")
+    fits_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "fits.tsv"), sep="\t"
+    )
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
-    input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t")
+    input_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "input.tsv"), sep="\t"
+    )
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
     fits_df = fits_df[fits_df["pathogen"] != "aav5"]  # FIX ME

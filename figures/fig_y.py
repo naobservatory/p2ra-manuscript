@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
+import os
 
 sys.path.append("..")
+
+MODEL_OUTPUT_DIR = "model_output"
 
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
@@ -312,11 +315,15 @@ def save_plot(fig, figdir: Path, name: str) -> None:
 
 def start() -> None:
     parent_dir = Path("..")
-    figdir = Path(parent_dir / "figures")
+    figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
 
-    panel_fits_df = pd.read_csv(parent_dir / "panel_fits.tsv", sep="\t")
-    unenriched_fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t")
+    panel_fits_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "panel_fits.tsv"), sep="\t"
+    )
+    unenriched_fits_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "fits.tsv"), sep="\t"
+    )
     unenriched_fits_df = unenriched_fits_df[
         ~unenriched_fits_df.study.isin(["spurbeck", "brinch"])
     ]
@@ -330,9 +337,13 @@ def start() -> None:
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
 
-    panel_input_df = pd.read_csv(parent_dir / "panel_input.tsv", sep="\t")
+    panel_input_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "panel_input.tsv"), sep="\t"
+    )
 
-    unenriched_input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t")
+    unenriched_input_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "input.tsv"), sep="\t"
+    )
     unenriched_input_df = unenriched_input_df[
         ~unenriched_input_df.study.isin(["spurbeck", "brinch"])
     ]
