@@ -133,7 +133,7 @@ dmypy.json
 .pyre/
 
 
-# VScode 
+# VScode
 .vscode/settings.json
 *.code-workspace
 
@@ -157,8 +157,8 @@ humanviruses/*
 =======
 figures/*.pdf
 figures/archive/*
-fits_summary.tsv
-input.tsv
+model_output/*
+model_output/*
 
 # MGS Dashboard downloads
 cladecounts/*
