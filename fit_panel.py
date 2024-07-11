@@ -2,10 +2,12 @@
 from pathlib import Path
 
 import pandas as pd
-
+import os
 import stats
 from mgs import Enrichment, MGSData, target_bioprojects
 from pathogens import predictors_by_taxid
+
+MODEL_OUTPUT_DIR = "model_output"
 
 
 def summarize_output(coeffs: pd.DataFrame) -> pd.DataFrame:
@@ -68,11 +70,19 @@ def start(num_samples: int, plot: bool) -> None:
             input_data.append(model.input_df.assign(**metadata))
             output_data.append(model.get_coefficients().assign(**metadata))
     input = pd.concat(input_data)
-    input.to_csv("panel_input.tsv", sep="\t", index=False)
+    input.to_csv(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_input.tsv"),
+        sep="\t",
+        index=False,
+    )
     coeffs = pd.concat(output_data)
-    coeffs.to_csv("panel_fits.tsv", sep="\t", index=False)
+    coeffs.to_csv(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits.tsv"), sep="\t", index=False
+    )
     summary = summarize_output(coeffs)
-    summary.to_csv("panel_fits_summary.tsv", sep="\t")
+    summary.to_csv(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv"), sep="\t"
+    )
 
 
 if __name__ == "__main__":
