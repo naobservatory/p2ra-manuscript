@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
+import os
 
 sys.path.append("..")
 
@@ -12,6 +13,8 @@ import pandas as pd
 import seaborn as sns  # type: ignore
 
 from pathogens import pathogens
+
+MODEL_OUTPUT_DIR = "model_output"
 
 
 def nucleic_acid(pathogen: str) -> str:
@@ -48,7 +51,7 @@ def separate_viruses(ax) -> None:
 def adjust_axes(ax, predictor_type: str, target_x: str) -> None:
     yticks = ax.get_yticks()
     # Y-axis is reflected
-    ax.set_ylim([max(yticks) + 0.5, min(yticks - 0.5)])
+    ax.set_ylim([max(yticks) + 0.5, min(yticks) - 0.5])
     ax.tick_params(left=False)
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_func))
     ax.spines["right"].set_visible(False)
@@ -103,9 +106,10 @@ def plot_violin(
         hue_order=plotting_order.study.unique(),
         inner=None,
         linewidth=0.0,
-        bw=0.5,
-        scale="area",
-        scale_hue=False,
+        density_norm="area",
+        width=0.9,
+        dodge=0.1,
+        common_norm=True,
         cut=0,
     )
     x_min = ax.get_xlim()[0]
@@ -244,7 +248,7 @@ def plot_prevalence(
         color="k",
         linewidth=0.5,
     )
-    text_x = np.log10(1.1e-3)
+    text_x = np.log10(1.1e-1)
     ax.text(text_x, -0.4, "RNA viruses\nSelection Round 1", va="top")
     ax.text(
         text_x, num_rna_1 - 0.4, "DNA viruses\nSelection Round 1", va="top"
@@ -314,7 +318,7 @@ def composite_figure(
 def save_plot(fig, figdir: Path, name: str) -> None:
     for ext in ["pdf", "png"]:
         fig.savefig(
-            figdir / f"{name}.{ext}",
+            os.path.join(figdir, f"{name}.{ext}"),
             bbox_inches="tight",
             dpi=600,
         )
@@ -322,13 +326,17 @@ def save_plot(fig, figdir: Path, name: str) -> None:
 
 def start() -> None:
     parent_dir = Path("..")
-    figdir = Path(parent_dir / "figures")
-    figdir.mkdir(exist_ok=True)
+    figdir = Path(parent_dir / "fig")
+    os.makedirs(figdir, exist_ok=True)
 
-    fits_df = pd.read_csv(parent_dir / "fits.tsv", sep="\t")
+    fits_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "fits.tsv"), sep="\t"
+    )
     fits_df["study"] = fits_df.study.map(study_name)
 
-    input_df = pd.read_csv(parent_dir / "input.tsv", sep="\t")
+    input_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "input.tsv"), sep="\t"
+    )
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
     input_df["nucleic_acid"] = input_df.pathogen.map(nucleic_acid)
