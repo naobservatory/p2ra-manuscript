@@ -102,7 +102,9 @@ def assemble_incidence_data():
         ["pathogen", "country", "state", "county", "date"],
         as_index=False,
         dropna=False,
-    ).agg({"incidence": "sum"})
+    ).agg(
+        {"incidence": "sum"}
+    )  # aggregate across Noro and Flu subtypes
 
     df = df.sort_values(by=["date"]).fillna("")
 
@@ -114,7 +116,7 @@ def assemble_incidence_data():
             how="outer",
         )
         .merge(
-            # no need to average, as data is already across the US
+            # no need to average, as data is already for the entire US
             df[df["pathogen"] == "norovirus"][["date", "incidence"]].rename(
                 columns={"incidence": "norovirus"}
             ),
@@ -382,8 +384,6 @@ def all_incidence_figure(
     ax2.yaxis.set_major_formatter(
         mticker.FuncFormatter(lambda x, p: format(int(x), ","))
     )
-
-    ylabel_object = plt.gca().get_yaxis().get_label()
 
     ax2.xaxis.set_major_locator(mdates.YearLocator())
     ax2.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))

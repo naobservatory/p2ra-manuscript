@@ -111,9 +111,6 @@ target_taxa = {
     2732004: ("Varidnaviria", "DNA Viruses"),
     2731342: ("Monodnaviria", "DNA Viruses"),
     2559587: ("Riboviria", "RNA Viruses"),
-    # 2842242: ("ribozyviria", "RNA"),  # not in hv_clade_counts
-    # 687329: ("anelloviridae", "DNA"), # not in hv_clade_counts
-    # 2840022: ("adnaviria", "DNA"), # not in hv_clade_counts
     9999999999: ("human viruses", "Viruses"),
 }
 
@@ -543,7 +540,7 @@ def save_plot(fig, figdir: Path, name: str) -> None:
 
 def start():
     parent_dir = Path("..")
-    figdir = Path(parent_dir / "figures")
+    figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
 
     # Load the DataFrames from CSV files if they exist #FIXME
