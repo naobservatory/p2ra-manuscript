@@ -11,8 +11,6 @@ if os.path.basename(os.getcwd()) != "table_scripts":
 
 from collections import defaultdict, namedtuple
 
-dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
-
 BIOPROJECT_DIR = "bioprojects"
 TABLE_DIR = "tables"
 if not os.path.exists(os.path.join("..", TABLE_DIR)):
@@ -20,22 +18,6 @@ if not os.path.exists(os.path.join("..", TABLE_DIR)):
 
 DEBUG = None
 
-with open(os.path.join(dashboard, "metadata_papers.json")) as inf:
-    metadata_papers = json.load(inf)
-
-# with open(os.path.join(dashboard, "human_virus_sample_counts.json")) as inf:
-#     human_virus_sample_counts = json.load(inf)
-
-# with open(os.path.join(dashboard, "metadata_samples.json")) as inf:
-#     metadata_samples = json.load(inf)
-
-# with open(os.path.join(dashboard, "metadata_bioprojects.json")) as inf:
-#     metadata_bioprojects = json.load(inf)
-
-# with open(os.path.join(dashboard, "metadata_papers.json")) as inf:
-#     metadata_papers = json.load(inf)
-
-# studies = list(metadata_papers.keys())
 
 TARGET_STUDY_METADATA = {
     "Bengtsson-Palme 2016": ["PRJEB14051"],
@@ -117,7 +99,6 @@ def format_rel_abun(rel_abun):
         try:
             target_read_per_n = int(1 / rel_abun)
         except:
-            print(rel_abun)
             target_read_per_n = "N/A"
         superscript_map = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
         exponent_unicode = str(int(exponent)).translate(superscript_map)
@@ -137,7 +118,7 @@ def assemble_table():
     gmeans_virus = []
 
     for study, bioprojects in TARGET_STUDY_METADATA.items():
-        study_relative_abundance = defaultdict()
+        study_relative_abundance = defaultdict(lambda: defaultdict(float))
         study_author = study.split()[0]
         for bioproject in bioprojects:
             study_bioproject = f"{study_author}-{bioproject}"
@@ -187,55 +168,76 @@ def assemble_table():
                     for sample in samples
                     if metadata_samples[sample]["sample_type"] == "Influent"
                 ]
-        for sample in samples:
 
-            try:
-                total_hv_reads = hv_clade_counts.at[
-                    (10239, sample), "n_reads_clade"
+            for sample in samples:
+                if study == "CC 2021":
+                    # print(metadata_samples[sample]["enrichment"])
+                    if metadata_samples[sample]["enrichment"] == "enriched":
+                        modified_study = "Crits-Christoph 2023 Panel-enriched"
+                    elif (
+                        metadata_samples[sample]["enrichment"] == "unenriched"
+                    ):
+                        modified_study = "Crits-Christoph 2023 Unenriched"
+
+                if study == "Rothman 2021":
+                    # print(metadata_samples[sample]["enrichment"])
+                    if metadata_samples[sample]["enrichment"] == "0":
+                        modified_study = "Rothman 2021 Unenriched"
+                    elif metadata_samples[sample]["enrichment"] == "1":
+                        modified_study = "Rothman 2021 Panel-enriched"
+
+                try:
+                    total_hv_reads = hv_clade_counts.at[
+                        (10239, sample), "n_reads_clade"
+                    ]
+                except KeyError:
+                    if DEBUG:
+                        print(
+                            f"{sample} has no hv hits, thus no entry in hv_clade_counts. Setting total_hv_reads to 0"
+                        )
+                    total_hv_reads = 0
+
+                total_reads = qc_basic_stats.at[
+                    (sample, "raw_concat"), "n_read_pairs"
                 ]
-            except KeyError:
-                print(
-                    f"{sample} has no hv hits, thus no entry in hv_clade_counts. Setting total_hv_reads to 0"
+                hv_rel_abun = total_hv_reads / total_reads
+                virus_rel_abun = taxonomic_composition.at[
+                    (sample, "Viral"), "p_reads"
+                ]
+                study_relative_abundance[modified_study][sample] = (
+                    virus_hv_rel_abun(hv_rel_abun, virus_rel_abun)
                 )
-                total_hv_reads = 0
 
-            total_reads = qc_basic_stats.at[
-                (sample, "raw_concat"), "n_read_pairs"
-            ]
-            hv_rel_abun = total_hv_reads / total_reads
-            virus_rel_abun = taxonomic_composition.at[
-                (sample, "Viral"), "p_reads"
-            ]
-            study_relative_abundance[sample] = virus_hv_rel_abun(
-                hv_rel_abun, virus_rel_abun
+        for modified_study in study_relative_abundance.keys():
+            gmean_virus = gmean(
+                [
+                    sample.virus_rel_abun
+                    for sample in study_relative_abundance[
+                        modified_study
+                    ].values()
+                    if sample.virus_rel_abun > 0
+                ]
+            )
+            gmean_hv = gmean(
+                [
+                    sample.hv_rel_abun
+                    for sample in study_relative_abundance[
+                        modified_study
+                    ].values()
+                    if sample.hv_rel_abun > 0
+                ]
             )
 
-        gmean_virus = gmean(
-            [
-                sample.virus_rel_abun
-                for sample in study_relative_abundance.values()
-                if sample.virus_rel_abun > 0
-            ]
-        )
+            gmeans_hv.append(gmean_hv)
 
-        gmean_hv = gmean(
-            [
-                sample.hv_rel_abun
-                for sample in study_relative_abundance.values()
-                if sample.hv_rel_abun > 0
-            ]
-        )
-
-        gmeans_hv.append(gmean_hv)
-
-        gmeans_virus.append(gmean_virus)
-        table.append(
-            [
-                modified_study,
-                format_rel_abun(gmean_virus),
-                format_rel_abun(gmean_hv),
-            ]
-        )
+            gmeans_virus.append(gmean_virus)
+            table.append(
+                [
+                    modified_study,
+                    format_rel_abun(gmean_virus),
+                    format_rel_abun(gmean_hv),
+                ]
+            )
 
     gmean_hv_across_studies = gmean(gmeans_hv)
 
