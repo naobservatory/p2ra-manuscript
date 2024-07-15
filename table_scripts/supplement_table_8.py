@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import csv
-from dataclasses import dataclass
-
 import numpy as np
+import os
+from dataclasses import dataclass
 from scipy.stats import gmean
 
 PERCENTILES = [5, 25, 50, 75, 95]
+MODEL_OUTPUT_DIR = "../model_output"
+TABLE_OUTPUT_DIR = "../tables"
 
 
 @dataclass
@@ -20,7 +22,7 @@ class SummaryStats:
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     data = {}
-    with open("fits_summary.tsv") as datafile:
+    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
@@ -95,7 +97,11 @@ def start():
         "rothman": "Rothman",
         "spurbeck": "Spurbeck",
     }
-    with open("supplement_table_9.tsv", mode="w", newline="") as file:
+    with open(
+        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_8.tsv"),
+        mode="w",
+        newline="",
+    ) as file:
         tsv_writer = csv.writer(file, delimiter="\t")
         tsv_writer.writerow(
             [

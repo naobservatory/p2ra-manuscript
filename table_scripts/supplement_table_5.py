@@ -3,8 +3,12 @@ from dataclasses import dataclass
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
+import os
 
 PERCENTILES = [5, 25, 50, 75, 95]
+
+MODEL_OUTPUT_DIR = "../model_output"
+TABLE_OUTPUT_DIR = "../tables"
 
 
 @dataclass
@@ -38,7 +42,7 @@ def tidy_number(reads_required=int) -> str:
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     data = {}
-    with open("fits_summary.tsv") as datafile:
+    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
@@ -75,7 +79,11 @@ def create_tsv():
 
     headers = ["Virus", "Study", "Median", "Lower", "Upper"]
 
-    with open("supplement_table_6.tsv", "w", newline="") as file:
+    with open(
+        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_5.tsv"),
+        "w",
+        newline="",
+    ) as file:
         writer = csv.DictWriter(file, fieldnames=headers, delimiter="\t")
         writer.writeheader()
 
