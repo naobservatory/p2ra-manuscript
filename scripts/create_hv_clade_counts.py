@@ -79,7 +79,7 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
             )
 
         if not os.path.exists(
-            f"../bioprojects/{study_author}-{bioproject}/hv_clade_counts_new.tsv"
+            f"../bioprojects/{study_author}-{bioproject}/hv_clade_counts.tsv"
         ):
             subprocess.run(
                 [
