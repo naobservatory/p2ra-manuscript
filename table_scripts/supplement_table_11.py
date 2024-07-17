@@ -22,7 +22,9 @@ class SummaryStats:
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     data = {}
-    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
+    with open(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
+    ) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
@@ -91,14 +93,13 @@ def start():
     data = read_data()
     TARGET_INCIDENCE = 0.01
     TARGET_THRESHOLDS = [10, 100, 1000]
-    viruses = ["Norovirus (GII)", "SARS-COV-2"]
+    viruses = ["Norovirus (GII)", "SARS-COV-2", "Influenza A"]
     study_labels = {
-        "crits_christoph": "Crits-Christoph",
-        "rothman": "Rothman",
-        "spurbeck": "Spurbeck",
+        "rothman": "Rothman Panel-enriched",
+        "crits_christoph": "Crits-Christoph Panel-enriched",
     }
     with open(
-        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_9.tsv"),
+        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_11.tsv"),
         mode="w",
         newline="",
     ) as file:
