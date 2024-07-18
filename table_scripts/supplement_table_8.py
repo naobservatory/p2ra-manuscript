@@ -122,7 +122,7 @@ def create_tsv():
         viruses.add((virus, predictor_type))
     sorted_viruses = sorted(viruses, key=lambda x: (x[1], x[0]))
 
-    headers = ["Virus", "Study", "Median", "Lower", "Upper"]
+    headers = ["Virus", "Study", "Median", "5th Percentile", "95th Percentile"]
 
     with open(
         os.path.join(TABLE_OUTPUT_DIR, "supplement_table_8.tsv"),
@@ -141,8 +141,8 @@ def create_tsv():
                         "Virus": virus,
                         "Study": pretty_study[study],
                         "Median": stats.percentiles[50],
-                        "Lower": stats.percentiles[5],
-                        "Upper": stats.percentiles[95],
+                        "5th Percentile": stats.percentiles[5],
+                        "95th Percentile": stats.percentiles[95],
                     }
                 )
 
