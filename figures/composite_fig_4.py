@@ -83,7 +83,7 @@ def plot_violin(
     y: str,
     sorting_order: list[str],
     ascending: list[bool],
-    hatch_zero_counts: bool = False,
+    hatch_zero_counts: bool = True,
     violin_scale=1.0,
 ) -> None:
     assert len(sorting_order) == len(ascending)
@@ -110,35 +110,41 @@ def plot_violin(
     for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
         # alpha = min((num_reads + 1) / 10, 1.0)
         if num_reads == 0:
-            alpha = 0.5
+            alpha = 0.0
         elif num_reads < 10:
             alpha = 0.5
         else:
             alpha = 1.0
-        patches.set_alpha(alpha)
+
         # Make violins fatter and hatch if zero counts
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
                 violin_scale * (path.vertices[:, 1] - y_mid) + y_mid
             )
-            if (not hatch_zero_counts) and (num_reads == 0):
+            if (hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
-                y_max = np.max(path.vertices[:, 1])
-                y_min = np.min(path.vertices[:, 1])
-                x_max = path.vertices[np.argmax(path.vertices[:, 1]), 0]
+                y_max = y_mid + 0.03
+                y_min = y_mid - 0.03
+
+                # x_max = path.vertices[np.argmax(path.vertices[:, 1]), 0]
+                x_max = np.percentile(path.vertices[:, 0], 90)
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
                     x_max - x_min,
                     y_max - y_min,
                     facecolor=color,
                     linewidth=0.0,
-                    alpha=alpha,
+                    alpha=0.5,
                     fill=False,
                     hatch="|||",
                     edgecolor=color,
                 )
                 ax.add_patch(rect)
+                plt.plot(
+                    [x_max], [y_mid], marker="<", markersize=3, color=color
+                )
+                patches.set_alpha(alpha)
 
 
 def format_func(value, tick_number):
