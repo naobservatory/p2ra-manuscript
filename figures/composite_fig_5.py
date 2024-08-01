@@ -34,6 +34,8 @@ def study_name(study: str) -> str:
     }[study]
 
 
+PATHOGENS_IN_PANEL = ["Influenza A", "Influenza B", "SARS-COV-2"]
+
 plt.rcParams["font.size"] = 8
 
 
@@ -116,13 +118,9 @@ def plot_violin(
         gap=0.3,
     )
     x_min = ax.get_xlim()[0]
-    print(plotting_order.columns)
-    print(data["ra_at_1in100", "study"])
-    for num_reads, plotting_order_index, patches in zip(
-        plotting_order.viral_reads, plotting_order.index, ax.collections
-    ):
+    for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
         # alpha = min((num_reads + 1) / 10, 1.0)
-        # virus, study = plotting_order_index[0], plotting_order_index[1]
+
         if num_reads == 0:
             alpha = 0.0
         elif num_reads < 10:
@@ -179,6 +177,7 @@ def plot_incidence(
                 (data.study == "Crits-Christoph")
                 & (data.pathogen == "influenza")
             )
+            & ~((data.pathogen == "norovirus"))
         ],
         viral_reads=count_viral_reads(
             input_data[input_data.predictor_type == predictor_type]
@@ -208,8 +207,8 @@ def plot_incidence(
     for legend_handle in legend.legend_handles:  # type: ignore
         legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
 
-    ax_title = ax.set_title("a", fontweight="bold")
-    ax_title.set_position((-0.22, 0))
+    # ax_title = ax.set_title("a", fontweight="bold")
+    # ax_title.set_position((-0.22, 0))
     return ax
 
 
@@ -299,11 +298,11 @@ def composite_figure(
     input_data: pd.DataFrame,
 ) -> plt.Figure:
     fig = plt.figure(
-        figsize=(5, 8),
+        figsize=(5, 2),
     )
-    gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
-    plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
-    plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]))
+    # gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
+    plot_incidence(data, input_data, fig.add_subplot(1, 1, 1))
+    # plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]))
     return fig
 
 
@@ -340,6 +339,9 @@ def start() -> None:
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
 
+    fits_df = fits_df[fits_df.tidy_name.isin(PATHOGENS_IN_PANEL)]
+    print(fits_df.tidy_name.unique())
+
     panel_input_df = pd.read_csv(
         os.path.join(parent_dir, MODEL_OUTPUT_DIR, "panel_input.tsv"), sep="\t"
     )
@@ -357,7 +359,9 @@ def start() -> None:
         [panel_input_df, unenriched_input_df],
         axis=0,
     )
-
+    print(input_df.tidy_name.unique())
+    input_df = input_df[input_df.tidy_name.isin(PATHOGENS_IN_PANEL)]
+    print(input_df.tidy_name.unique())
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
     fits_df = fits_df[fits_df["pathogen"] != "aav5"]  # FIX ME
