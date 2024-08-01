@@ -116,8 +116,7 @@ def plot_violin(
         gap=0.3,
     )
     x_min = ax.get_xlim()[0]
-    print(plotting_order.columns)
-    print(data["ra_at_1in100", "study"])
+
     for num_reads, plotting_order_index, patches in zip(
         plotting_order.viral_reads, plotting_order.index, ax.collections
     ):
@@ -176,7 +175,7 @@ def plot_incidence(
             (data.predictor_type == predictor_type)
             & (data.location == "Overall")
             & ~(
-                (data.study == "Crits-Christoph")
+                (data.study.str.contains("Crits-Christoph", case=False))
                 & (data.pathogen == "influenza")
             )
         ],
