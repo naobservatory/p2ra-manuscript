@@ -7,8 +7,13 @@ import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import pandas as pd
 import seaborn as sns  # type: ignore
+import os
 
 PERCENTILES = [5, 25, 50, 75, 95]
+MODEL_OUTPUT_DIR = "../model_output"
+FIGURE_OUTPUT_DIR = "../fig"
+
+PRINT = True
 
 
 def fits_df() -> pd.DataFrame:
@@ -17,13 +22,13 @@ def fits_df() -> pd.DataFrame:
     for p in PERCENTILES:
         data[f"{p}%"] = []
 
-    with open("fits_summary.tsv") as datafile:
+    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             if row["location"] != "Overall":
                 continue
-            if (row["study"]) == "brinch":
-                continue
+            # if (row["study"]) == "brinch":
+            #     continue
             data["predictor_type"].append(row["predictor_type"])
             data["virus"].append(row["tidy_name"])
             data["study"].append(row["study"])
@@ -40,7 +45,7 @@ def fits_df() -> pd.DataFrame:
 
 
 def reads_df() -> pd.DataFrame:
-    df = pd.read_csv("input.tsv", sep="\t")
+    df = pd.read_csv(os.path.join(MODEL_OUTPUT_DIR, "input.tsv"), sep="\t")
     return df
 
 
@@ -87,8 +92,9 @@ def compute_diffs(df: pd.DataFrame) -> pd.DataFrame:
         min_median_index = virus_df["50%"].idxmin()
         max_median_index = virus_df["50%"].idxmax()
         if virus in ["HSV-1", "CMV"]:
-            print(virus, virus_df.loc[min_median_index, "study"])
-            print(virus, virus_df.loc[max_median_index, "study"])
+            if PRINT:
+                print(virus, virus_df.loc[min_median_index, "study"])
+                print(virus, virus_df.loc[max_median_index, "study"])
         diff_median = (
             virus_df.loc[min_median_index, "50%"]
             - virus_df.loc[max_median_index, "50%"]
@@ -125,7 +131,8 @@ def plot_df(df: pd.DataFrame) -> None:
         drop=True
     )
     fig, ax = plt.subplots(figsize=(6, 6))
-    print(df["diff_median"])
+    if PRINT:
+        print(df[["diff_median", "virus", "selected_studies"]])
     scatter = ax.scatter(
         x=df["diff_median"],
         y=range(len(df)),
@@ -189,7 +196,11 @@ def plot_df(df: pd.DataFrame) -> None:
         "OOM difference between lowest and highest study estimate (based on median location)"
     )
 
-    plt.savefig("suuplement_fig_5.png", dpi=600, bbox_inches="tight")
+    plt.savefig(
+        os.path.join(FIGURE_OUTPUT_DIR, "supplement_fig_5.png"),
+        dpi=600,
+        bbox_inches="tight",
+    )
     plt.clf()
 
 
