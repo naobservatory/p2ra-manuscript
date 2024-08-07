@@ -36,21 +36,7 @@ if not os.path.exists(f"../bioprojects"):
 
 
 TARGET_STUDY_METADATA = {
-    "Bengtsson-Palme 2016": ["PRJEB14051"],
-    "Munk 2022": [
-        "PRJEB13831",
-        "PRJEB27054",
-        "PRJEB27621",
-        "PRJEB40798",
-        "PRJEB40815",
-        "PRJEB40816",
-        "PRJEB51229",
-    ],
     "Brinch 2020": ["PRJEB13832", "PRJEB34633"],
-    "Ng 2019": ["PRJNA438174"],
-    "Maritz 2019": ["PRJEB28033"],
-    "Brumfield 2022": ["PRJNA812772"],
-    "Yang 2020": ["PRJNA645711"],
     "Spurbeck 2023": ["PRJNA924011"],
     "CC 2021": ["PRJNA661613"],
     "Rothman 2021": ["PRJNA729801"],
@@ -64,6 +50,13 @@ sample_files = [
     "qc_basic_stats",
     "sample-metadata",
 ]
+
+prettier_labels = {
+    "Brinch 2020": "Brinch 2020",
+    "Spurbeck 2023": "Spurbeck 2023",
+    "Rothman 2021": "Rothman 2021",
+    "CC 2021": "Crits-Christoph 2021",
+}
 
 
 for study, bioprojects in TARGET_STUDY_METADATA.items():
@@ -122,6 +115,7 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
     viral_composition_data = []
     hv_family_data = []
     for study, bioprojects in TARGET_STUDY_METADATA.items():
+        print(study, bioprojects)
         study_author = study.split()[0]
         for bioproject in bioprojects:
             study_bioproject = f"{study_author}-{bioproject}"
@@ -163,37 +157,13 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
             samples = metadata_samples.keys()
             modified_study = study
 
-            if study == "Bengtsson-Palme 2016":
-                samples = [
-                    sample
-                    for sample in samples
-                    if metadata_samples[sample]["sample_type"].startswith(
-                        "Inlet"
-                    )
-                ]
-                modified_study = "Bengtsson-\nPalme 2016"
-
-            if study == "Ng 2019":
-                samples = [
-                    sample
-                    for sample in samples
-                    if metadata_samples[sample]["sample_type"] == "Influent"
-                ]
-
             for sample in samples:
-
-                if study == "Brumfield 2022":
-                    if metadata_samples[sample].get("na_type") == "RNA":
-                        modified_study = "Brumfield 2022\n(RNA Subset)"
-                    elif metadata_samples[sample].get("na_type") == "DNA":
-                        modified_study = "Brumfield 2022\n(DNA Subset)"
 
                 if (
                     metadata_samples[sample].get("enrichment") == "enriched"
                     or metadata_samples[sample].get("enrichment") == "1"
                 ):
                     continue
-
                 total_reads = sample_read_pairs[sample]
 
                 total_hv_reads = hv_clade_counts[
@@ -322,9 +292,6 @@ def order_df(
         by="na_type",
         key=lambda col: col.map({k: i for i, k in enumerate(na_type_order)}),
     )
-
-    # df["study"] = df["study"].str.replace("-", "-\n")
-
     return df
 
 
@@ -334,16 +301,9 @@ def boxplot(
 ) -> plt.Axes:
 
     order = [
-        "Bengtsson-\nPalme 2016",
-        "Munk 2022",
         "Brinch 2020",
-        "Ng 2019",
-        "Maritz 2019",
-        "Brumfield 2022\n(DNA Subset)",
-        "Brumfield 2022\n(RNA Subset)",
-        "Rothman 2021",
-        "Yang 2020",
         "Spurbeck 2023",
+        "Rothman 2021",
         "CC 2021",
     ]
 
@@ -376,14 +336,18 @@ def boxplot(
             print(f"{study}: {abundance:.2e}")
 
     ax_title = ax.set_title("a", fontweight="bold")
-    ax.set_xlabel("Relative abundance among all reads")
-
     ax_title.set_position((-0.15, 0))
+
+    ax.set_xlabel("Relative abundance among all reads")
 
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
+    labels = []
     for label in ax.get_yticklabels():
-        label.set_ha("left")
+        pretty_label = prettier_labels[label.get_text()]
+        label.set_text(pretty_label)
+        labels.append(label)
+    ax.set_yticklabels(labels)
 
     ax.yaxis.set_label_position("right")
     formatter = ticker.FuncFormatter(
@@ -399,7 +363,7 @@ def boxplot(
     studies = viral_composition_df["study"].unique()
 
     ax.legend(
-        loc=(0.00, -0.17),
+        loc=(0.00, -0.54),
         columnspacing=2.2,
         ncol=4,
         title="",
@@ -411,29 +375,23 @@ def boxplot(
         ax.axvline(i, color="grey", linewidth=0.3, linestyle=":")
 
     for i in range(1, len(studies)):
-        if i == 6:
+        if i == 1:
             ax.axhline(i - 0.5, color="black", linewidth=1, linestyle="-")
 
         else:
             ax.axhline(i - 0.5, color="grey", linewidth=0.3, linestyle=":")
 
-    ax.text(-8.1, 0.3, "DNA \nSequencing", ha="right")
-    ax.text(-8.1, 6.3, "RNA \nSequencing", ha="right")
+    ax.text(-8.01, 0.3, "DNA\nSequencing", ha="right")
+    ax.text(-8.01, 1.3, "RNA\nSequencing", ha="right")
 
     return ax
 
 
 def get_study_nucleic_acid_mapping() -> dict[str, str]:
     study_nucleic_acid_mapping = {
-        "Bengtsson-\nPalme 2016": "DNA",
-        "Munk 2022": "DNA",
         "Brinch 2020": "DNA",
-        "Ng 2019": "DNA",
-        "Maritz 2019": "DNA",
-        "Brumfield 2022": "DNA + RNA",
-        "Rothman 2021": "RNA",
-        "Yang 2020": "RNA",
         "Spurbeck 2023": "RNA",
+        "Rothman 2021": "RNA",
         "CC 2021": "RNA",
     }
 
@@ -480,16 +438,9 @@ def barplot(
     ]
 
     order = [
-        "Bengtsson-\nPalme 2016",
-        "Munk 2022",
         "Brinch 2020",
-        "Ng 2019",
-        "Maritz 2019",
-        "Brumfield 2022\n(DNA Subset)",
-        "Brumfield 2022\n(RNA Subset)",
-        "Rothman 2021",
-        "Yang 2020",
         "Spurbeck 2023",
+        "Rothman 2021",
         "CC 2021",
     ]
 
@@ -514,18 +465,22 @@ def barplot(
 
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
+    labels = []
     for label in ax.get_yticklabels():
-        label.set_ha("left")
+        pretty_label = prettier_labels[label.get_text()]
+        label.set_text(pretty_label)
+        labels.append(label)
+    ax.set_yticklabels(labels)
 
-    ax.axhline(5.5, color="black", linewidth=1, linestyle="-")
+    ax.axhline(0.5, color="black", linewidth=1, linestyle="-")
 
-    ax.text(-0.01, 0.5, "DNA \nSequencing", ha="right")
-    ax.text(-0.01, 6.5, "RNA \nSequencing", ha="right")
+    ax.text(-0.01, 0.2, "DNA\nSequencing", ha="right")
+    ax.text(-0.01, 1.2, "RNA\nSequencing", ha="right")
 
     ax.set_xlim(right=1, left=0)
 
     ax.legend(
-        loc=(0.015, -0.32),
+        loc=(0.015, -0.8),
         ncol=4,
         fontsize=9.1,
         frameon=False,
@@ -543,7 +498,7 @@ def save_plot(fig, figdir: Path, name: str) -> None:
 
 def start():
     parent_dir = Path("..")
-    figdir = Path(parent_dir / "figures")
+    figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
 
     # Load the DataFrames from CSV files if they exist #FIXME
@@ -567,10 +522,10 @@ def start():
     hv_family_df = order_df(hv_family_df, study_nucleic_acid_mapping)
 
     fig = plt.figure(
-        figsize=(9, 11),
+        figsize=(9, 5),
     )
 
-    gs = GridSpec(2, 2, height_ratios=[9, 7], figure=fig)
+    gs = GridSpec(2, 2, height_ratios=[14, 14], figure=fig, hspace=0.8)
 
     boxplot(
         fig.add_subplot(gs[0, :]),
@@ -582,7 +537,6 @@ def start():
     barplot(fig.add_subplot(gs[1, :]), hv_family_df, study_order)
     ##
     plt.tight_layout()
-    print("You still need to fix the unknown virus issue in hv_clade_counts.")
     print("is relative abundance based on filtered reads as denominator?")
     print("Clean up get_study_nucleic_acid_mapping")
     print(
