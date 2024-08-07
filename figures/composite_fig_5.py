@@ -120,8 +120,6 @@ def plot_violin(
     for num_reads, plotting_order_index, patches in zip(
         plotting_order.viral_reads, plotting_order.index, ax.collections
     ):
-        # alpha = min((num_reads + 1) / 10, 1.0)
-        # virus, study = plotting_order_index[0], plotting_order_index[1]
         if num_reads == 0:
             alpha = 0.0
         elif num_reads < 10:
@@ -129,7 +127,6 @@ def plot_violin(
         else:
             alpha = 1.0
 
-        # Make violins fatter and hatch if zero counts
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
@@ -139,8 +136,6 @@ def plot_violin(
                 color = patches.get_facecolor()
                 y_max = y_mid + 0.03
                 y_min = y_mid - 0.03
-
-                # x_max = path.vertices[np.argmax(path.vertices[:, 1]), 0]
                 x_max = np.percentile(path.vertices[:, 0], 90)
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
