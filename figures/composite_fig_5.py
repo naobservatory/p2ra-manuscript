@@ -90,7 +90,6 @@ def plot_violin(
         sorting_order, ascending=ascending
     ).reset_index()
     sns_colors = sns.color_palette().as_hex()
-    # print(data["tidy_name"].unique())
     palette = {
         "Rothman\nPanel-enriched": "#9467bd",
         "Rothman\nUnenriched": "#ff7f0e",
