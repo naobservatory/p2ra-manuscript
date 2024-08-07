@@ -27,7 +27,7 @@ def selection_round(pathogen: str) -> str:
 
 def study_name(study: str) -> str:
     return {
-        "brinch": "Brinch (DNA)",
+        "brinch": "Brinch",
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
         "spurbeck": "Spurbeck",
@@ -107,7 +107,24 @@ def plot_violin(
         cut=0,
     )
     x_min = ax.get_xlim()[0]
-    for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
+    # Before changing appearance of violins below, drop Crits-Christoph Influenza A and B from plotting_order, as no violins exist for them.
+    plotting_order = plotting_order[
+        ~(
+            (
+                plotting_order["study"].str.contains(
+                    "Crits-Christoph", case=False
+                )
+            )
+            & (plotting_order["tidy_name"].str.contains("Influenza"))
+        )
+    ]
+
+    for num_reads, study, tidy_name, patches in zip(
+        plotting_order.viral_reads,
+        plotting_order.study,
+        plotting_order.tidy_name,
+        ax.collections,
+    ):
         if num_reads == 0:
             alpha = 0.0
         elif num_reads < 10:
@@ -125,7 +142,15 @@ def plot_violin(
                 y_max = y_mid + 0.03
                 y_min = y_mid - 0.03
 
-                x_max = np.percentile(path.vertices[:, 0], 90)
+
+                x_max = np.percentile(
+                    data[
+                        (data["tidy_name"] == tidy_name)
+                        & (data["study"].str.contains(study, case=False))
+                    ]["log10ra"],
+                    95,
+                )
+
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
                     x_max - x_min,

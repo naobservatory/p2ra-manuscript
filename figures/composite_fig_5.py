@@ -90,13 +90,14 @@ def plot_violin(
         sorting_order, ascending=ascending
     ).reset_index()
     sns_colors = sns.color_palette().as_hex()
-
+    # print(data["tidy_name"].unique())
     palette = {
         "Rothman\nPanel-enriched": "#9467bd",
         "Rothman\nUnenriched": "#ff7f0e",
         "Crits-Christoph\nPanel-enriched": "#17becf",
         "Crits-Christoph\nUnenriched": "#2ca02c",
     }
+
     sns.violinplot(
         ax=ax,
         data=data,
@@ -117,9 +118,25 @@ def plot_violin(
     )
     x_min = ax.get_xlim()[0]
 
-    for num_reads, plotting_order_index, patches in zip(
-        plotting_order.viral_reads, plotting_order.index, ax.collections
+    # Before changing appearance of violins below, drop Crits-Christoph Influenza A and B from plotting_order, as no violins exist for them.
+    plotting_order = plotting_order[
+        ~(
+            (
+                plotting_order["study"].str.contains(
+                    "Crits-Christoph", case=False
+                )
+            )
+            & (plotting_order["tidy_name"].str.contains("Influenza"))
+        )
+    ]
+
+    for num_reads, study, tidy_name, patches in zip(
+        plotting_order.viral_reads,
+        plotting_order.study,
+        plotting_order.tidy_name,
+        ax.collections,
     ):
+
         if num_reads == 0:
             alpha = 0.0
         elif num_reads < 10:
@@ -136,7 +153,15 @@ def plot_violin(
                 color = patches.get_facecolor()
                 y_max = y_mid + 0.03
                 y_min = y_mid - 0.03
-                x_max = np.percentile(path.vertices[:, 0], 90)
+
+                x_max = np.percentile(
+                    data[
+                        (data["tidy_name"] == tidy_name)
+                        & (data["study"].str.contains(study, case=False))
+                    ]["log10ra"],
+                    95,
+                )
+
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
                     x_max - x_min,
