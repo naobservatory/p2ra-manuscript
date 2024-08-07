@@ -102,16 +102,11 @@ def estimate_prevalences() -> list[Prevalence]:
         date_source=Variable(date="2018"),
         location_source=Variable(country="Denmark"),
     )
+    # Not included due to being a Group 2 virus (i.e., a virus we picked once
+    # we saw it was high relative abundance in sequencing data. This post-hoc
+    # selection is hard to explain and doesn't add much to the results due to
+    # the connnected selection bias.)
     return [
-        ch_2009_seroprevalence,
-        uk_1991_seroprevalence,
-        us_2007_seroprevalence,
-        us_2020,
-        us_2021,
-        dk_2015,
-        dk_2016,
-        dk_2017,
-        dk_2018,
     ]
 
 

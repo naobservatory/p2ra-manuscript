@@ -343,15 +343,15 @@ class Model(Generic[P]):
             style = None
         data_scatter = self.plot_data_scatter(style=style)
         data_scatter.savefig(
-            path / f"{prefix}-datascatter.pdf", bbox_inches="tight"
+            path + f"/{prefix}-datascatter.pdf", bbox_inches="tight"
         )
         fig_hist = self.plot_posterior_histograms()
-        fig_hist.savefig(path / f"{prefix}-posthist.pdf")
+        fig_hist.savefig(path + f"/{prefix}-posthist.pdf")
         fig_viol = self.plot_violin()
-        fig_viol.savefig(path / f"{prefix}-violin.pdf")
+        fig_viol.savefig(path + f"/{prefix}-violin.pdf")
         for x, y in [("mu", "sigma"), ("mu", "tau"), ("sigma", "tau")]:
             fig = self.plot_joint_posterior(x, y)
-            fig.savefig(path / f"{prefix}-{y}_vs_{x}.pdf")
+            fig.savefig(path + f"/{prefix}-{y}_vs_{x}.pdf")
         for x, y in [
             ("date", "viral_reads"),
             ("date", "predictor"),
@@ -366,7 +366,7 @@ class Model(Generic[P]):
             )
             if y == "predictor":
                 g.set(yscale="log")
-            g.savefig(path / f"{prefix}-{y}_vs_{x}.pdf")
+            g.savefig(path + f"/{prefix}-{y}_vs_{x}.pdf")
         plt.close("all")
 
 

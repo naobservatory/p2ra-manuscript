@@ -61,7 +61,7 @@ us_2007_seroprevalence = Prevalence(
     date="2007",
     # Study is from 2009, sera are from 2007
     active=Active.LATENT,
-    source="https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1000363#:~:text=We%20found%20the%20seroprevalence%20(%2B/%E2%88%92%201%25)%20in%20healthy%20adult%20blood%20donors%20(1501)%20was%20SV40%20(9%25)%2C%20BKV%20(82%25)%2C%20JCV%20(39%25)%2C%20LPV"
+    source="https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1000363#:~:text=We%20found%20the%20seroprevalence%20(%2B/%E2%88%92%201%25)%20in%20healthy%20adult%20blood%20donors%20(1501)%20was%20SV40%20(9%25)%2C%20BKV%20(82%25)%2C%20JCV%20(39%25)%2C%20LPV",
     # A tabular breakdown can be found here: "https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1000363#:~:text=original%20image-,Table%201.,-Seroprevalence%20of%20polyomaviruses"
 )
 
@@ -106,17 +106,11 @@ def estimate_prevalences() -> list[Prevalence]:
         date_source=Variable(date="2018"),
         location_source=Variable(country="Denmark"),
     )
-    return [
-        ch_2009_seroprevalence,
-        uk_1991_seroprevalence,
-        us_2007_seroprevalence,
-        us_2020,
-        us_2021,
-        dk_2015,
-        dk_2016,
-        dk_2017,
-        dk_2018,
-    ]
+    # Not included due to being a Group 2 virus (i.e., a virus we picked once
+    # we saw it was high relative abundance in sequencing data. This post-hoc
+    # selection is hard to explain and doesn't add much to the results due to
+    # the connnected selection bias.)
+    return []
 
 
 def estimate_incidences():
