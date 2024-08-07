@@ -136,13 +136,12 @@ def plot_violin(
         ax.collections,
     ):
 
-        if num_reads == 0:
-            alpha = 0.0
-        elif num_reads < 10:
+        if 0 < num_reads < 10:
             alpha = 0.5
-        else:
+            patches.set_alpha(alpha)
+        elif num_reads > 10:
             alpha = 1.0
-
+            patches.set_alpha(alpha)
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
@@ -150,6 +149,7 @@ def plot_violin(
             )
             if (hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
+                alpha = 0.0
                 y_max = y_mid + 0.03
                 y_min = y_mid - 0.03
 
