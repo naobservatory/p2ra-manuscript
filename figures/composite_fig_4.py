@@ -142,7 +142,7 @@ def plot_violin(
                 )
                 ax.add_patch(rect)
                 plt.plot(
-                    [x_max], [y_mid], marker="<", markersize=3, color=color
+                    [x_max], [y_mid], marker="|", markersize=3, color=color
                 )
                 patches.set_alpha(alpha)
 
