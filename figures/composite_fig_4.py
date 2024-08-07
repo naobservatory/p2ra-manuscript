@@ -27,7 +27,7 @@ def selection_round(pathogen: str) -> str:
 
 def study_name(study: str) -> str:
     return {
-        "brinch": "Brinch (DNA)",
+        "brinch": "Brinch",
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
         "spurbeck": "Spurbeck",
@@ -83,7 +83,7 @@ def plot_violin(
     y: str,
     sorting_order: list[str],
     ascending: list[bool],
-    hatch_zero_counts: bool = False,
+    hatch_zero_counts: bool = True,
     violin_scale=1.0,
 ) -> None:
     assert len(sorting_order) == len(ascending)
@@ -107,38 +107,65 @@ def plot_violin(
         cut=0,
     )
     x_min = ax.get_xlim()[0]
-    for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
-        # alpha = min((num_reads + 1) / 10, 1.0)
-        if num_reads == 0:
+    # Before changing appearance of violins below, drop Crits-Christoph Influenza A and B from plotting_order, as no violins exist for them.
+    plotting_order = plotting_order[
+        ~(
+            (
+                plotting_order["study"].str.contains(
+                    "Crits-Christoph", case=False
+                )
+            )
+            & (plotting_order["tidy_name"].str.contains("Influenza"))
+        )
+    ]
+
+    for num_reads, study, tidy_name, patches in zip(
+        plotting_order.viral_reads,
+        plotting_order.study,
+        plotting_order.tidy_name,
+        ax.collections,
+    ):
+        if 0 < num_reads < 10:
             alpha = 0.5
-        elif num_reads < 10:
-            alpha = 0.5
-        else:
+            patches.set_alpha(alpha)
+        elif num_reads > 10:
             alpha = 1.0
-        patches.set_alpha(alpha)
-        # Make violins fatter and hatch if zero counts
+            patches.set_alpha(alpha)
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
                 violin_scale * (path.vertices[:, 1] - y_mid) + y_mid
             )
-            if (not hatch_zero_counts) and (num_reads == 0):
+            if (hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
-                y_max = np.max(path.vertices[:, 1])
-                y_min = np.min(path.vertices[:, 1])
-                x_max = path.vertices[np.argmax(path.vertices[:, 1]), 0]
+                alpha = 0.0
+                y_max = y_mid + 0.03
+                y_min = y_mid - 0.03
+
+                x_max = np.percentile(
+                    data[
+                        (data["tidy_name"] == tidy_name)
+                        & (data["study"].str.contains(study, case=False))
+                    ]["log10ra"],
+                    95,
+                )
+
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
                     x_max - x_min,
                     y_max - y_min,
                     facecolor=color,
                     linewidth=0.0,
-                    alpha=alpha,
+                    alpha=0.5,
                     fill=False,
                     hatch="|||",
                     edgecolor=color,
                 )
                 ax.add_patch(rect)
+                plt.plot(
+                    [x_max], [y_mid], marker="|", markersize=3, color=color
+                )
+                patches.set_alpha(alpha)
 
 
 def format_func(value, tick_number):
