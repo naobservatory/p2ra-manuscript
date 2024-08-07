@@ -250,16 +250,8 @@ def plot_prevalence(
         linewidth=0.5,
     )
     text_x = np.log10(1.1e-0)
-    ax.text(text_x, -0.4, "RNA viruses\nSelection Round 1", va="top")
-    ax.text(
-        text_x, num_rna_1 - 0.4, "DNA viruses\nSelection Round 1", va="top"
-    )
-    ax.text(
-        text_x,
-        num_rna_1 + num_dna_1 - 0.4,
-        "DNA viruses\nSelection Round 2",
-        va="top",
-    )
+    ax.text(text_x, -0.45, "RNA viruses", va="top")
+    ax.text(text_x, num_rna_1 - 0.45, "DNA viruses", va="top")
     adjust_axes(ax, predictor_type=predictor_type)
     # no legend
     ax.get_legend().remove()
@@ -298,9 +290,9 @@ def composite_figure(
     input_data: pd.DataFrame,
 ) -> plt.Figure:
     fig = plt.figure(
-        figsize=(5, 8),
+        figsize=(5, 6),
     )
-    gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
+    gs = fig.add_gridspec(2, 1, height_ratios=[5, 7], hspace=0.2)
     plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
     plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]))
     return fig
