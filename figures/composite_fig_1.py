@@ -6,7 +6,7 @@ import os
 import subprocess
 import csv
 from pathlib import Path
-
+from scipy.stats import gmean
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as ticker  # type: ignore
 import numpy as np
@@ -104,9 +104,6 @@ target_taxa = {
     2732004: ("Varidnaviria", "DNA Viruses"),
     2731342: ("Monodnaviria", "DNA Viruses"),
     2559587: ("Riboviria", "RNA Viruses"),
-    # 2842242: ("ribozyviria", "RNA"),  # not in hv_clade_counts
-    # 687329: ("anelloviridae", "DNA"), # not in hv_clade_counts
-    # 2840022: ("adnaviria", "DNA"), # not in hv_clade_counts
     9999999999: ("human viruses", "Viruses"),
 }
 
@@ -238,24 +235,22 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def shape_hv_family_df(hv_family_df: pd.DataFrame) -> pd.DataFrame:
-
-    N_BIGGEST_FAMILIES = 9
-
+    # Turn reads into relative abundances (where the denominator is the sum of all human-infecting virus family reads)
     hv_family_df = hv_family_df.groupby(["study"]).sum().drop(columns="sample")
-    hv_family_df = hv_family_df.div(hv_family_df.sum(axis=1), axis=0)
+    total_reads = hv_family_df.sum(axis=1)
+    hv_family_df = hv_family_df.div(total_reads, axis=0)
 
-    top_families = (
-        hv_family_df.apply(lambda x: np.mean(x), axis=0)
-        .nlargest(N_BIGGEST_FAMILIES)
-        .index.tolist()
-    )
-    other_families_sum = hv_family_df.loc[
-        :, ~hv_family_df.columns.isin(top_families)
-    ].sum(axis=1)
+    # Identify the top 9 families by relative abundance aggregated across all four studies
+    N_BIGGEST_FAMILIES = 9
+    total_relative_abundances = hv_family_df.sum()
+    top_families = total_relative_abundances.nlargest(
+        N_BIGGEST_FAMILIES
+    ).index.tolist()
+    # Sum the abundances of all other families for each study and add them to hv_family_df
+    other_families_sum = hv_family_df.drop(columns=top_families).sum(axis=1)
     hv_family_df = hv_family_df[top_families]
-
     hv_family_df["Other Viral Families"] = other_families_sum
-
+    print(hv_family_df)
     return hv_family_df
 
 
@@ -445,7 +440,6 @@ def barplot(
     ]
 
     hv_family_df.set_index("study", inplace=True)
-
     hv_family_df.loc[order].plot(
         kind="barh",
         stacked=True,
@@ -454,17 +448,12 @@ def barplot(
     )
 
     ax.invert_yaxis()
-
     ax_title = ax.set_title("b", fontweight="bold")
-
     ax_title.set_position((-0.15, 0))
-
     ax.set_xlabel("Relative abundance among human-infecting viruses")
-
-    ax.tick_params(left=False)
-
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
+
     labels = []
     for label in ax.get_yticklabels():
         pretty_label = prettier_labels[label.get_text()]
@@ -473,10 +462,8 @@ def barplot(
     ax.set_yticklabels(labels)
 
     ax.axhline(0.5, color="black", linewidth=1, linestyle="-")
-
     ax.text(-0.01, 0.2, "DNA\nSequencing", ha="right")
     ax.text(-0.01, 1.2, "RNA\nSequencing", ha="right")
-
     ax.set_xlim(right=1, left=0)
 
     ax.legend(
@@ -500,15 +487,7 @@ def start():
     parent_dir = Path("..")
     figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
-
-    # Load the DataFrames from CSV files if they exist #FIXME
-    if os.path.exists("viral_composition_df.csv") and os.path.exists(
-        "hv_family_df.csv"
-    ):
-        viral_composition_df = pd.read_csv("viral_composition_df.csv")
-        hv_family_df = pd.read_csv("hv_family_df.csv")
-    else:
-        viral_composition_df, hv_family_df = assemble_plotting_dfs()
+    viral_composition_df, hv_family_df = assemble_plotting_dfs()
 
     viral_composition_df = shape_vir_comp_df(viral_composition_df)
 
@@ -537,12 +516,12 @@ def start():
     barplot(fig.add_subplot(gs[1, :]), hv_family_df, study_order)
     ##
     plt.tight_layout()
-    print("is relative abundance based on filtered reads as denominator?")
-    print("Clean up get_study_nucleic_acid_mapping")
-    print(
-        "fix thing where the composition dfs are being saved and reused as CSVs"
-    )
-    print("stop usage of metadata papers file")
+    # print("is relative abundance based on filtered reads as denominator?")
+    # print("Clean up get_study_nucleic_acid_mapping")
+    # print(
+    #     "fix thing where the composition dfs are being saved and reused as CSVs"
+    # )
+    # print("stop usage of metadata papers file")
 
     save_plot(fig, figdir, "composite_fig_1")
 
