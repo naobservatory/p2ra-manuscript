@@ -177,6 +177,11 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     (hv_clade_counts["sample"] == sample)
                     & (hv_clade_counts["rank"] == "family")
                 ]
+                # In hv_clade_counts, 585893 is named "unknown virus". Fixing this here:
+                sample_hv_family_counts.loc[
+                    sample_hv_family_counts["taxid"] == 585893, "name"
+                ] = "Picobirnaviridae"
+
                 hv_family_counts_dict = dict(
                     zip(
                         sample_hv_family_counts["name"],
