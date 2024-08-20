@@ -165,7 +165,6 @@ def plot_three_virus(
     input_data: pd.DataFrame,
     viruses: dict[str, tuple[float, float]],
     predictor_type: str,
-    fig_title: str,
     axes: list[plt.Axes],
 ) -> list[plt.Axes]:
     final_axes = []
@@ -202,13 +201,6 @@ def plot_three_virus(
             color="k",
             linewidth=0.5,
         )
-        if i == 0:
-            sub_fig_title = ax.set_title(
-                fig_title,
-                fontweight="bold",
-                loc="left",
-            )
-            sub_fig_title.set_position((-0.35, 1.05))
         if i == 2:
             x_text = ax.get_xlim()[1] + 0.1
             ax.text(x_text, -0.4, "Spurbeck", va="top")
@@ -280,7 +272,6 @@ def composite_figure(
         input_data,
         incidence_viruses,
         "incidence",
-        "a",
         [
             fig.add_subplot(gs[0, 0]),
             fig.add_subplot(gs[0, 1]),
