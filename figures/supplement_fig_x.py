@@ -267,6 +267,8 @@ def plot_steps_and_dots():
             ) in seq_costs.items():
                 if study == "spurbeck" and enriched == True:
                     continue
+                if virus == "Norovirus (GII)" and enriched == True:
+                    continue
                 if enriched:
                     enriched_label = "enriched"
                 else:
@@ -288,15 +290,17 @@ def plot_steps_and_dots():
                     depth,
                 ) in seq_costs.items()
             )
-            max_cost = max(
+            costs = [
                 cost
                 for (virus, study, enriched), (
                     sequencer,
                     cost,
                     depth,
                 ) in seq_costs.items()
-            )
-            # if max_cost < 3e4:
+            ]
+
+            max_cost = max(costs)
+            min_cost = min(costs)
             for cost, name in zip(
                 [
                     MISEQ_COST,
@@ -306,34 +310,9 @@ def plot_steps_and_dots():
                 ],
                 ["MiSeq", "NextSeq", "NovaSeq (lane)", "NovaSeq (cell)"],
             ):
-                ax.text(1e4, cost, name, ha="left", va="bottom", fontsize=10)
-            # else:
-            #     for depth, name, cost in zip(
-            #         [
-            #             MISEQ_DEPTH,
-            #             NEXTSEQ_DEPTH,
-            #             NOVASEQ_CELL_DEPTH,
-            #             NOVASEQ_LANE_DEPTH,
-            #         ],
-            #         ["MiSeq", "NextSeq", "NovaSeq (cell)", "NovaSeq (lane)"],
-            #         [
-            #             MISEQ_COST,
-            #             NEXTSEQ_COST,
-            #             NOVASEQ_CELL_COST,
-            #             NOVASEQ_LANE_COST,
-            #         ],
-            #     ):
-            #         y_pos = max_cost / 2
-            #         num_seq_runs = round(y_pos / cost)
-            #         seq_depth = num_seq_runs * depth
-            #         ax.text(
-            #             seq_depth * 1.1,
-            #             y_pos,
-            #             name,
-            #             ha="left",
-            #             va="bottom",
-            #             fontsize=10,
-            #         )
+                if i == 2 and name == "NovaSeq (cell)":
+                    continue
+                ax.text(1e3, cost, name, ha="left", va="bottom", fontsize=10)
 
             ax.set_xscale("log")
             ax.set_yscale("log")
@@ -347,15 +326,37 @@ def plot_steps_and_dots():
 
             # ax.set_title("Sequencing Cost vs. Read Depth", fontsize=14)
 
-            ax.grid(True, which="major", axis="both", ls="-", alpha=0.2)
+            # ax.grid(True, which="major", axis="both", ls="-", alpha=0.2)
 
+            for y in np.arange(
+                np.floor(np.log10(min_cost)), np.ceil(np.log10(max_cost)), 0.5
+            ):
+                ax.axhline(
+                    10**y, color="black", alpha=0.2, ls="--", linewidth=0.3
+                )
+            _, x_max = ax.get_xlim()
+            x_tick_positions = []
+            for x in np.arange(2, np.ceil(np.log10(x_max)), 1):
+                x_tick = 10**x
+                ax.axvline(
+                    x_tick,
+                    color="black",
+                    alpha=0.2,
+                    ls="--",
+                    linewidth=0.3,
+                )
+                x_tick_positions.append(x_tick)
+
+            ax.set_xticks(x_tick_positions)
             ax.tick_params(axis="both", which="major", labelsize=10)
             ax.tick_params(axis="both", which="minor", length=0)
+            # Set x-axis ticks at every order of magnitude
             ax.set_xlim(1e2, max_depth * 1.1)
+
             if max_cost < 1e4:
-                ax.set_ylim(0, 1e4)
+                ax.set_ylim(10**2.85, 1e4)
             else:
-                ax.set_ylim(0, max_cost * 1.1)
+                ax.set_ylim(10**2.85, max_cost * 1.1)
 
             ax.spines["top"].set_visible(False)
             ax.spines["right"].set_visible(False)
