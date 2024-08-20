@@ -10,12 +10,15 @@ CUM_INC_1_PERC = 0.01
 CUM_INC_001_PERC = 0.0001
 DETECTION_THRESHOLD = 100
 PERCENTILES = [5, 25, 50, 75, 95]
-NOVASEQ_COST = 3492
-NOVASEQ_DEPTH = 1.4e9
+NOVASEQ_LANE_COST = 3492
+NOVASEQ_LANE_DEPTH = 1.4e9
+NOVASEQ_CELL_COST = 26462
+NOVASEQ_CELL_DEPTH = 23.4e9
 MISEQ_COST = 1104
 MISEQ_DEPTH = 2e6
 NEXTSEQ_COST = 1956
 NEXTSEQ_DEPTH = 45e6
+
 
 study_labels = {
     "crits_christoph": "Crits-Christoph",
@@ -99,7 +102,7 @@ def get_cost(virus, cumulative_incidence):
 
     for study in study_labels:
         for enriched in [True, False]:
-            if study == "spurbeck":  # and enriched == True:
+            if study == "spurbeck" and enriched == True:
                 continue
 
             seq_depths[virus, study, enriched] = get_reads_required(
@@ -114,15 +117,26 @@ def get_cost(virus, cumulative_incidence):
     seq_costs = {}
     for (virus, study, enriched), depth in seq_depths.items():
 
-        nova_seq_cost = NOVASEQ_COST * np.ceil(depth / NOVASEQ_DEPTH)
+        nova_seq_lane_cost = NOVASEQ_LANE_COST * np.ceil(
+            depth / NOVASEQ_LANE_DEPTH
+        )
+        nova_seq_cell_cost = NOVASEQ_CELL_COST * np.ceil(
+            depth / NOVASEQ_CELL_DEPTH
+        )
         miseq_cost = MISEQ_COST * np.ceil(depth / MISEQ_DEPTH)
         nextseq_cost = NEXTSEQ_COST * np.ceil(depth / NEXTSEQ_DEPTH)
-        lowest_cost = min(nova_seq_cost, miseq_cost, nextseq_cost)
+        lowest_cost = min(
+            nova_seq_lane_cost, nova_seq_cell_cost, miseq_cost, nextseq_cost
+        )
 
         sequencer = (
-            "NovaSeq"
-            if lowest_cost == nova_seq_cost
-            else "MiSeq" if lowest_cost == miseq_cost else "NextSeq"
+            "NovaSeq (lane)"
+            if lowest_cost == nova_seq_lane_cost
+            else (
+                "NovaSeq (cell)"
+                if lowest_cost == nova_seq_cell_cost
+                else "MiSeq" if lowest_cost == miseq_cost else "NextSeq"
+            )
         )
 
         seq_costs[virus, study, enriched] = (sequencer, lowest_cost, depth)
@@ -138,8 +152,10 @@ def get_depth_and_costs() -> tuple[
     list[float],
 ]:
 
-    novaseq_costs = []
-    novaseq_depth = []
+    novaseq_lane_costs = []
+    novaseq_lane_depth = []
+    novaseq_cell_costs = []
+    novaseq_cell_depth = []
     miseq_costs = []
     miseq_depth = []
     nextseq_costs = []
@@ -147,24 +163,30 @@ def get_depth_and_costs() -> tuple[
     for i in range(0, 1000000):
 
         if i == 0:
-            novaseq_costs.append(NOVASEQ_COST)
-            novaseq_depth.append(0)
+            novaseq_lane_costs.append(NOVASEQ_LANE_COST)
+            novaseq_lane_depth.append(0)
+            novaseq_cell_costs.append(NOVASEQ_CELL_COST)
+            novaseq_cell_depth.append(0)
             miseq_costs.append(MISEQ_COST)
             miseq_depth.append(0)
             nextseq_costs.append(NEXTSEQ_COST)
             nextseq_depth.append(0)
 
         else:
-            novaseq_costs.append(i * NOVASEQ_COST)
-            novaseq_depth.append(i * NOVASEQ_DEPTH)
+            novaseq_lane_costs.append(i * NOVASEQ_LANE_COST)
+            novaseq_lane_depth.append(i * NOVASEQ_LANE_DEPTH)
+            novaseq_cell_costs.append(i * NOVASEQ_CELL_COST)
+            novaseq_cell_depth.append(i * NOVASEQ_CELL_DEPTH)
             miseq_costs.append(i * MISEQ_COST)
             miseq_depth.append(i * MISEQ_DEPTH)
             nextseq_costs.append(i * NEXTSEQ_COST)
             nextseq_depth.append(i * NEXTSEQ_DEPTH)
 
     return (
-        novaseq_costs,
-        novaseq_depth,
+        novaseq_lane_costs,
+        novaseq_lane_depth,
+        novaseq_cell_costs,
+        novaseq_cell_depth,
         miseq_costs,
         miseq_depth,
         nextseq_costs,
@@ -173,8 +195,10 @@ def get_depth_and_costs() -> tuple[
 
 
 (
-    novaseq_costs,
-    novaseq_depth,
+    novaseq_lane_costs,
+    novaseq_lane_depth,
+    novaseq_cell_costs,
+    novaseq_cell_depth,
     miseq_costs,
     miseq_depth,
     nextseq_costs,
@@ -200,8 +224,8 @@ def plot_steps_and_dots():
                 linewidth=1,
             )
             ax.step(
-                novaseq_depth,
-                novaseq_costs,
+                novaseq_lane_depth,
+                novaseq_lane_costs,
                 where="pre",
                 color="black",
                 linestyle="--",
@@ -214,6 +238,14 @@ def plot_steps_and_dots():
                 where="pre",
                 color="black",
                 linestyle="-",
+                linewidth=1,
+            )
+            ax.step(
+                novaseq_cell_depth,
+                novaseq_cell_costs,
+                where="pre",
+                color="black",
+                linestyle=":",
                 linewidth=1,
             )
 
@@ -264,37 +296,51 @@ def plot_steps_and_dots():
                     depth,
                 ) in seq_costs.items()
             )
-            if max_cost < 3e4:
-                for cost, name in zip(
-                    [MISEQ_COST, NEXTSEQ_COST, NOVASEQ_COST],
-                    ["MiSeq", "NextSeq", "NovaSeq"],
-                ):
-                    ax.text(
-                        1e4, cost, name, ha="left", va="bottom", fontsize=10
-                    )
-            else:
-                for depth, name, cost in zip(
-                    [MISEQ_DEPTH, NEXTSEQ_DEPTH, NOVASEQ_DEPTH],
-                    ["MiSeq", "NextSeq", "NovaSeq"],
-                    [MISEQ_COST, NEXTSEQ_COST, NOVASEQ_COST],
-                ):
-                    y_pos = max_cost / 2
-                    num_seq_runs = round(y_pos / cost)
-                    seq_depth = num_seq_runs * depth
-                    ax.text(
-                        seq_depth * 1.1,
-                        y_pos,
-                        name,
-                        ha="left",
-                        va="bottom",
-                        fontsize=10,
-                    )
+            # if max_cost < 3e4:
+            for cost, name in zip(
+                [
+                    MISEQ_COST,
+                    NEXTSEQ_COST,
+                    NOVASEQ_LANE_COST,
+                    NOVASEQ_CELL_COST,
+                ],
+                ["MiSeq", "NextSeq", "NovaSeq (lane)", "NovaSeq (cell)"],
+            ):
+                ax.text(1e4, cost, name, ha="left", va="bottom", fontsize=10)
+            # else:
+            #     for depth, name, cost in zip(
+            #         [
+            #             MISEQ_DEPTH,
+            #             NEXTSEQ_DEPTH,
+            #             NOVASEQ_CELL_DEPTH,
+            #             NOVASEQ_LANE_DEPTH,
+            #         ],
+            #         ["MiSeq", "NextSeq", "NovaSeq (cell)", "NovaSeq (lane)"],
+            #         [
+            #             MISEQ_COST,
+            #             NEXTSEQ_COST,
+            #             NOVASEQ_CELL_COST,
+            #             NOVASEQ_LANE_COST,
+            #         ],
+            #     ):
+            #         y_pos = max_cost / 2
+            #         num_seq_runs = round(y_pos / cost)
+            #         seq_depth = num_seq_runs * depth
+            #         ax.text(
+            #             seq_depth * 1.1,
+            #             y_pos,
+            #             name,
+            #             ha="left",
+            #             va="bottom",
+            #             fontsize=10,
+            #         )
 
             ax.set_xscale("log")
+            ax.set_yscale("log")
             ax.set_xlabel("Read Depth", fontsize=12)
             ax.set_ylabel("Cost ($)", fontsize=12)
             ax.set_title(
-                f"{fig_numeration[i]}) | {virus} Cummulative incidence: {cumulative_incidence:.2%}",
+                f"{fig_numeration[i]}) | {virus} Cumulative incidence: {cumulative_incidence:.2%}",
                 fontsize=14,
                 loc="left",
             )
