@@ -6,7 +6,6 @@ import os
 
 sys.path.append("..")
 
-
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as ticker  # type: ignore
@@ -29,7 +28,7 @@ def selection_round(pathogen: str) -> str:
 
 def study_name(study: str) -> str:
     return {
-        "brinch": "Brinch (DNA)",
+        "brinch": "Brinch",
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
         "spurbeck": "Spurbeck",
@@ -44,9 +43,9 @@ def separate_viruses(ax) -> None:
     ax.hlines(
         [(y1 + y2) / 2 for y1, y2 in zip(yticks[:-1], yticks[1:])],
         *ax.get_xlim(),
-        linestyle="dotted",
-        color="0.5",
-        linewidth=0.5,
+        color="grey",
+        linewidth=0.3,
+        linestyle=":",
     )
 
 
@@ -62,11 +61,11 @@ def adjust_axes(ax, predictor_type: str) -> None:
     ax.vlines(
         ax.get_xticks()[1:-1],
         *ax.get_ylim(),
-        linewidth=0.05,
-        color="black",
+        color="grey",
+        linewidth=0.3,
+        linestyle=":",
         zorder=-1,
     )
-    # ax.set_xscale("log")
     ax.set_xlabel(
         r"$\mathrm{RA}"
         f"{predictor_type[0]}"
@@ -84,7 +83,7 @@ def plot_violin(
     y: str,
     sorting_order: list[str],
     ascending: list[bool],
-    hatch_zero_counts: bool = False,
+    hatch_zero_counts: bool = True,
     violin_scale=2.0,
 ) -> None:
     assert len(sorting_order) == len(ascending)
@@ -108,38 +107,53 @@ def plot_violin(
         cut=0,
     )
     x_min = ax.get_xlim()[0]
-    for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
-        # alpha = min((num_reads + 1) / 10, 1.0)
-        if num_reads == 0:
+    for num_reads, study, location, patches in zip(
+        plotting_order.viral_reads,
+        plotting_order.study,
+        plotting_order.location,
+        ax.collections,
+    ):
+        if 0 < num_reads < 10:
             alpha = 0.5
-        elif num_reads < 10:
-            alpha = 0.5
-        else:
+            patches.set_alpha(alpha)
+        elif num_reads > 10:
             alpha = 1.0
-        patches.set_alpha(alpha)
-        # Make violins fatter and hatch if zero counts
+            patches.set_alpha(alpha)
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
                 violin_scale * (path.vertices[:, 1] - y_mid) + y_mid
             )
-            if (not hatch_zero_counts) and (num_reads == 0):
+            if (hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
-                y_max = np.max(path.vertices[:, 1])
-                y_min = np.min(path.vertices[:, 1])
-                x_max = path.vertices[np.argmax(path.vertices[:, 1]), 0]
+                alpha = 0.0
+                y_max = y_mid + 0.03
+                y_min = y_mid - 0.03
+
+                x_max = np.percentile(
+                    data[
+                        (data["location"] == location)
+                        & (data["study"].str.contains(study, case=False))
+                    ]["log10ra"],
+                    95,
+                )
+
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
                     x_max - x_min,
                     y_max - y_min,
                     facecolor=color,
                     linewidth=0.0,
-                    alpha=alpha,
+                    alpha=0.5,
                     fill=False,
                     hatch="|||",
                     edgecolor=color,
                 )
                 ax.add_patch(rect)
+                ax.plot(
+                    [x_max], [y_mid], marker="|", markersize=3, color=color
+                )
+                patches.set_alpha(alpha)
 
 
 def format_func(value, tick_number):
@@ -168,14 +182,12 @@ def plot_three_virus(
             sorting_order=["study", "location"],
             ascending=[False, True],
             violin_scale=2.5,
-            hatch_zero_counts=False,
+            hatch_zero_counts=True,
         )
 
         if predictor_type == "incidence":
             ax.set_xlim([-12, -2])
 
-        if predictor_type == "prevalence":
-            ax.set_xlim([-14, -7])
         num_spurbeck = 10
         num_rothman = 8
         num_crits_christoph = 4
@@ -212,13 +224,6 @@ def plot_three_virus(
                 "Crits-Christoph",
                 va="top",
             )
-            if predictor_type == "prevalence":
-                ax.text(
-                    x_text,
-                    num_spurbeck + num_rothman + num_crits_christoph - 0.4,
-                    "Brinch",
-                    va="top",
-                )
 
         adjust_axes(ax, predictor_type=predictor_type)
         plot_title = ax.set_title(pathogen)
@@ -260,10 +265,10 @@ def composite_figure(
     input_data: pd.DataFrame,
 ) -> plt.Figure:
     fig = plt.figure(
-        figsize=(7, 10),
+        figsize=(7, 5),
     )
 
-    gs = fig.add_gridspec(2, 3, height_ratios=[7, 7], hspace=0.2)
+    gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1], wspace=0.3)
 
     incidence_viruses = {
         "Norovirus (GII)": (-9.0, -2.0),
@@ -283,23 +288,6 @@ def composite_figure(
         ],
     )
 
-    prevalence_viruses = {
-        "JCV": (-14.0, -7.0),
-        "BKV": (-14.0, -7.0),
-        "MCV": (-14.0, -7.0),
-    }
-    plot_three_virus(
-        data,
-        input_data,
-        prevalence_viruses,
-        "prevalence",
-        "b",
-        [
-            fig.add_subplot(gs[1, 0]),
-            fig.add_subplot(gs[1, 1]),
-            fig.add_subplot(gs[1, 2]),
-        ],
-    )
     return fig
 
 
