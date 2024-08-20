@@ -27,7 +27,7 @@ def selection_round(pathogen: str) -> str:
 
 def study_name(study: str) -> str:
     return {
-        "brinch": "Brinch (DNA)",
+        "brinch": "Brinch",
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
         "spurbeck": "Spurbeck",
@@ -70,7 +70,6 @@ def adjust_axes(ax, predictor_type: str, target_x: str) -> None:
         "log10ra_at_1in10000": "0.01%",
         "log10ra_at_1in10": "10%",
     }
-    # ax.set_xscale("log")
     ax.set_xlabel(
         r"$\mathrm{RA}$"
         f"{predictor_type[0]}"
@@ -89,7 +88,7 @@ def plot_violin(
     x: str,
     sorting_order: list[str],
     ascending: list[bool],
-    hatch_zero_counts: bool = False,
+    hatch_zero_counts: bool = True,
     violin_scale=1.0,
 ) -> None:
     assert len(sorting_order) == len(ascending)
@@ -113,38 +112,64 @@ def plot_violin(
         cut=0,
     )
     x_min = ax.get_xlim()[0]
-    for num_reads, patches in zip(plotting_order.viral_reads, ax.collections):
-        # alpha = min((num_reads + 1) / 10, 1.0)
-        if num_reads == 0:
+    # Before changing appearance of violins below, drop Crits-Christoph Influenza A and B from plotting_order, as no violins exist for them.
+    plotting_order = plotting_order[
+        ~(
+            (
+                plotting_order["study"].str.contains(
+                    "Crits-Christoph", case=False
+                )
+            )
+            & (plotting_order["tidy_name"].str.contains("Influenza"))
+        )
+    ]
+    for num_reads, study, tidy_name, patches in zip(
+        plotting_order.viral_reads,
+        plotting_order.study,
+        plotting_order.tidy_name,
+        ax.collections,
+    ):
+        if 0 < num_reads < 10:
             alpha = 0.5
-        elif num_reads < 10:
-            alpha = 0.5
-        else:
+            patches.set_alpha(alpha)
+        elif num_reads > 10:
             alpha = 1.0
-        patches.set_alpha(alpha)
-        # Make violins fatter and hatch if zero counts
+            patches.set_alpha(alpha)
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
                 violin_scale * (path.vertices[:, 1] - y_mid) + y_mid
             )
-            if (not hatch_zero_counts) and (num_reads == 0):
+            if (hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
-                y_max = np.max(path.vertices[:, 1])
-                y_min = np.min(path.vertices[:, 1])
-                x_max = path.vertices[np.argmax(path.vertices[:, 1]), 0]
+                alpha = 0.0
+                y_max = y_mid + 0.03
+                y_min = y_mid - 0.03
+
+                x_max = np.percentile(
+                    data[
+                        (data["tidy_name"] == tidy_name)
+                        & (data["study"].str.contains(study, case=False))
+                    ][x],
+                    95,
+                )
+
                 rect = mpatches.Rectangle(
                     (x_min, y_min),
                     x_max - x_min,
                     y_max - y_min,
                     facecolor=color,
                     linewidth=0.0,
-                    alpha=alpha,
+                    alpha=0.5,
                     fill=False,
                     hatch="|||",
                     edgecolor=color,
                 )
                 ax.add_patch(rect)
+                plt.plot(
+                    [x_max], [y_mid], marker="|", markersize=3, color=color
+                )
+                patches.set_alpha(alpha)
 
 
 def format_func(value, tick_number):
@@ -161,7 +186,6 @@ def plot_incidence(
     else:
         ax.set_xlim((-15, -3))
         ax.set_xticks(list(range(-15, -1, 2)))
-
     plot_violin(
         ax=ax,
         data=data[
@@ -172,10 +196,10 @@ def plot_incidence(
                 & (data.pathogen == "influenza")
             )
         ],
-        x=target_x,
         viral_reads=count_viral_reads(
             input_data[input_data.predictor_type == predictor_type]
         ),
+        x=target_x,
         y="tidy_name",
         sorting_order=[
             "nucleic_acid",
@@ -201,7 +225,7 @@ def plot_incidence(
         legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
 
     ax_title = ax.set_title("a", fontweight="bold")
-    ax_title.set_position((-0.16, 0))
+    ax_title.set_position((-0.22, 0))
     return ax
 
 
@@ -209,7 +233,8 @@ def plot_prevalence(
     data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes, target_x: str
 ) -> plt.Axes:
     predictor_type = "prevalence"
-
+    ax.set_xlim((-15, -3))
+    ax.set_xticks(list(range(-15, -1, 2)))
     plot_violin(
         ax=ax,
         data=data[
@@ -231,12 +256,6 @@ def plot_prevalence(
         ascending=[False, True, False, True, False],
         violin_scale=1.5,
     )
-    if target_x == "log10ra_at_1in10":
-        ax.set_xlim((-15, -1))
-        ax.set_xticks(list(range(-15, 1, 2)))
-    else:
-        ax.set_xlim((-15, -3))
-        ax.set_xticks(list(range(-15, -1, 2)))
     separate_viruses(ax)
     # TODO Get these values automatically
     num_rna_1 = 2
@@ -248,17 +267,10 @@ def plot_prevalence(
         color="k",
         linewidth=0.5,
     )
-    text_x = np.log10(1.1e-1)
-    ax.text(text_x, -0.4, "RNA viruses\nSelection Round 1", va="top")
-    ax.text(
-        text_x, num_rna_1 - 0.4, "DNA viruses\nSelection Round 1", va="top"
-    )
-    ax.text(
-        text_x,
-        num_rna_1 + num_dna_1 - 0.4,
-        "DNA viruses\nSelection Round 2",
-        va="top",
-    )
+    text_x = np.log10(1.1e-3)
+    ax.text(text_x, -0.45, "RNA viruses", va="top")
+    ax.text(text_x, num_rna_1 - 0.45, "DNA viruses", va="top")
+
     adjust_axes(ax, predictor_type=predictor_type, target_x=target_x)
     legend = ax.legend(
         title="MGS study",
@@ -271,7 +283,7 @@ def plot_prevalence(
         legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
 
     ax_title = ax.set_title("b", fontweight="bold")
-    ax_title.set_position((-0.16, 0))
+    ax_title.set_position((-0.22, 0))
 
     return ax
 
@@ -306,9 +318,9 @@ def composite_figure(
     target_x: str,
 ) -> plt.Figure:
     fig = plt.figure(
-        figsize=(5, 8),
+        figsize=(5, 6),
     )
-    gs = fig.add_gridspec(2, 1, height_ratios=[5, 12], hspace=0.2)
+    gs = fig.add_gridspec(2, 1, height_ratios=[5, 7], hspace=0.2)
     plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]), target_x)
     plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]), target_x)
 
