@@ -1,4 +1,5 @@
 import csv
+import os
 from collections import defaultdict
 from dataclasses import dataclass
 from math import log
@@ -10,6 +11,8 @@ import seaborn as sns  # type: ignore
 
 PERCENTILES = [5, 25, 50, 75, 95]
 
+MODEL_OUTPUT_DIR = "../model_output"
+
 
 def fits_df() -> pd.DataFrame:
     data: defaultdict[str, list] = defaultdict(list)
@@ -17,7 +20,7 @@ def fits_df() -> pd.DataFrame:
     for p in PERCENTILES:
         data[f"{p}%"] = []
 
-    with open("fits_summary.tsv") as datafile:
+    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             if row["location"] != "Overall":
@@ -40,7 +43,7 @@ def fits_df() -> pd.DataFrame:
 
 
 def reads_df() -> pd.DataFrame:
-    df = pd.read_csv("input.tsv", sep="\t")
+    df = pd.read_csv(os.path.join(MODEL_OUTPUT_DIR, "input.tsv"), sep="\t")
     return df
 
 
@@ -90,16 +93,16 @@ def compute_diffs(df: pd.DataFrame) -> pd.DataFrame:
             print(virus, virus_df.loc[min_median_index, "study"])
             print(virus, virus_df.loc[max_median_index, "study"])
         diff_median = (
-            virus_df.loc[min_median_index, "50%"]
-            - virus_df.loc[max_median_index, "50%"]
+            virus_df.loc[max_median_index, "50%"]
+            - virus_df.loc[min_median_index, "50%"]
         )
         low_diff = (
-            virus_df.loc[min_median_index, "5%"]
-            - virus_df.loc[max_median_index, "95%"]
+            virus_df.loc[max_median_index, "5%"]
+            - virus_df.loc[min_median_index, "95%"]
         )
         high_diff = (
-            virus_df.loc[min_median_index, "95%"]
-            - virus_df.loc[max_median_index, "5%"]
+            virus_df.loc[max_median_index, "95%"]
+            - virus_df.loc[min_median_index, "5%"]
         )
 
         results_data["virus"].append(virus)
@@ -118,9 +121,7 @@ def compute_diffs(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_df(df: pd.DataFrame) -> None:
-    df = df.sort_values(by="diff_median", ascending=False).reset_index(
-        drop=True
-    )
+    df = df.sort_values(by="diff_median").reset_index(drop=True)
     df = df.sort_values(by="predictor_type", ascending=False).reset_index(
         drop=True
     )
@@ -147,10 +148,10 @@ def plot_df(df: pd.DataFrame) -> None:
     for i in range(len(df)):
         min_study, max_study = df["selected_studies"][i]
 
-        study_combo = f"{study_name(min_study)} <-> {study_name(max_study)}"
+        study_combo = f"{study_name(max_study)} <-> {study_name(min_study)}"
         ax.text(
-            x_min - 1,
-            i - 0.3,
+            x_min - 0.18,
+            i - 0.15,
             study_combo,
             ha="right",
             va="center",
@@ -159,7 +160,7 @@ def plot_df(df: pd.DataFrame) -> None:
 
         if i == (len(df)) - 1:
             ax.text(
-                x_max + 0.2,
+                x_max + 0.05,
                 i,
                 "Incidence\nViruses",
                 ha="left",
@@ -171,11 +172,11 @@ def plot_df(df: pd.DataFrame) -> None:
         if df["predictor_type"][i] != df["predictor_type"][i + 1]:
             ax.axhline(i + 0.5, color="black", alpha=0.3, linestyle="--")
             ax.text(
-                x_max + 0.2,
-                i + 0.05,
+                x_max + 0.05,
+                i + 0.5,
                 "Prevalence\nViruses",
                 ha="left",
-                va="center",
+                va="top",
             )
 
     ax.spines["right"].set_visible(False)
@@ -186,10 +187,15 @@ def plot_df(df: pd.DataFrame) -> None:
 
     ax.set_title("RA(1%) Difference (median, 90% CI)")
     ax.set_xlabel(
-        "OOM difference between lowest and highest study estimate (based on median location)"
+        "OOM difference between highest and lowest study estimate (based on median location)"
     )
-
-    plt.savefig("suuplement_fig_5.png", dpi=600, bbox_inches="tight")
+    # plt.show()
+    output_dir = "../fig"
+    plt.savefig(
+        os.path.join(output_dir, "supplement_fig_5.png"),
+        dpi=600,
+        bbox_inches="tight",
+    )
     plt.clf()
 
 
