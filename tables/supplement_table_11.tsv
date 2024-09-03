@@ -1,28 +1,28 @@
-Virus	Study	50th %	25th %	75th %	Detection Threshold
-Norovirus (GII)	Rothman Panel-enriched	3.52 x 10⁸	5.79 x 10⁸	2.13 x 10⁸	10
-Norovirus (GII)	Crits-Christoph Panel-enriched	2.87 x 10⁷	1.11 x 10⁸	8.38 x 10⁶	10
-Norovirus (GII)	Mean (geometric)	1.00 x 10⁸	2.54 x 10⁸	4.22 x 10⁷	10
-SARS-COV-2	Rothman Panel-enriched	2.43 x 10⁸	4.02 x 10⁸	1.44 x 10⁸	10
-SARS-COV-2	Crits-Christoph Panel-enriched	5.61 x 10³	1.18 x 10⁴	3.19 x 10³	10
-SARS-COV-2	Mean (geometric)	1.17 x 10⁶	2.18 x 10⁶	6.78 x 10⁵	10
-Influenza A	Rothman Panel-enriched	6.51 x 10⁹	2.00 x 10¹⁰	2.04 x 10⁹	10
-Influenza A	Crits-Christoph Panel-enriched	1.39 x 10⁶	7.79 x 10⁶	3.14 x 10⁵	10
-Influenza A	Mean (geometric)	9.52 x 10⁷	3.95 x 10⁸	2.53 x 10⁷	10
-Norovirus (GII)	Rothman Panel-enriched	3.52 x 10⁹	5.79 x 10⁹	2.13 x 10⁹	100
-Norovirus (GII)	Crits-Christoph Panel-enriched	2.87 x 10⁸	1.11 x 10⁹	8.38 x 10⁷	100
-Norovirus (GII)	Mean (geometric)	1.00 x 10⁹	2.54 x 10⁹	4.22 x 10⁸	100
-SARS-COV-2	Rothman Panel-enriched	2.43 x 10⁹	4.02 x 10⁹	1.44 x 10⁹	100
-SARS-COV-2	Crits-Christoph Panel-enriched	5.61 x 10⁴	1.18 x 10⁵	3.19 x 10⁴	100
-SARS-COV-2	Mean (geometric)	1.17 x 10⁷	2.18 x 10⁷	6.78 x 10⁶	100
-Influenza A	Rothman Panel-enriched	6.51 x 10¹⁰	2.00 x 10¹¹	2.04 x 10¹⁰	100
-Influenza A	Crits-Christoph Panel-enriched	1.39 x 10⁷	7.79 x 10⁷	3.14 x 10⁶	100
-Influenza A	Mean (geometric)	9.52 x 10⁸	3.95 x 10⁹	2.53 x 10⁸	100
-Norovirus (GII)	Rothman Panel-enriched	3.52 x 10¹⁰	5.79 x 10¹⁰	2.13 x 10¹⁰	1000
-Norovirus (GII)	Crits-Christoph Panel-enriched	2.87 x 10⁹	1.11 x 10¹⁰	8.38 x 10⁸	1000
-Norovirus (GII)	Mean (geometric)	1.00 x 10¹⁰	2.54 x 10¹⁰	4.22 x 10⁹	1000
-SARS-COV-2	Rothman Panel-enriched	2.43 x 10¹⁰	4.02 x 10¹⁰	1.44 x 10¹⁰	1000
-SARS-COV-2	Crits-Christoph Panel-enriched	5.61 x 10⁵	1.18 x 10⁶	3.19 x 10⁵	1000
-SARS-COV-2	Mean (geometric)	1.17 x 10⁸	2.18 x 10⁸	6.78 x 10⁷	1000
-Influenza A	Rothman Panel-enriched	6.51 x 10¹¹	2.00 x 10¹²	2.04 x 10¹¹	1000
-Influenza A	Crits-Christoph Panel-enriched	1.39 x 10⁸	7.79 x 10⁸	3.14 x 10⁷	1000
-Influenza A	Mean (geometric)	9.52 x 10⁹	3.95 x 10¹⁰	2.53 x 10⁹	1000
+Virus	Study	50th %	5th %	95th %	Detection Threshold
+Norovirus (GII)	Rothman Panel-enriched	3.52 x 10⁶	1.32 x 10⁷	9.24 x 10⁵	10
+Norovirus (GII)	Crits-Christoph Panel-enriched	2.87 x 10⁵	1.08 x 10⁷	1.92 x 10⁴	10
+Norovirus (GII)	Mean (geometric)	1.00 x 10⁶	1.19 x 10⁷	1.33 x 10⁵	10
+SARS-COV-2	Rothman Panel-enriched	2.43 x 10⁶	8.91 x 10⁶	5.86 x 10⁵	10
+SARS-COV-2	Crits-Christoph Panel-enriched	5.61 x 10¹	4.21 x 10²	1.62 x 10¹	10
+SARS-COV-2	Mean (geometric)	1.17 x 10⁴	6.13 x 10⁴	3.08 x 10³	10
+Influenza A	Rothman Panel-enriched	6.51 x 10⁷	1.08 x 10⁹	4.40 x 10⁶	10
+Influenza A	Crits-Christoph Panel-enriched	1.39 x 10⁴	1.30 x 10⁶	5.14 x 10²	10
+Influenza A	Mean (geometric)	9.52 x 10⁵	3.75 x 10⁷	4.75 x 10⁴	10
+Norovirus (GII)	Rothman Panel-enriched	3.52 x 10⁷	1.32 x 10⁸	9.24 x 10⁶	100
+Norovirus (GII)	Crits-Christoph Panel-enriched	2.87 x 10⁶	1.08 x 10⁸	1.92 x 10⁵	100
+Norovirus (GII)	Mean (geometric)	1.00 x 10⁷	1.19 x 10⁸	1.33 x 10⁶	100
+SARS-COV-2	Rothman Panel-enriched	2.43 x 10⁷	8.91 x 10⁷	5.86 x 10⁶	100
+SARS-COV-2	Crits-Christoph Panel-enriched	5.61 x 10²	4.21 x 10³	1.62 x 10²	100
+SARS-COV-2	Mean (geometric)	1.17 x 10⁵	6.13 x 10⁵	3.08 x 10⁴	100
+Influenza A	Rothman Panel-enriched	6.51 x 10⁸	1.08 x 10¹⁰	4.40 x 10⁷	100
+Influenza A	Crits-Christoph Panel-enriched	1.39 x 10⁵	1.30 x 10⁷	5.14 x 10³	100
+Influenza A	Mean (geometric)	9.52 x 10⁶	3.75 x 10⁸	4.75 x 10⁵	100
+Norovirus (GII)	Rothman Panel-enriched	3.52 x 10⁸	1.32 x 10⁹	9.24 x 10⁷	1000
+Norovirus (GII)	Crits-Christoph Panel-enriched	2.87 x 10⁷	1.08 x 10⁹	1.92 x 10⁶	1000
+Norovirus (GII)	Mean (geometric)	1.00 x 10⁸	1.19 x 10⁹	1.33 x 10⁷	1000
+SARS-COV-2	Rothman Panel-enriched	2.43 x 10⁸	8.91 x 10⁸	5.86 x 10⁷	1000
+SARS-COV-2	Crits-Christoph Panel-enriched	5.61 x 10³	4.21 x 10⁴	1.62 x 10³	1000
+SARS-COV-2	Mean (geometric)	1.17 x 10⁶	6.13 x 10⁶	3.08 x 10⁵	1000
+Influenza A	Rothman Panel-enriched	6.51 x 10⁹	1.08 x 10¹¹	4.40 x 10⁸	1000
+Influenza A	Crits-Christoph Panel-enriched	1.39 x 10⁶	1.30 x 10⁸	5.14 x 10⁴	1000
+Influenza A	Mean (geometric)	9.52 x 10⁷	3.75 x 10⁹	4.75 x 10⁶	1000

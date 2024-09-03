@@ -91,7 +91,7 @@ def tidy_number(reads_required=int) -> str:
 
 def start():
     data = read_data()
-    TARGET_INCIDENCE = 0.0001
+    TARGET_INCIDENCE = 0.01
     TARGET_THRESHOLDS = [10, 100, 1000]
     viruses = ["Norovirus (GII)", "SARS-COV-2", "Influenza A"]
     study_labels = {
