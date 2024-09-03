@@ -90,8 +90,8 @@ def start():
                 "Virus",
                 "Study",
                 "50th %",
-                "5th %",
-                "95th %",
+                "25th %",
+                "75th %",
                 "Detection Threshold",
             ]
         )
@@ -107,8 +107,8 @@ def start():
                 for i, study in enumerate(studies):
                     stats = data[virus, "incidence", study, "Overall"]
                     study_median = stats.percentiles[50]
-                    study_lower = stats.percentiles[5]
-                    study_upper = stats.percentiles[95]
+                    study_lower = stats.percentiles[25]
+                    study_upper = stats.percentiles[75]
 
                     geomean_dict["median"].append(study_median)
                     geomean_dict["lower"].append(study_lower)

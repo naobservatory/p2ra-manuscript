@@ -1,25 +1,25 @@
-Virus	Study	50th %	5th %	95th %	Detection Threshold
-Norovirus (GII)	Crits-Christoph	$2,356	$40,519	$345	10
-Norovirus (GII)	Rothman	$69	$180	$30	10
-Norovirus (GII)	Spurbeck	$64,655	$732,312	$12,272	10
-Norovirus (GII)	Mean (geometric)	$2,186	$17,494	$502	10
-SARS-COV-2	Crits-Christoph	$12,015	$173,223	$1,623	10
-SARS-COV-2	Rothman	$45,784	$170,773	$14,358	10
-SARS-COV-2	Spurbeck	$7,579,868	$113,302,191	$1,308,873	10
-SARS-COV-2	Mean (geometric)	$160,952	$1,496,537	$31,246	10
-Norovirus (GII)	Crits-Christoph	$23,564	$405,185	$3,449	100
-Norovirus (GII)	Rothman	$686	$1,804	$300	100
-Norovirus (GII)	Spurbeck	$646,554	$7,323,124	$122,725	100
-Norovirus (GII)	Mean (geometric)	$21,863	$174,936	$5,024	100
-SARS-COV-2	Crits-Christoph	$120,147	$1,732,229	$16,233	100
-SARS-COV-2	Rothman	$457,844	$1,707,728	$143,577	100
-SARS-COV-2	Spurbeck	$75,798,680	$1,133,021,911	$13,088,727	100
-SARS-COV-2	Mean (geometric)	$1,609,523	$14,965,369	$312,458	100
-Norovirus (GII)	Crits-Christoph	$235,640	$4,051,854	$34,485	1000
-Norovirus (GII)	Rothman	$6,859	$18,042	$2,997	1000
-Norovirus (GII)	Spurbeck	$6,465,544	$73,231,235	$1,227,246	1000
-Norovirus (GII)	Mean (geometric)	$218,626	$1,749,358	$50,242	1000
-SARS-COV-2	Crits-Christoph	$1,201,467	$17,322,289	$162,327	1000
-SARS-COV-2	Rothman	$4,578,442	$17,077,279	$1,435,774	1000
-SARS-COV-2	Spurbeck	$757,986,796	$11,330,219,112	$130,887,273	1000
-SARS-COV-2	Mean (geometric)	$16,095,225	$149,653,686	$3,124,576	1000
+Virus	Study	50th %	25th %	75th %	Detection Threshold
+Norovirus (GII)	Crits-Christoph	$2,356	$6,116	$1,009	10
+Norovirus (GII)	Rothman	$69	$99	$49	10
+Norovirus (GII)	Spurbeck	$64,655	$162,150	$30,194	10
+Norovirus (GII)	Mean (geometric)	$2,186	$4,606	$1,145	10
+SARS-COV-2	Crits-Christoph	$12,015	$29,730	$5,693	10
+SARS-COV-2	Rothman	$45,784	$75,781	$29,421	10
+SARS-COV-2	Spurbeck	$7,579,868	$19,916,766	$3,399,162	10
+SARS-COV-2	Mean (geometric)	$160,952	$355,353	$82,879	10
+Norovirus (GII)	Crits-Christoph	$23,564	$61,163	$10,092	100
+Norovirus (GII)	Rothman	$686	$986	$493	100
+Norovirus (GII)	Spurbeck	$646,554	$1,621,502	$301,938	100
+Norovirus (GII)	Mean (geometric)	$21,863	$46,065	$11,454	100
+SARS-COV-2	Crits-Christoph	$120,147	$297,303	$56,926	100
+SARS-COV-2	Rothman	$457,844	$757,814	$294,207	100
+SARS-COV-2	Spurbeck	$75,798,680	$199,167,656	$33,991,620	100
+SARS-COV-2	Mean (geometric)	$1,609,523	$3,553,531	$828,792	100
+Norovirus (GII)	Crits-Christoph	$235,640	$611,631	$100,915	1000
+Norovirus (GII)	Rothman	$6,859	$9,856	$4,931	1000
+Norovirus (GII)	Spurbeck	$6,465,544	$16,215,019	$3,019,380	1000
+Norovirus (GII)	Mean (geometric)	$218,626	$460,649	$114,536	1000
+SARS-COV-2	Crits-Christoph	$1,201,467	$2,973,029	$569,261	1000
+SARS-COV-2	Rothman	$4,578,442	$7,578,138	$2,942,074	1000
+SARS-COV-2	Spurbeck	$757,986,796	$1,991,676,559	$339,916,200	1000
+SARS-COV-2	Mean (geometric)	$16,095,225	$35,535,311	$8,287,923	1000
