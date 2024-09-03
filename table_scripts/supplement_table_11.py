@@ -55,10 +55,10 @@ def get_reads_required(
         100 * stats.percentiles[50] * cumulative_incidence
     )
     lower_reads = detection_threshold / (
-        100 * stats.percentiles[25] * cumulative_incidence
+        100 * stats.percentiles[5] * cumulative_incidence
     )
     upper_reads = detection_threshold / (
-        100 * stats.percentiles[75] * cumulative_incidence
+        100 * stats.percentiles[95] * cumulative_incidence
     )
 
     return median_reads, lower_reads, upper_reads
@@ -109,8 +109,8 @@ def start():
                 "Virus",
                 "Study",
                 "50th %",
-                "25th %",
-                "75th %",
+                "5th %",
+                "95th %",
                 "Detection Threshold",
             ]
         )
