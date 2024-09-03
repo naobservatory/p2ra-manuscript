@@ -89,9 +89,6 @@ def compute_diffs(df: pd.DataFrame) -> pd.DataFrame:
 
         min_median_index = virus_df["50%"].idxmin()
         max_median_index = virus_df["50%"].idxmax()
-        if virus in ["HSV-1", "CMV"]:
-            print(virus, virus_df.loc[min_median_index, "study"])
-            print(virus, virus_df.loc[max_median_index, "study"])
         diff_median = (
             virus_df.loc[max_median_index, "50%"]
             - virus_df.loc[min_median_index, "50%"]
@@ -125,8 +122,7 @@ def plot_df(df: pd.DataFrame) -> None:
     df = df.sort_values(by="predictor_type", ascending=False).reset_index(
         drop=True
     )
-    fig, ax = plt.subplots(figsize=(6, 6))
-    print(df["diff_median"])
+    fig, ax = plt.subplots(figsize=(6, 4))
     scatter = ax.scatter(
         x=df["diff_median"],
         y=range(len(df)),
@@ -151,7 +147,7 @@ def plot_df(df: pd.DataFrame) -> None:
         study_combo = f"{study_name(max_study)} <-> {study_name(min_study)}"
         ax.text(
             x_min - 0.18,
-            i - 0.15,
+            i - 0.25,
             study_combo,
             ha="right",
             va="center",
