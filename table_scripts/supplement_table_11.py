@@ -55,10 +55,10 @@ def get_reads_required(
         100 * stats.percentiles[50] * cumulative_incidence
     )
     lower_reads = detection_threshold / (
-        100 * stats.percentiles[25] * cumulative_incidence
+        100 * stats.percentiles[5] * cumulative_incidence
     )
     upper_reads = detection_threshold / (
-        100 * stats.percentiles[75] * cumulative_incidence
+        100 * stats.percentiles[95] * cumulative_incidence
     )
 
     return median_reads, lower_reads, upper_reads
@@ -91,7 +91,7 @@ def tidy_number(reads_required=int) -> str:
 
 def start():
     data = read_data()
-    TARGET_INCIDENCE = 0.01
+    TARGET_INCIDENCE = 0.0001
     TARGET_THRESHOLDS = [10, 100, 1000]
     viruses = ["Norovirus (GII)", "SARS-COV-2", "Influenza A"]
     study_labels = {
@@ -109,8 +109,8 @@ def start():
                 "Virus",
                 "Study",
                 "50th %",
-                "25th %",
-                "75th %",
+                "5th %",
+                "95th %",
                 "Detection Threshold",
             ]
         )
