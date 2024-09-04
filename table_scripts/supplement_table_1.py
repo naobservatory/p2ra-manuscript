@@ -20,21 +20,7 @@ DEBUG = None
 
 
 TARGET_STUDY_METADATA = {
-    "Bengtsson-Palme 2016": ["PRJEB14051"],
-    "Munk 2022": [
-        "PRJEB13831",
-        "PRJEB27054",
-        "PRJEB27621",
-        "PRJEB40798",
-        "PRJEB40815",
-        "PRJEB40816",
-        "PRJEB51229",
-    ],
     "Brinch 2020": ["PRJEB13832", "PRJEB34633"],
-    "Ng 2019": ["PRJNA438174"],
-    "Maritz 2019": ["PRJEB28033"],
-    "Brumfield 2022": ["PRJNA812772"],
-    "Yang 2020": ["PRJNA645711"],
     "Spurbeck 2023": ["PRJNA924011"],
     "CC 2021": ["PRJNA661613"],
     "Rothman 2021": ["PRJNA729801"],
@@ -152,32 +138,15 @@ def assemble_table():
             samples = metadata_samples.keys()
             modified_study = study
 
-            if study == "Bengtsson-Palme 2016":
-                samples = [
-                    sample
-                    for sample in samples
-                    if metadata_samples[sample]["sample_type"].startswith(
-                        "Inlet"
-                    )
-                ]
-                modified_study = "Bengtsson-\nPalme 2016"
-
-            if study == "Ng 2019":
-                samples = [
-                    sample
-                    for sample in samples
-                    if metadata_samples[sample]["sample_type"] == "Influent"
-                ]
-
             for sample in samples:
                 if study == "CC 2021":
                     # print(metadata_samples[sample]["enrichment"])
                     if metadata_samples[sample]["enrichment"] == "enriched":
-                        modified_study = "Crits-Christoph 2023 Panel-enriched"
+                        modified_study = "Crits-Christoph 2021 Panel-enriched"
                     elif (
                         metadata_samples[sample]["enrichment"] == "unenriched"
                     ):
-                        modified_study = "Crits-Christoph 2023 Unenriched"
+                        modified_study = "Crits-Christoph 2021 Unenriched"
 
                 if study == "Rothman 2021":
                     # print(metadata_samples[sample]["enrichment"])
