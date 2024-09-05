@@ -119,9 +119,9 @@ def start():
 
     viruses = ["Norovirus (GII)", "SARS-COV-2"]
     study_labels = {
+        "spurbeck": "Spurbeck",
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
-        "spurbeck": "Spurbeck",
     }
     DETECTION_THRESHOLDS = [10, 100, 1000]
 
@@ -133,12 +133,11 @@ def start():
     )
 
     colors = [
-        # "#000000",
-        "#d7191c",
-        "#fdae61",
-        "#8a2be2",  # Changed yellow to purple (BlueViolet)
-        "#228B22",  # Changed light green to darker green (ForestGreen)
-        "#2b83ba",
+        "#648FFF",
+        "#785EF0",
+        "#DC267F",
+        "#FE6100",
+        "#FFB000",
     ]
     # line_styles = ["-", "--", "-.", ":"]
     line_styles = ["-", "-", "-", "-", "-"]
@@ -157,6 +156,8 @@ def start():
             for enriched in [False, True]:
                 for study in studies:
                     if study == "spurbeck" and enriched:
+                        continue
+                    if virus == "Norovirus (GII)" and enriched:
                         continue
                     study_median, study_lower, study_upper = (
                         get_reads_required(
