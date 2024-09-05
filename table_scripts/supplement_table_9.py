@@ -9,6 +9,8 @@ from scipy.stats import gmean
 PERCENTILES = [5, 25, 50, 75, 95]
 MODEL_OUTPUT_DIR = "../model_output"
 TABLE_OUTPUT_DIR = "../tables"
+TARGET_INCIDENCE = 0.01
+TARGET_THRESHOLDS = [10, 100, 1000]
 
 
 @dataclass
@@ -89,8 +91,7 @@ def tidy_number(reads_required=int) -> str:
 
 def start():
     data = read_data()
-    TARGET_INCIDENCE = 0.01
-    TARGET_THRESHOLDS = [10, 100, 1000]
+
     viruses = ["Norovirus (GII)", "SARS-COV-2"]
     study_labels = {
         "crits_christoph": "Crits-Christoph",
