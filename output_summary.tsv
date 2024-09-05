@@ -1,0 +1,56 @@
+Virus	Study	Median	Lower	Upper
+Influenza A	Rothman	1.24 x 10⁻⁷	4.61 x 10⁻⁹	2.27 x 10⁻⁶
+Influenza A	Crits-Christoph	3.57 x 10⁻⁶	5.07 x 10⁻⁸	1.08 x 10⁻⁴
+Influenza A	Spurbeck	1.55 x 10⁻¹⁰	3.22 x 10⁻¹²	1.99 x 10⁻⁹
+Influenza B	Rothman	3.50 x 10⁻⁷	5.91 x 10⁻⁹	4.83 x 10⁻⁶
+Influenza B	Crits-Christoph	3.43 x 10⁻⁶	4.59 x 10⁻⁸	8.58 x 10⁻⁵
+Influenza B	Spurbeck	5.78 x 10⁻⁹	8.60 x 10⁻¹¹	9.60 x 10⁻⁸
+Norovirus (GI)	Rothman	2.27 x 10⁻⁴	1.03 x 10⁻⁴	4.37 x 10⁻⁴
+Norovirus (GI)	Crits-Christoph	2.12 x 10⁻⁶	5.14 x 10⁻⁸	2.54 x 10⁻⁵
+Norovirus (GI)	Spurbeck	1.63 x 10⁻⁸	1.10 x 10⁻⁹	1.06 x 10⁻⁷
+Norovirus (GII)	Rothman	1.29 x 10⁻⁴	3.88 x 10⁻⁵	4.18 x 10⁻⁴
+Norovirus (GII)	Crits-Christoph	8.88 x 10⁻⁷	4.15 x 10⁻⁸	7.67 x 10⁻⁶
+Norovirus (GII)	Spurbeck	2.99 x 10⁻⁸	3.82 x 10⁻⁹	1.51 x 10⁻⁷
+SARS-COV-2	Rothman	7.40 x 10⁻⁸	1.91 x 10⁻⁸	2.32 x 10⁻⁷
+SARS-COV-2	Crits-Christoph	1.39 x 10⁻⁷	1.15 x 10⁻⁸	7.66 x 10⁻⁷
+SARS-COV-2	Spurbeck	8.97 x 10⁻¹¹	5.15 x 10⁻¹²	6.18 x 10⁻¹⁰
+AAV2	Rothman	2.06 x 10⁻¹²	4.49 x 10⁻¹⁴	3.20 x 10⁻¹¹
+AAV2	Crits-Christoph	2.38 x 10⁻¹²	2.65 x 10⁻¹⁴	6.76 x 10⁻¹¹
+AAV2	Spurbeck	8.35 x 10⁻¹¹	8.40 x 10⁻¹²	5.45 x 10⁻¹⁰
+AAV2	Brinch	5.92 x 10⁻¹¹	1.48 x 10⁻¹¹	2.57 x 10⁻¹⁰
+BKV	Rothman	5.34 x 10⁻¹²	1.58 x 10⁻¹³	4.14 x 10⁻¹¹
+BKV	Crits-Christoph	1.86 x 10⁻¹⁰	8.72 x 10⁻¹²	2.93 x 10⁻⁹
+BKV	Spurbeck	4.34 x 10⁻¹²	2.24 x 10⁻¹³	3.53 x 10⁻¹¹
+BKV	Brinch	4.44 x 10⁻¹⁰	2.09 x 10⁻¹⁰	8.58 x 10⁻¹⁰
+CMV	Rothman	2.67 x 10⁻¹²	5.55 x 10⁻¹⁴	2.84 x 10⁻¹¹
+CMV	Crits-Christoph	2.58 x 10⁻¹²	2.90 x 10⁻¹⁴	8.30 x 10⁻¹¹
+CMV	Spurbeck	8.95 x 10⁻¹³	2.46 x 10⁻¹⁴	1.24 x 10⁻¹¹
+CMV	Brinch	5.53 x 10⁻¹³	1.30 x 10⁻¹⁴	8.99 x 10⁻¹²
+EBV	Rothman	1.84 x 10⁻¹²	3.69 x 10⁻¹⁴	2.62 x 10⁻¹¹
+EBV	Crits-Christoph	1.77 x 10⁻¹²	1.50 x 10⁻¹⁴	5.51 x 10⁻¹¹
+EBV	Spurbeck	7.75 x 10⁻¹³	1.68 x 10⁻¹⁴	7.95 x 10⁻¹²
+EBV	Brinch	2.71 x 10⁻¹¹	7.14 x 10⁻¹²	9.35 x 10⁻¹¹
+HCV	Rothman	6.37 x 10⁻¹¹	1.33 x 10⁻¹²	1.03 x 10⁻⁹
+HCV	Crits-Christoph	1.59 x 10⁻¹⁰	2.09 x 10⁻¹²	3.73 x 10⁻⁹
+HCV	Spurbeck	1.62 x 10⁻¹¹	3.22 x 10⁻¹³	2.84 x 10⁻¹⁰
+HCV	Brinch	1.58 x 10⁻¹⁰	5.70 x 10⁻¹²	1.91 x 10⁻⁹
+HIV	Rothman	1.49 x 10⁻⁹	3.45 x 10⁻¹¹	1.42 x 10⁻⁸
+HIV	Crits-Christoph	3.82 x 10⁻⁹	1.17 x 10⁻¹⁰	5.09 x 10⁻⁸
+HIV	Spurbeck	1.33 x 10⁻¹⁰	2.18 x 10⁻¹²	2.21 x 10⁻⁹
+HIV	Brinch	9.71 x 10⁻¹⁰	2.40 x 10⁻¹¹	1.38 x 10⁻⁸
+HPV	Rothman	1.92 x 10⁻¹²	3.50 x 10⁻¹⁴	3.03 x 10⁻¹¹
+HPV	Crits-Christoph	4.08 x 10⁻¹²	3.39 x 10⁻¹⁴	1.00 x 10⁻¹⁰
+HPV	Spurbeck	5.81 x 10⁻¹³	1.17 x 10⁻¹⁴	9.85 x 10⁻¹²
+HPV	Brinch	4.35 x 10⁻¹³	8.79 x 10⁻¹⁵	8.73 x 10⁻¹²
+HSV-1	Rothman	4.01 x 10⁻¹⁰	1.41 x 10⁻¹⁰	8.23 x 10⁻¹⁰
+HSV-1	Crits-Christoph	3.00 x 10⁻¹²	4.21 x 10⁻¹⁴	7.60 x 10⁻¹¹
+HSV-1	Spurbeck	4.47 x 10⁻¹³	8.07 x 10⁻¹⁵	7.02 x 10⁻¹²
+HSV-1	Brinch	1.02 x 10⁻¹²	5.20 x 10⁻¹⁴	1.16 x 10⁻¹¹
+JCV	Rothman	2.21 x 10⁻¹¹	1.08 x 10⁻¹²	1.96 x 10⁻¹⁰
+JCV	Crits-Christoph	5.24 x 10⁻¹⁰	3.30 x 10⁻¹¹	5.57 x 10⁻⁹
+JCV	Spurbeck	1.94 x 10⁻¹¹	1.64 x 10⁻¹²	1.07 x 10⁻¹⁰
+JCV	Brinch	1.45 x 10⁻⁹	6.22 x 10⁻¹⁰	3.22 x 10⁻⁹
+MCV	Rothman	1.61 x 10⁻¹²	2.31 x 10⁻¹⁴	2.38 x 10⁻¹¹
+MCV	Crits-Christoph	1.24 x 10⁻⁸	5.15 x 10⁻⁹	2.97 x 10⁻⁸
+MCV	Spurbeck	2.56 x 10⁻¹²	8.84 x 10⁻¹⁴	2.05 x 10⁻¹¹
+MCV	Brinch	1.96 x 10⁻¹⁰	8.48 x 10⁻¹¹	4.70 x 10⁻¹⁰

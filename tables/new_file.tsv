@@ -1,0 +1,25 @@
+Virus	Study	50th %	5th %	95th %	Detection Threshold
+Norovirus (GII)	Crits-Christoph	8.24 x 10⁶	1.42 x 10⁸	1.21 x 10⁶	10
+Norovirus (GII)	Rothman	2.40 x 10⁵	6.31 x 10⁵	1.05 x 10⁵	10
+Norovirus (GII)	Spurbeck	2.26 x 10⁸	2.56 x 10⁹	4.29 x 10⁷	10
+Norovirus (GII)	Mean (geometric)	7.64 x 10⁶	6.12 x 10⁷	1.76 x 10⁶	10
+SARS-COV-2	Crits-Christoph	4.20 x 10⁷	6.06 x 10⁸	5.68 x 10⁶	10
+SARS-COV-2	Rothman	1.60 x 10⁸	5.97 x 10⁸	5.02 x 10⁷	10
+SARS-COV-2	Spurbeck	2.65 x 10¹⁰	3.96 x 10¹¹	4.58 x 10⁹	10
+SARS-COV-2	Mean (geometric)	5.63 x 10⁸	5.23 x 10⁹	1.09 x 10⁸	10
+Norovirus (GII)	Crits-Christoph	8.24 x 10⁷	1.42 x 10⁹	1.21 x 10⁷	100
+Norovirus (GII)	Rothman	2.40 x 10⁶	6.31 x 10⁶	1.05 x 10⁶	100
+Norovirus (GII)	Spurbeck	2.26 x 10⁹	2.56 x 10¹⁰	4.29 x 10⁸	100
+Norovirus (GII)	Mean (geometric)	7.64 x 10⁷	6.12 x 10⁸	1.76 x 10⁷	100
+SARS-COV-2	Crits-Christoph	4.20 x 10⁸	6.06 x 10⁹	5.68 x 10⁷	100
+SARS-COV-2	Rothman	1.60 x 10⁹	5.97 x 10⁹	5.02 x 10⁸	100
+SARS-COV-2	Spurbeck	2.65 x 10¹¹	3.96 x 10¹²	4.58 x 10¹⁰	100
+SARS-COV-2	Mean (geometric)	5.63 x 10⁹	5.23 x 10¹⁰	1.09 x 10⁹	100
+Norovirus (GII)	Crits-Christoph	8.24 x 10⁸	1.42 x 10¹⁰	1.21 x 10⁸	1000
+Norovirus (GII)	Rothman	2.40 x 10⁷	6.31 x 10⁷	1.05 x 10⁷	1000
+Norovirus (GII)	Spurbeck	2.26 x 10¹⁰	2.56 x 10¹¹	4.29 x 10⁹	1000
+Norovirus (GII)	Mean (geometric)	7.64 x 10⁸	6.12 x 10⁹	1.76 x 10⁸	1000
+SARS-COV-2	Crits-Christoph	4.20 x 10⁹	6.06 x 10¹⁰	5.68 x 10⁸	1000
+SARS-COV-2	Rothman	1.60 x 10¹⁰	5.97 x 10¹⁰	5.02 x 10⁹	1000
+SARS-COV-2	Spurbeck	2.65 x 10¹²	3.96 x 10¹³	4.58 x 10¹¹	1000
+SARS-COV-2	Mean (geometric)	5.63 x 10¹⁰	5.23 x 10¹¹	1.09 x 10¹⁰	1000

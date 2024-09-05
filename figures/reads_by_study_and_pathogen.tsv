@@ -1,0 +1,40 @@
+	pathogen	study	tidy_name	viral_reads
+0	cmv	brinch	CMV	1
+1	cmv	crits_christoph	CMV	2
+2	cmv	rothman	CMV	1
+3	cmv	spurbeck	CMV	2
+4	ebv	brinch	EBV	37
+5	ebv	crits_christoph	EBV	0
+6	ebv	rothman	EBV	4
+7	ebv	spurbeck	EBV	2
+8	hcv	brinch	HCV	0
+9	hcv	crits_christoph	HCV	0
+10	hcv	rothman	HCV	0
+11	hcv	spurbeck	HCV	0
+12	hiv	brinch	HIV	1
+13	hiv	crits_christoph	HIV	1
+14	hiv	rothman	HIV	1
+15	hiv	spurbeck	HIV	0
+16	hpv	brinch	HPV	0
+17	hpv	crits_christoph	HPV	0
+18	hpv	rothman	HPV	0
+19	hpv	spurbeck	HPV	0
+20	hsv_1	brinch	HSV-1	6
+21	hsv_1	crits_christoph	HSV-1	0
+22	hsv_1	rothman	HSV-1	42
+23	hsv_1	spurbeck	HSV-1	0
+24	influenza	crits_christoph	Influenza A	0
+25	influenza	crits_christoph	Influenza B	0
+26	influenza	rothman	Influenza A	0
+27	influenza	rothman	Influenza B	0
+28	influenza	spurbeck	Influenza A	0
+29	influenza	spurbeck	Influenza B	0
+30	norovirus	crits_christoph	Norovirus (GI)	0
+31	norovirus	crits_christoph	Norovirus (GII)	2
+32	norovirus	rothman	Norovirus (GI)	114
+33	norovirus	rothman	Norovirus (GII)	333
+34	norovirus	spurbeck	Norovirus (GI)	61
+35	norovirus	spurbeck	Norovirus (GII)	23
+36	sars_cov_2	crits_christoph	SARS-COV-2	52
+37	sars_cov_2	rothman	SARS-COV-2	375
+38	sars_cov_2	spurbeck	SARS-COV-2	16
