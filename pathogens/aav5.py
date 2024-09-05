@@ -3,9 +3,9 @@ import dataclasses
 from pathogen_properties import *
 
 background = """Adeno-associated virus 5 is a small replication-defective
-virus. It belongs to the Dependoparvoviridae, a genus of viruses that is 
-commonly used to construct viral vectors. AAV-5 has no known clinical 
-significance in humans, and seroprevalence studies are focused on patient 
+virus. It belongs to the Dependoparvoviridae, a genus of viruses that is
+commonly used to construct viral vectors. AAV-5 has no known clinical
+significance in humans, and seroprevalence studies are focused on patient
 groups that might receive a vector-based therapy. """
 
 pathogen_chars = PathogenChars(
