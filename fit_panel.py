@@ -24,9 +24,9 @@ def summarize_output(coeffs: pd.DataFrame) -> pd.DataFrame:
 
 
 def start(num_samples: int, plot: bool) -> None:
-    figdir = Path("panel_fig")
+    figdir = os.path.join(MODEL_OUTPUT_DIR, "model_panel_fig")
     if plot:
-        figdir.mkdir(exist_ok=True)
+        os.makedirs(figdir, exist_ok=True)
     mgs_data = MGSData.from_repo()
     input_data = []
     output_data = []
