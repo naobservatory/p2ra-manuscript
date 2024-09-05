@@ -1,4 +1,3 @@
-import csv
 import sys as sys
 
 sys.path.append("..")
