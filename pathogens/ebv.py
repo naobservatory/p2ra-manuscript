@@ -9,15 +9,13 @@ from populations import us_population
 
 background = """Epstein-Barr virus (EBV) is a type of  herpes virus that
 infects humans and is known to cause infectious mononucleosis, also known
-as mono or glandular fever. EBV is a common virus that is transmitted 
-through contact with infected saliva, such as through kissing, sharing 
+as mono or glandular fever. EBV is a common virus that is transmitted
+through contact with infected saliva, such as through kissing, sharing
 utensils, or close contact with an infected person's respiratory droplets.
 EBV is a widespread virus that can persist in the body for life, although
 most people infected with EBV do not develop symptoms or have mild symptoms
 that resemble the flu."""
 
-# TODO: Simon will look into incidence of mononucleosis in the US. There is
-# also the question of mono being a proxy for EBV infection, or activation.
 
 pathogen_chars = PathogenChars(
     na_type=NAType.DNA,
