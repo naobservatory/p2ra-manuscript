@@ -18,11 +18,20 @@ more estimates.
 
 Run `./summarize.py` to get an overview of the data.
 
+### Downloading the data
+
+To download the data for the model, build the first composite figure:
+
+```
+$ cd figures/
+$ python3 composite_fig_1.py
+```
+
 ### Statistical model
 
 For an overview of the statistical model see [model.md](model.md).
 
-To fit the model, run `./fit.py`. This will create:
+To fit the model, run `./fit.py`. This will create, under `model_output/`:
 
 * `input.tsv`, a table of the input data to the model
 * `fits.tsv`, a table of samples from the posterior distribution of model parameters
