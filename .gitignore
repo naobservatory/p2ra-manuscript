@@ -146,15 +146,15 @@ settings.json
 # Model output
 fits.tsv
 fig/*
+panel_fig/*
 figures/*.png
-<<<<<<< HEAD
+
 figures/archive/*
 manual_figures/*
 
 # MGS ouput
 cladecounts/*
 humanviruses/*
-=======
 figures/*.pdf
 figures/archive/*
 model_output/*
@@ -173,13 +173,9 @@ figures/*.ipynb
 # Tables not in /tables
 *_table*.tsv
 
-# Tables in /tables that do not contain "supplement"
-!table_scripts/supplement_table_*.tsv
-
-# Figures in /figures that do not contain "supplement" or "composite" or are not fig_5.py
-!figures/supplement_fig_*.py
-!figures/composite_fig_*.py
-!figures/fig_5.py
 
 # One-off scripts
 scripts/*
+
+# bioprojects
+bioprojects/*
