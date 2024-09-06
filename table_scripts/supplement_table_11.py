@@ -54,14 +54,15 @@ def get_reads_required(
     median_reads = detection_threshold / (
         100 * stats.percentiles[50] * cumulative_incidence
     )
-    lower_reads = detection_threshold / (
+    # Low P2RA gives high total reads required. Hence, low p2ra percentile gives higher bound for reads required.
+    upper_bound_reads = detection_threshold / (
         100 * stats.percentiles[5] * cumulative_incidence
     )
-    upper_reads = detection_threshold / (
+    lower_bound_reads = detection_threshold / (
         100 * stats.percentiles[95] * cumulative_incidence
     )
 
-    return median_reads, lower_reads, upper_reads
+    return median_reads, lower_bound_reads, upper_bound_reads
 
 
 def tidy_number(reads_required=int) -> str:
@@ -118,15 +119,15 @@ def start():
             for virus in viruses:
                 geomean_dict = {
                     "median": [],
-                    "lower": [],
-                    "upper": [],
+                    "lower_bound": [],
+                    "upper_bound": [],
                 }
                 studies = study_labels.keys()
                 for i, study in enumerate(studies):
                     (
-                        study_median,
-                        study_lower,
-                        study_upper,
+                        median_reads,
+                        lower_bound_reads,
+                        upper_bound_reads,
                     ) = get_reads_required(
                         data,
                         cumulative_incidence=TARGET_INCIDENCE,
@@ -136,13 +137,13 @@ def start():
                         study=study,
                     )
 
-                    geomean_dict["median"].append(study_median)
-                    geomean_dict["lower"].append(study_lower)
-                    geomean_dict["upper"].append(study_upper)
+                    geomean_dict["median"].append(median_reads)
+                    geomean_dict["lower_bound"].append(lower_bound_reads)
+                    geomean_dict["upper_bound"].append(upper_bound_reads)
 
-                    tidy_median = tidy_number(study_median)
-                    tidy_lower = tidy_number(study_lower)
-                    tidy_upper = tidy_number(study_upper)
+                    tidy_median = tidy_number(median_reads)
+                    tidy_lower = tidy_number(lower_bound_reads)
+                    tidy_upper = tidy_number(upper_bound_reads)
                     tsv_writer.writerow(
                         [
                             virus,
@@ -155,8 +156,8 @@ def start():
                     )
                     if i == len(studies) - 1:
                         geomean_median = gmean(geomean_dict["median"])
-                        geomean_lower = gmean(geomean_dict["lower"])
-                        geomean_upper = gmean(geomean_dict["upper"])
+                        geomean_lower = gmean(geomean_dict["lower_bound"])
+                        geomean_upper = gmean(geomean_dict["upper_bound"])
 
                         tidy_median = tidy_number(geomean_median)
                         tidy_lower = tidy_number(geomean_lower)
