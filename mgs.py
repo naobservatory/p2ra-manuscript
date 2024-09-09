@@ -13,7 +13,6 @@ import csv
 from pydantic import BaseModel
 
 from pathogen_properties import TaxID
-from tree import Tree
 
 BIOPROJECTS_DIR = "bioprojects"
 
@@ -193,7 +192,7 @@ SampleCounts = dict[TaxID, dict[Sample, int]]
 
 metadata_bioprojects = {}
 metadata_samples = {}
-sample_counts = defaultdict(dict)
+sample_counts = defaultdict(Counter) # taxid -> sample -> clade count
 for paper, bioprojects in target_bioprojects.items():
     for bioproject in bioprojects:
         samples = []
@@ -223,9 +222,9 @@ for paper, bioprojects in target_bioprojects.items():
                     n_reads_clade,
                 ) = row.rstrip("\n").split("\t")
                 taxid = int(taxid)
-                n_reads_direct = int(n_reads_direct)
-                if n_reads_direct:
-                    sample_counts[taxid][sample] = n_reads_direct
+                n_reads_clade = int(n_reads_clade)
+                if n_reads_clade:
+                    sample_counts[taxid][sample] = n_reads_clade
         with open(
             os.path.join(BIOPROJECTS_DIR, bioproject, "qc_basic_stats.tsv")
         ) as inf:
@@ -240,43 +239,11 @@ for paper, bioprojects in target_bioprojects.items():
                     row[cols.index("n_read_pairs")]
                 )
 
-
-def load_tax_tree() -> Tree[TaxID]:
-    with open("human_virus_tree-2022-12.json") as inf:
-        data = json.load(inf)
-    return Tree.tree_from_list(data).map(lambda x: TaxID(int(x)))
-
-
-def make_count_tree(
-    taxtree: Tree[TaxID], sample_counts: SampleCounts
-) -> Tree[tuple[TaxID, Counter[Sample]]]:
-    return taxtree.map(
-        lambda taxid: (
-            (taxid, Counter(sample_counts[taxid]))
-            if taxid in sample_counts
-            else (taxid, Counter())
-        ),
-    )
-
-
-def count_reads(
-    taxtree: Tree[TaxID] | None, sample_counts: SampleCounts
-) -> Counter[Sample]:
-    if taxtree is None:
-        return Counter()
-    count_tree = make_count_tree(taxtree, sample_counts)
-    return sum(
-        (elem.data[1] for elem in count_tree),
-        start=Counter(),
-    )
-
-
 @dataclass
 class MGSData:
     bioprojects: dict[BioProject, list[Sample]]
     sample_attrs: dict[Sample, SampleAttributes]
     read_counts: SampleCounts
-    tax_tree: Tree[TaxID]
 
     @staticmethod
     def from_repo():
@@ -284,7 +251,6 @@ class MGSData:
             bioprojects=metadata_bioprojects,
             sample_attrs=metadata_samples,
             read_counts=sample_counts,
-            tax_tree=load_tax_tree(),
         )
 
     def sample_attributes(
@@ -310,11 +276,7 @@ class MGSData:
     def viral_reads(
         self, bioproject: BioProject, taxids: Iterable[TaxID]
     ) -> dict[Sample, int]:
-        viral_counts_by_taxid = {
-            taxid: count_reads(self.tax_tree[taxid], self.read_counts)
-            for taxid in taxids
-        }
         return {
-            s: sum(viral_counts_by_taxid[taxid][s] for taxid in taxids)
+            s: sum(self.read_counts[taxid][s] for taxid in taxids)
             for s in self.bioprojects[bioproject]
         }
