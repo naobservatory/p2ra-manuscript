@@ -1,90 +1,197 @@
 import csv
-import pandas as pd
+from dataclasses import dataclass
+from collections import defaultdict, namedtuple
+import matplotlib.pyplot as plt  # type: ignore
+import numpy as np
 import os
-from collections import defaultdict
-from math import log
 
-from scipy.stats import gmean
+PERCENTILES = [5, 25, 50, 75, 95]
 
-PERCENTILES = ["5%", "25%", "50%", "75%", "95%"]
 MODEL_OUTPUT_DIR = "../model_output"
 TABLE_OUTPUT_DIR = "../tables"
 
-
-def reads_df() -> pd.DataFrame:
-    df = pd.read_csv(os.path.join(MODEL_OUTPUT_DIR, "input.tsv"), sep="\t")
-    return df
+TARGET_STUDIES = ["rothman", "crits_christoph"]
 
 
-def rothman_fits_data() -> pd.DataFrame:
-    data = {
-        "predictor_type": [],
-        "virus": [],
-        "study": [],
-        "location": [],
-    }
-    for p in PERCENTILES:
-        data[f"{p}"] = []
+@dataclass(frozen=False)
+class SummaryStats:
+    mean: float
+    std: float
+    min: float
+    percentiles: dict[int, float]
+    max: float
+    fold_change: float
+
+
+def tidy_number(reads_required=int) -> str:
+    sci_notation = f"{reads_required:.2e}"
+
+    coefficient, exponent = sci_notation.split("e")
+
+    is_negative = exponent.startswith("-")
+    if is_negative:
+        exponent = exponent[1:]
+
+    exponent = exponent.lstrip("0")
+
+    if is_negative:
+        exponent = "⁻" + exponent
+
+    superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+    exponent = exponent.translate(superscript_map)
+
+    return f"{coefficient} x 10{exponent}"
+
+
+studies = [
+    "rothman_unenriched",
+    "rothman_panel_enriched",
+    "crits_christoph_unenriched",
+    "crits_christoph_panel_enriched",
+]
+
+pretty_study = {
+    "rothman_unenriched": "Rothman Unenriched",
+    "crits_christoph_unenriched": "Crits-Christoph Unenriched",
+    "rothman_panel_enriched": "Rothman Panel-enriched",
+    "crits_christoph_panel_enriched": "Crits-Christoph Panel-enriched",
+}
+
+
+def read_data() -> dict[tuple[str, str, str, str, str], SummaryStats]:
+    data = {}
 
     with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
+        unenriched_medians = {}
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
-            if row["location"] == "Overall":
+            study = row["study"]
+            if study == "rothman":
+                study_unenriched = "rothman_unenriched"
+            elif study == "crits_christoph":
+                study_unenriched = "crits_christoph_unenriched"
+            else:
                 continue
-            if row["study"] != "rothman":
-                continue
-            data["predictor_type"].append(row["predictor_type"])
-            data["virus"].append(row["tidy_name"])
-            data["study"].append(row["study"])
-            data["location"].append(row["location"])
-            for p in PERCENTILES:
-                data[f"{p}"].append(abs(log(float(row[f"{p}"]), 10)))
-
-    df = pd.DataFrame.from_dict(data)
-
-    return df
-
-
-def compute_geo_mean_ratio(df: pd.DataFrame) -> pd.DataFrame:
-    target_viruses = [
-        "Norovirus (GI)",
-        "Norovirus (GII)",
-        "SARS-COV-2",
-        "MCV",
-        "JCV",
-        "BKV",
-    ]
-    gmean_variance = defaultdict(list)
-    for virus in df["virus"].unique():
-        if virus not in target_viruses:
-            continue
-        virus_df = df[df["virus"] == virus]
-        htp_df = virus_df[virus_df["location"] == "HTP"]
-
-        non_htp_df = virus_df[virus_df["location"] != "HTP"]
-
-        gmean_variance["virus"].append(virus)
-        for quantile in PERCENTILES:
-            non_htp_quantile_gm = gmean(non_htp_df[quantile].dropna())
-            htp_quantile = gmean(htp_df[quantile].dropna())
-            variance = float(htp_quantile - non_htp_quantile_gm)
-
-            gmean_variance[f"Difference at {quantile}"].append(
-                round(variance, 2)
+            virus = row["tidy_name"]
+            predictor_type = row["predictor_type"]
+            location = row["location"]
+            unenriched_median = float(row[f"{50}%"])
+            unenriched_medians[virus, predictor_type, study, location] = (
+                unenriched_median
             )
-    return pd.DataFrame(gmean_variance)
+            data[virus, predictor_type, study_unenriched, location] = (
+                SummaryStats(
+                    mean=tidy_number(float(row["mean"])),
+                    std=tidy_number(float(row["std"])),
+                    min=tidy_number(float(row["min"])),
+                    percentiles={
+                        p: tidy_number(float(row[f"{p}%"]))
+                        for p in PERCENTILES
+                    },
+                    max=tidy_number(float(row["max"])),
+                    fold_change="NA",
+                )
+            )
+
+    with open(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
+    ) as datafile:
+        enriched_medians = {}
+        reader = csv.DictReader(datafile, delimiter="\t")
+        for row in reader:
+            study = row["study"]
+            if study == "rothman":
+                study_enriched = "rothman_panel_enriched"
+                study_unenriched = "rothman_unenriched"
+            elif study == "crits_christoph":
+                study_enriched = "crits_christoph_panel_enriched"
+                study_unenriched = "crits_christoph_unenriched"
+            else:
+                continue
+            virus = row["tidy_name"]
+            predictor_type = row["predictor_type"]
+            location = row["location"]
+            enriched_median = float(row[f"{50}%"])
+            unenriched_median = unenriched_medians[
+                virus, predictor_type, study, location
+            ]
+            fold_change = enriched_median / unenriched_median
+            fold_change_enriched = (
+                round(fold_change, 2)
+                if fold_change > 1
+                else tidy_number(fold_change)
+            )
+            fold_change_unenriched = (
+                round(1 / fold_change, 2)
+                if fold_change < 1
+                else tidy_number(1 / fold_change)
+            )
+
+            data[virus, predictor_type, study_enriched, location] = (
+                SummaryStats(
+                    mean=tidy_number(float(row["mean"])),
+                    std=tidy_number(float(row["std"])),
+                    min=tidy_number(float(row["min"])),
+                    percentiles={
+                        p: tidy_number(float(row[f"{p}%"]))
+                        for p in PERCENTILES
+                    },
+                    max=tidy_number(float(row["max"])),
+                    fold_change=fold_change_enriched,
+                )
+            )
+            data[
+                virus, predictor_type, study_unenriched, location
+            ].fold_change = fold_change_unenriched
+
+    return data
+
+
+def create_tsv():
+    data = read_data()
+    # print(data)
+    viruses = set()
+    for entry in data.keys():
+        virus, predictor_type = entry[:2]
+        viruses.add((virus, predictor_type))
+    sorted_viruses = sorted(viruses, key=lambda x: (x[1], x[0]))
+
+    headers = [
+        "Virus",
+        "Study",
+        "Median",
+        "5th Percentile",
+        "95th Percentile",
+        "Fold change\n(un- vs. enriched, median)",
+    ]
+
+    with open(
+        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_7.tsv"),
+        "w",
+        newline="",
+    ) as file:
+        writer = csv.DictWriter(file, fieldnames=headers, delimiter="\t")
+        writer.writeheader()
+
+        for virus, predictor_type in sorted_viruses:
+
+            for study in studies:
+
+                stats = data[virus, predictor_type, study, "Overall"]
+                writer.writerow(
+                    {
+                        "Virus": virus,
+                        "Study": pretty_study[study],
+                        "Median": stats.percentiles[50],
+                        "5th Percentile": stats.percentiles[5],
+                        "95th Percentile": stats.percentiles[95],
+                        "Fold change\n(un- vs. enriched, median)": stats.fold_change,
+                    }
+                )
 
 
 def start():
-    df_fits = rothman_fits_data()
-
-    variance_df = compute_geo_mean_ratio(df_fits)
-
-    variance_df.to_csv(
-        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_7.tsv"),
-        sep="\t",
-        index=False,
-    )
+    create_tsv()
 
 
 if __name__ == "__main__":

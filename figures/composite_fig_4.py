@@ -5,6 +5,8 @@ import os
 
 sys.path.append("..")
 
+MODEL_OUTPUT_DIR = "model_output"
+
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as ticker  # type: ignore
@@ -13,8 +15,6 @@ import pandas as pd
 import seaborn as sns  # type: ignore
 
 from pathogens import pathogens
-
-MODEL_OUTPUT_DIR = "model_output"
 
 
 def nucleic_acid(pathogen: str) -> str:
@@ -27,10 +27,10 @@ def selection_round(pathogen: str) -> str:
 
 def study_name(study: str) -> str:
     return {
-        "brinch": "Brinch",
-        "crits_christoph": "Crits-Christoph",
-        "rothman": "Rothman",
-        "spurbeck": "Spurbeck",
+        "crits_christoph_unenriched": "Crits-Christoph\nUnenriched",
+        "crits_christoph_panel": "Crits-Christoph\nPanel-enriched",
+        "rothman_unenriched": "Rothman\nUnenriched",
+        "rothman_panel": "Rothman\nPanel-enriched",
     }[study]
 
 
@@ -58,14 +58,13 @@ def adjust_axes(ax, predictor_type: str) -> None:
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_visible(False)
     ax.vlines(
-        ax.get_xticks()[1:-1],
+        ax.get_xticks()[1:],
         *ax.get_ylim(),
         color="grey",
         linewidth=0.3,
         linestyle=":",
         zorder=-1,
     )
-    # ax.set_xscale("log")
     ax.set_xlabel(
         r"$\mathrm{RA}"
         f"{predictor_type[0]}"
@@ -90,6 +89,14 @@ def plot_violin(
     plotting_order = viral_reads.sort_values(
         sorting_order, ascending=ascending
     ).reset_index()
+    sns_colors = sns.color_palette().as_hex()
+    palette = {
+        "Rothman\nPanel-enriched": "#9467bd",
+        "Rothman\nUnenriched": "#ff7f0e",
+        "Crits-Christoph\nPanel-enriched": "#17becf",
+        "Crits-Christoph\nUnenriched": "#2ca02c",
+    }
+
     sns.violinplot(
         ax=ax,
         data=data,
@@ -98,15 +105,18 @@ def plot_violin(
         order=plotting_order[y].unique(),
         hue="study",
         hue_order=plotting_order.study.unique(),
+        palette=palette,
         inner=None,
         linewidth=0.0,
-        density_norm="area",
         width=0.9,
         dodge=0.1,
+        density_norm="area",
         common_norm=True,
         cut=0,
+        gap=0.3,
     )
     x_min = ax.get_xlim()[0]
+
     # Before changing appearance of violins below, drop Crits-Christoph Influenza A and B from plotting_order, as no violins exist for them.
     plotting_order = plotting_order[
         ~(
@@ -125,6 +135,7 @@ def plot_violin(
         plotting_order.tidy_name,
         ax.collections,
     ):
+
         if 0 < num_reads < 10:
             alpha = 0.5
             patches.set_alpha(alpha)
@@ -176,14 +187,14 @@ def plot_incidence(
     data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
 ) -> plt.Axes:
     predictor_type = "incidence"
-    ax.set_xlim((-15, -3))
+    ax.set_xlim((-15, 0))
     plot_violin(
         ax=ax,
         data=data[
             (data.predictor_type == predictor_type)
             & (data.location == "Overall")
             & ~(
-                (data.study == "Crits-Christoph")
+                (data.study.str.contains("Crits-Christoph", case=False))
                 & (data.pathogen == "influenza")
             )
         ],
@@ -201,7 +212,7 @@ def plot_incidence(
         ascending=[False, True, False, True, False],
         violin_scale=2.0,
     )
-    ax.set_xticks(list(range(-15, -1, 2)))
+    ax.set_xticks(list(range(-15, 1, 2)))
 
     separate_viruses(ax)
     adjust_axes(ax, predictor_type=predictor_type)
@@ -224,7 +235,7 @@ def plot_prevalence(
     data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
 ) -> plt.Axes:
     predictor_type = "prevalence"
-    ax.set_xlim((-15, -3))
+    ax.set_xlim((-15, 0))
     plot_violin(
         ax=ax,
         data=data[
@@ -245,8 +256,7 @@ def plot_prevalence(
         ascending=[False, True, False, True, False],
         violin_scale=1.5,
     )
-    ax.set_xlim((-15, -3))
-    ax.set_xticks(list(range(-15, -1, 2)))
+    ax.set_xticks(list(range(-15, 1, 2)))
     separate_viruses(ax)
     # TODO Get these values automatically
     num_rna_1 = 2
@@ -258,20 +268,12 @@ def plot_prevalence(
         color="k",
         linewidth=0.5,
     )
-    text_x = np.log10(1.1e-3)
+    text_x = np.log10(1.1e-0)
     ax.text(text_x, -0.45, "RNA viruses", va="top")
     ax.text(text_x, num_rna_1 - 0.45, "DNA viruses", va="top")
-
     adjust_axes(ax, predictor_type=predictor_type)
-    legend = ax.legend(
-        title="MGS study",
-        bbox_to_anchor=(1.02, 0),
-        loc="lower left",
-        borderaxespad=0,
-        frameon=False,
-    )
-    for legend_handle in legend.legend_handles:  # type: ignore
-        legend_handle.set_edgecolor(legend_handle.get_facecolor())  # type: ignore
+    # no legend
+    ax.get_legend().remove()
 
     ax_title = ax.set_title("b", fontweight="bold")
     ax_title.set_position((-0.22, 0))
@@ -327,16 +329,45 @@ def save_plot(fig, figdir: Path, name: str) -> None:
 def start() -> None:
     parent_dir = Path("..")
     figdir = Path(parent_dir / "fig")
-    os.makedirs(figdir, exist_ok=True)
+    figdir.mkdir(exist_ok=True)
 
-    fits_df = pd.read_csv(
+    panel_fits_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "panel_fits.tsv"), sep="\t"
+    )
+    unenriched_fits_df = pd.read_csv(
         os.path.join(parent_dir, MODEL_OUTPUT_DIR, "fits.tsv"), sep="\t"
+    )
+    unenriched_fits_df = unenriched_fits_df[
+        ~unenriched_fits_df.study.isin(["spurbeck", "brinch"])
+    ]
+    panel_fits_df["study"] = panel_fits_df["study"] + "_panel"
+    unenriched_fits_df["study"] = unenriched_fits_df["study"] + "_unenriched"
+
+    fits_df = pd.concat(
+        [panel_fits_df, unenriched_fits_df],
+        axis=0,
     )
     fits_df["study"] = fits_df.study.map(study_name)
     fits_df["log10ra"] = np.log10(fits_df.ra_at_1in100)
-    input_df = pd.read_csv(
+
+    panel_input_df = pd.read_csv(
+        os.path.join(parent_dir, MODEL_OUTPUT_DIR, "panel_input.tsv"), sep="\t"
+    )
+
+    unenriched_input_df = pd.read_csv(
         os.path.join(parent_dir, MODEL_OUTPUT_DIR, "input.tsv"), sep="\t"
     )
+    unenriched_input_df = unenriched_input_df[
+        ~unenriched_input_df.study.isin(["spurbeck", "brinch"])
+    ]
+
+    unenriched_input_df["study"] = unenriched_input_df["study"] + "_unenriched"
+    panel_input_df["study"] = panel_input_df["study"] + "_panel"
+    input_df = pd.concat(
+        [panel_input_df, unenriched_input_df],
+        axis=0,
+    )
+
     input_df["study"] = input_df.study.map(study_name)
     # TODO: Store these in the files instead?
     fits_df = fits_df[fits_df["pathogen"] != "aav5"]  # FIX ME
