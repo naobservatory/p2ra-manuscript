@@ -31,7 +31,6 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
-            # predictor_type = row["predictor_type"]
             study = row["study"]
             location = row["location"]
             enriched = False
@@ -48,7 +47,6 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
-            # predictor_type = row["predictor_type"]
             study = row["study"]
             location = row["location"]
             enriched = True
@@ -105,10 +103,10 @@ def get_reads_required(
         100 * stats.percentiles[50] * cumulative_incidence
     )
     lower_reads = detection_threshold / (
-        100 * stats.percentiles[25] * cumulative_incidence
+        100 * stats.percentiles[5] * cumulative_incidence
     )
     upper_reads = detection_threshold / (
-        100 * stats.percentiles[75] * cumulative_incidence
+        100 * stats.percentiles[95] * cumulative_incidence
     )
 
     return median_reads, lower_reads, upper_reads
@@ -132,15 +130,12 @@ def start():
         figsize=(9, 6),
     )
 
-    colors = [
-        "#648FFF",
-        "#785EF0",
-        "#DC267F",
-        "#FE6100",
-        "#FFB000",
-    ]
-    # line_styles = ["-", "--", "-.", ":"]
-    line_styles = ["-", "-", "-", "-", "-"]
+    study_colors = {
+        "spurbeck": "#1b9e77",
+        "crits_christoph": "#d95f02",
+        "rothman": "#7570b3",
+    }
+    line_styles = ["-", "--"]
 
     for axes, detection_threshold in zip(
         zip(top_axes, bottom_axes), DETECTION_THRESHOLDS
@@ -186,14 +181,16 @@ def start():
                             fontdict={"fontsize": 10},
                         )
 
-                    color = colors[i]
-                    linestyle = line_styles[i]
                     study_label = f"{study_labels[study]}"
                     if enriched:
                         study_label += "\n(panel-enriched)"
                     else:
                         study_label += "\n(unenriched)"
 
+                    if enriched:
+                        linestyle = "--"
+                    else:
+                        linestyle = "-"
                     plot_lines(
                         ax=ax,
                         median=study_median,
@@ -201,27 +198,9 @@ def start():
                         upper=study_upper,
                         label=study_label,
                         linestyle=linestyle,
-                        color=color,
+                        color=study_colors[study],
                         cumulative_incidence=cumulative_incidence,
                     )
-
-                    # if i == len(studies) - 1:
-                    #     color = colors[i + 1]
-                    #     linestyle = line_styles[i + 1]
-                    #     geomean_median = gmean(geomean_dict["median"])
-                    #     geomean_lower = gmean(geomean_dict["lower"])
-                    #     geomean_upper = gmean(geomean_dict["upper"])
-
-                    #     plot_lines(
-                    #         ax,
-                    #         median=geomean_median,
-                    #         lower=geomean_lower,
-                    #         upper=geomean_upper,
-                    #         label="Mean (geometric)",
-                    #         linestyle=linestyle,
-                    #         color=color,
-                    #         cumulative_incidence=cumulative_incidence,
-                    #     )
 
                     ax.set_xticks([1e-4, 1e-3, 1e-2, 1e-1])
                     ax.set_xticklabels(
