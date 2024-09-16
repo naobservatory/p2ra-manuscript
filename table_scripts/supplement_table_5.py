@@ -1,6 +1,6 @@
 import csv
 from dataclasses import dataclass
-
+from collections import defaultdict, namedtuple
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import os
@@ -10,14 +10,17 @@ PERCENTILES = [5, 25, 50, 75, 95]
 MODEL_OUTPUT_DIR = "../model_output"
 TABLE_OUTPUT_DIR = "../tables"
 
+TARGET_STUDIES = ["rothman", "crits_christoph"]
 
-@dataclass
+
+@dataclass(frozen=False)
 class SummaryStats:
     mean: float
     std: float
     min: float
     percentiles: dict[int, float]
     max: float
+    fold_change: float
 
 
 def tidy_number(reads_required=int) -> str:
@@ -40,44 +43,127 @@ def tidy_number(reads_required=int) -> str:
     return f"{coefficient} x 10{exponent}"
 
 
-def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
+studies = [
+    "rothman_unenriched",
+    "rothman_panel_enriched",
+    "crits_christoph_unenriched",
+    "crits_christoph_panel_enriched",
+]
+
+pretty_study = {
+    "rothman_unenriched": "Rothman Unenriched",
+    "crits_christoph_unenriched": "Crits-Christoph Unenriched",
+    "rothman_panel_enriched": "Rothman Panel-enriched",
+    "crits_christoph_panel_enriched": "Crits-Christoph Panel-enriched",
+}
+
+
+def read_data() -> dict[tuple[str, str, str, str, str], SummaryStats]:
     data = {}
+
     with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
+        unenriched_medians = {}
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
+            study = row["study"]
+            if study == "rothman":
+                study_unenriched = "rothman_unenriched"
+            elif study == "crits_christoph":
+                study_unenriched = "crits_christoph_unenriched"
+            else:
+                continue
             virus = row["tidy_name"]
             predictor_type = row["predictor_type"]
-            study = row["study"]
             location = row["location"]
-            data[virus, predictor_type, study, location] = SummaryStats(
-                mean=tidy_number(float(row["mean"])),
-                std=tidy_number(float(row["std"])),
-                min=tidy_number(float(row["min"])),
-                percentiles={
-                    p: tidy_number(float(row[f"{p}%"])) for p in PERCENTILES
-                },
-                max=tidy_number(float(row["max"])),
+            unenriched_median = float(row[f"{50}%"])
+            unenriched_medians[virus, predictor_type, study, location] = (
+                unenriched_median
             )
+            data[virus, predictor_type, study_unenriched, location] = (
+                SummaryStats(
+                    mean=tidy_number(float(row["mean"])),
+                    std=tidy_number(float(row["std"])),
+                    min=tidy_number(float(row["min"])),
+                    percentiles={
+                        p: tidy_number(float(row[f"{p}%"]))
+                        for p in PERCENTILES
+                    },
+                    max=tidy_number(float(row["max"])),
+                    fold_change="NA",
+                )
+            )
+
+    with open(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
+    ) as datafile:
+        enriched_medians = {}
+        reader = csv.DictReader(datafile, delimiter="\t")
+        for row in reader:
+            study = row["study"]
+            if study == "rothman":
+                study_enriched = "rothman_panel_enriched"
+                study_unenriched = "rothman_unenriched"
+            elif study == "crits_christoph":
+                study_enriched = "crits_christoph_panel_enriched"
+                study_unenriched = "crits_christoph_unenriched"
+            else:
+                continue
+            virus = row["tidy_name"]
+            predictor_type = row["predictor_type"]
+            location = row["location"]
+            enriched_median = float(row[f"{50}%"])
+            unenriched_median = unenriched_medians[
+                virus, predictor_type, study, location
+            ]
+            fold_change = enriched_median / unenriched_median
+            fold_change_enriched = (
+                round(fold_change, 2)
+                if fold_change > 1
+                else tidy_number(fold_change)
+            )
+            fold_change_unenriched = (
+                round(1 / fold_change, 2)
+                if fold_change < 1
+                else tidy_number(1 / fold_change)
+            )
+
+            data[virus, predictor_type, study_enriched, location] = (
+                SummaryStats(
+                    mean=tidy_number(float(row["mean"])),
+                    std=tidy_number(float(row["std"])),
+                    min=tidy_number(float(row["min"])),
+                    percentiles={
+                        p: tidy_number(float(row[f"{p}%"]))
+                        for p in PERCENTILES
+                    },
+                    max=tidy_number(float(row["max"])),
+                    fold_change=fold_change_enriched,
+                )
+            )
+            data[
+                virus, predictor_type, study_unenriched, location
+            ].fold_change = fold_change_unenriched
+
     return data
 
 
 def create_tsv():
     data = read_data()
+    # print(data)
     viruses = set()
     for entry in data.keys():
         virus, predictor_type = entry[:2]
         viruses.add((virus, predictor_type))
-
     sorted_viruses = sorted(viruses, key=lambda x: (x[1], x[0]))
 
-    study_tidy = {
-        "rothman": "Rothman",
-        "crits_christoph": "Crits-Christoph",
-        "spurbeck": "Spurbeck",
-        "brinch": "Brinch",
-    }
-
-    headers = ["Virus", "Study", "Median", "Lower", "Upper"]
+    headers = [
+        "Virus",
+        "Study",
+        "Median",
+        "5th Percentile",
+        "95th Percentile",
+        "Fold change\n(un- vs. enriched, median)",
+    ]
 
     with open(
         os.path.join(TABLE_OUTPUT_DIR, "supplement_table_5.tsv"),
@@ -88,18 +174,18 @@ def create_tsv():
         writer.writeheader()
 
         for virus, predictor_type in sorted_viruses:
-            studies = ["rothman", "crits_christoph", "spurbeck"] + (
-                ["brinch"] if predictor_type == "prevalence" else []
-            )
+
             for study in studies:
+
                 stats = data[virus, predictor_type, study, "Overall"]
                 writer.writerow(
                     {
                         "Virus": virus,
-                        "Study": study_tidy[study],
+                        "Study": pretty_study[study],
                         "Median": stats.percentiles[50],
-                        "Lower": stats.percentiles[5],
-                        "Upper": stats.percentiles[95],
+                        "5th Percentile": stats.percentiles[5],
+                        "95th Percentile": stats.percentiles[95],
+                        "Fold change\n(un- vs. enriched, median)": stats.fold_change,
                     }
                 )
 

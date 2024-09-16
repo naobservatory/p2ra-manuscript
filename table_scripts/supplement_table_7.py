@@ -1,90 +1,178 @@
-import csv
-import pandas as pd
-import os
-from collections import defaultdict
-from math import log
+#!/usr/bin/env python3
 
+import csv
+import numpy as np
+import os
+from dataclasses import dataclass
 from scipy.stats import gmean
 
-PERCENTILES = ["5%", "25%", "50%", "75%", "95%"]
+PERCENTILES = [5, 25, 50, 75, 95]
 MODEL_OUTPUT_DIR = "../model_output"
 TABLE_OUTPUT_DIR = "../tables"
 
 
-def reads_df() -> pd.DataFrame:
-    df = pd.read_csv(os.path.join(MODEL_OUTPUT_DIR, "input.tsv"), sep="\t")
-    return df
+@dataclass
+class SummaryStats:
+    mean: float
+    std: float
+    min: float
+    percentiles: dict[int, float]
+    max: float
 
 
-def rothman_fits_data() -> pd.DataFrame:
-    data = {
-        "predictor_type": [],
-        "virus": [],
-        "study": [],
-        "location": [],
-    }
-    for p in PERCENTILES:
-        data[f"{p}"] = []
-
-    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
+def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
+    data = {}
+    with open(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
+    ) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
-            if row["location"] == "Overall":
-                continue
-            if row["study"] != "rothman":
-                continue
-            data["predictor_type"].append(row["predictor_type"])
-            data["virus"].append(row["tidy_name"])
-            data["study"].append(row["study"])
-            data["location"].append(row["location"])
-            for p in PERCENTILES:
-                data[f"{p}"].append(abs(log(float(row[f"{p}"]), 10)))
-
-    df = pd.DataFrame.from_dict(data)
-
-    return df
-
-
-def compute_geo_mean_ratio(df: pd.DataFrame) -> pd.DataFrame:
-    target_viruses = [
-        "Norovirus (GI)",
-        "Norovirus (GII)",
-        "SARS-COV-2",
-        "MCV",
-        "JCV",
-        "BKV",
-    ]
-    gmean_variance = defaultdict(list)
-    for virus in df["virus"].unique():
-        if virus not in target_viruses:
-            continue
-        virus_df = df[df["virus"] == virus]
-        htp_df = virus_df[virus_df["location"] == "HTP"]
-
-        non_htp_df = virus_df[virus_df["location"] != "HTP"]
-
-        gmean_variance["virus"].append(virus)
-        for quantile in PERCENTILES:
-            non_htp_quantile_gm = gmean(non_htp_df[quantile].dropna())
-            htp_quantile = gmean(htp_df[quantile].dropna())
-            variance = float(htp_quantile - non_htp_quantile_gm)
-
-            gmean_variance[f"Difference at {quantile}"].append(
-                round(variance, 2)
+            virus = row["tidy_name"]
+            predictor_type = row["predictor_type"]
+            study = row["study"]
+            location = row["location"]
+            data[virus, predictor_type, study, location] = SummaryStats(
+                mean=float(row["mean"]),
+                std=float(row["std"]),
+                min=float(row["min"]),
+                percentiles={p: float(row[f"{p}%"]) for p in PERCENTILES},
+                max=float(row["max"]),
             )
-    return pd.DataFrame(gmean_variance)
+    return data
+
+
+def get_reads_required(
+    data=dict,
+    cumulative_incidence=int,
+    detection_threshold=np.ndarray,
+    virus=str,
+    predictor_type=str,
+    study=str,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    stats = data[virus, predictor_type, study, "Overall"]
+
+    median_reads = detection_threshold / (
+        100 * stats.percentiles[50] * cumulative_incidence
+    )
+    # Low P2RA gives high total reads required. Hence, low p2ra percentile gives higher bound for reads required.
+    upper_bound_reads = detection_threshold / (
+        100 * stats.percentiles[5] * cumulative_incidence
+    )
+    lower_bound_reads = detection_threshold / (
+        100 * stats.percentiles[95] * cumulative_incidence
+    )
+
+    return median_reads, lower_bound_reads, upper_bound_reads
+
+
+def tidy_number(reads_required=int) -> str:
+    sci_notation = f"{reads_required:.2e}"
+
+    coefficient, exponent = sci_notation.split("e")
+
+    exponent = exponent.replace("+", "")
+    if exponent.startswith("0") and len(exponent) > 1:
+        exponent = exponent[1:]
+
+    exponent = (
+        exponent.replace("0", "⁰")
+        .replace("1", "¹")
+        .replace("2", "²")
+        .replace("3", "³")
+        .replace("4", "⁴")
+        .replace("5", "⁵")
+        .replace("6", "⁶")
+        .replace("7", "⁷")
+        .replace("8", "⁸")
+        .replace("9", "⁹")
+    )
+
+    return f"{coefficient} x 10{exponent}"
 
 
 def start():
-    df_fits = rothman_fits_data()
-
-    variance_df = compute_geo_mean_ratio(df_fits)
-
-    variance_df.to_csv(
+    data = read_data()
+    TARGET_INCIDENCE = 0.01
+    TARGET_THRESHOLDS = [10, 100, 1000]
+    viruses = ["Norovirus (GII)", "SARS-COV-2", "Influenza A"]
+    study_labels = {
+        "rothman": "Rothman Panel-enriched",
+        "crits_christoph": "Crits-Christoph Panel-enriched",
+    }
+    with open(
         os.path.join(TABLE_OUTPUT_DIR, "supplement_table_7.tsv"),
-        sep="\t",
-        index=False,
-    )
+        mode="w",
+        newline="",
+    ) as file:
+        tsv_writer = csv.writer(file, delimiter="\t")
+        tsv_writer.writerow(
+            [
+                "Virus",
+                "Study",
+                "50th %",
+                "5th %",
+                "95th %",
+                "Detection Threshold",
+            ]
+        )
+        for detection_threshold in TARGET_THRESHOLDS:
+            for virus in viruses:
+                geomean_dict = {
+                    "median": [],
+                    "lower_bound": [],
+                    "upper_bound": [],
+                }
+                studies = study_labels.keys()
+                for i, study in enumerate(studies):
+                    (
+                        median_reads,
+                        lower_bound_reads,
+                        upper_bound_reads,
+                    ) = get_reads_required(
+                        data,
+                        cumulative_incidence=TARGET_INCIDENCE,
+                        detection_threshold=detection_threshold,
+                        virus=virus,
+                        predictor_type="incidence",
+                        study=study,
+                    )
+
+                    geomean_dict["median"].append(median_reads)
+                    geomean_dict["lower_bound"].append(lower_bound_reads)
+                    geomean_dict["upper_bound"].append(upper_bound_reads)
+
+                    tidy_median = tidy_number(median_reads)
+                    tidy_lower = tidy_number(lower_bound_reads)
+                    tidy_upper = tidy_number(upper_bound_reads)
+                    tsv_writer.writerow(
+                        [
+                            virus,
+                            study_labels[study],
+                            tidy_median,
+                            tidy_lower,
+                            tidy_upper,
+                            detection_threshold,
+                        ]
+                    )
+                    if i == len(studies) - 1:
+                        geomean_median = gmean(geomean_dict["median"])
+                        geomean_lower = gmean(geomean_dict["lower_bound"])
+                        geomean_upper = gmean(geomean_dict["upper_bound"])
+
+                        tidy_median = tidy_number(geomean_median)
+                        tidy_lower = tidy_number(geomean_lower)
+                        tidy_upper = tidy_number(geomean_upper)
+
+                        tsv_writer.writerow(
+                            [
+                                virus,
+                                "Mean (geometric)",
+                                tidy_median,
+                                tidy_lower,
+                                tidy_upper,
+                                detection_threshold,
+                            ]
+                        )
 
 
 if __name__ == "__main__":

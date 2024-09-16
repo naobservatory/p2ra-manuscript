@@ -286,12 +286,10 @@ for i, (label, seq_cost, processing_cost) in enumerate(
         fontsize=10,
     )
 
-# Adjust the plot layout to accommodate the text labels
-plt.subplots_adjust(right=0.85)  # Increase right margin
+plt.subplots_adjust(right=0.85)
 
-# ax.set_xscale("log")
 
 ax1.legend()
 
 plt.tight_layout()
-plt.show()
+plt.savefig("supplement_figure_8.png", dpi=600)

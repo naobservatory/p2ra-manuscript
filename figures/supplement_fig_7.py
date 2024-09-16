@@ -323,7 +323,7 @@ def plot_steps_and_dots():
             ax.set_xscale("log")
             ax.set_yscale("log")
             ax.set_xlabel("Read Depth", fontsize=12)
-            ax.set_ylabel("Cost ($)", fontsize=12)
+            ax.set_ylabel("Weekly Sequencing Cost ($)", fontsize=12)
             ax.set_title(
                 f"{fig_numeration[i]}) | {virus} Cumulative incidence: {cumulative_incidence:.2%}",
                 fontsize=14,
