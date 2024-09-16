@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import os
+from scipy.stats import gmean
 
 PERCENTILES = [5, 25, 50, 75, 95]
 
@@ -53,9 +54,7 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
                 mean=tidy_number(float(row["mean"])),
                 std=tidy_number(float(row["std"])),
                 min=tidy_number(float(row["min"])),
-                percentiles={
-                    p: tidy_number(float(row[f"{p}%"])) for p in PERCENTILES
-                },
+                percentiles={p: float(row[f"{p}%"]) for p in PERCENTILES},
                 max=tidy_number(float(row["max"])),
             )
     return data
@@ -69,7 +68,6 @@ def create_tsv():
         viruses.add((virus, predictor_type))
 
     sorted_viruses = sorted(viruses, key=lambda x: (x[1], x[0]))
-
     study_tidy = {
         "rothman": "Rothman",
         "crits_christoph": "Crits-Christoph",
@@ -91,17 +89,39 @@ def create_tsv():
             studies = ["rothman", "crits_christoph", "spurbeck"] + (
                 ["brinch"] if predictor_type == "prevalence" else []
             )
+            gmean_data = {
+                "Median": [],
+                "Lower": [],
+                "Upper": [],
+            }
+
             for study in studies:
                 stats = data[virus, predictor_type, study, "Overall"]
                 writer.writerow(
                     {
                         "Virus": virus,
                         "Study": study_tidy[study],
-                        "Median": stats.percentiles[50],
-                        "Lower": stats.percentiles[5],
-                        "Upper": stats.percentiles[95],
+                        "Median": tidy_number(stats.percentiles[50]),
+                        "Lower": tidy_number(stats.percentiles[5]),
+                        "Upper": tidy_number(stats.percentiles[95]),
                     }
                 )
+                gmean_data["Median"].append(stats.percentiles[50])
+                gmean_data["Lower"].append(stats.percentiles[5])
+                gmean_data["Upper"].append(stats.percentiles[95])
+
+            gmean_median = gmean(gmean_data["Median"])
+            gmean_lower = gmean(gmean_data["Lower"])
+            gmean_upper = gmean(gmean_data["Upper"])
+            writer.writerow(
+                {
+                    "Virus": virus,
+                    "Study": "Mean (geometric)",
+                    "Median": tidy_number(gmean_median),
+                    "Lower": tidy_number(gmean_lower),
+                    "Upper": tidy_number(gmean_upper),
+                }
+            )
 
 
 def start():

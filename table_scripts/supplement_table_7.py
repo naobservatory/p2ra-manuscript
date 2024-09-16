@@ -1,26 +1,68 @@
+#!/usr/bin/env python3
+
 import csv
-from dataclasses import dataclass
-from collections import defaultdict, namedtuple
-import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import os
+from dataclasses import dataclass
+from scipy.stats import gmean
 
 PERCENTILES = [5, 25, 50, 75, 95]
-
 MODEL_OUTPUT_DIR = "../model_output"
 TABLE_OUTPUT_DIR = "../tables"
 
-TARGET_STUDIES = ["rothman", "crits_christoph"]
 
-
-@dataclass(frozen=False)
+@dataclass
 class SummaryStats:
     mean: float
     std: float
     min: float
     percentiles: dict[int, float]
     max: float
-    fold_change: float
+
+
+def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
+    data = {}
+    with open(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
+    ) as datafile:
+        reader = csv.DictReader(datafile, delimiter="\t")
+        for row in reader:
+            virus = row["tidy_name"]
+            predictor_type = row["predictor_type"]
+            study = row["study"]
+            location = row["location"]
+            data[virus, predictor_type, study, location] = SummaryStats(
+                mean=float(row["mean"]),
+                std=float(row["std"]),
+                min=float(row["min"]),
+                percentiles={p: float(row[f"{p}%"]) for p in PERCENTILES},
+                max=float(row["max"]),
+            )
+    return data
+
+
+def get_reads_required(
+    data=dict,
+    cumulative_incidence=int,
+    detection_threshold=np.ndarray,
+    virus=str,
+    predictor_type=str,
+    study=str,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    stats = data[virus, predictor_type, study, "Overall"]
+
+    median_reads = detection_threshold / (
+        100 * stats.percentiles[50] * cumulative_incidence
+    )
+    # Low P2RA gives high total reads required. Hence, low p2ra percentile gives higher bound for reads required.
+    upper_bound_reads = detection_threshold / (
+        100 * stats.percentiles[5] * cumulative_incidence
+    )
+    lower_bound_reads = detection_threshold / (
+        100 * stats.percentiles[95] * cumulative_incidence
+    )
+
+    return median_reads, lower_bound_reads, upper_bound_reads
 
 
 def tidy_number(reads_required=int) -> str:
@@ -28,170 +70,109 @@ def tidy_number(reads_required=int) -> str:
 
     coefficient, exponent = sci_notation.split("e")
 
-    is_negative = exponent.startswith("-")
-    if is_negative:
+    exponent = exponent.replace("+", "")
+    if exponent.startswith("0") and len(exponent) > 1:
         exponent = exponent[1:]
 
-    exponent = exponent.lstrip("0")
-
-    if is_negative:
-        exponent = "⁻" + exponent
-
-    superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
-    exponent = exponent.translate(superscript_map)
+    exponent = (
+        exponent.replace("0", "⁰")
+        .replace("1", "¹")
+        .replace("2", "²")
+        .replace("3", "³")
+        .replace("4", "⁴")
+        .replace("5", "⁵")
+        .replace("6", "⁶")
+        .replace("7", "⁷")
+        .replace("8", "⁸")
+        .replace("9", "⁹")
+    )
 
     return f"{coefficient} x 10{exponent}"
 
 
-studies = [
-    "rothman_unenriched",
-    "rothman_panel_enriched",
-    "crits_christoph_unenriched",
-    "crits_christoph_panel_enriched",
-]
-
-pretty_study = {
-    "rothman_unenriched": "Rothman Unenriched",
-    "crits_christoph_unenriched": "Crits-Christoph Unenriched",
-    "rothman_panel_enriched": "Rothman Panel-enriched",
-    "crits_christoph_panel_enriched": "Crits-Christoph Panel-enriched",
-}
-
-
-def read_data() -> dict[tuple[str, str, str, str, str], SummaryStats]:
-    data = {}
-
-    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
-        unenriched_medians = {}
-        reader = csv.DictReader(datafile, delimiter="\t")
-        for row in reader:
-            study = row["study"]
-            if study == "rothman":
-                study_unenriched = "rothman_unenriched"
-            elif study == "crits_christoph":
-                study_unenriched = "crits_christoph_unenriched"
-            else:
-                continue
-            virus = row["tidy_name"]
-            predictor_type = row["predictor_type"]
-            location = row["location"]
-            unenriched_median = float(row[f"{50}%"])
-            unenriched_medians[virus, predictor_type, study, location] = (
-                unenriched_median
-            )
-            data[virus, predictor_type, study_unenriched, location] = (
-                SummaryStats(
-                    mean=tidy_number(float(row["mean"])),
-                    std=tidy_number(float(row["std"])),
-                    min=tidy_number(float(row["min"])),
-                    percentiles={
-                        p: tidy_number(float(row[f"{p}%"]))
-                        for p in PERCENTILES
-                    },
-                    max=tidy_number(float(row["max"])),
-                    fold_change="NA",
-                )
-            )
-
-    with open(
-        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
-    ) as datafile:
-        enriched_medians = {}
-        reader = csv.DictReader(datafile, delimiter="\t")
-        for row in reader:
-            study = row["study"]
-            if study == "rothman":
-                study_enriched = "rothman_panel_enriched"
-                study_unenriched = "rothman_unenriched"
-            elif study == "crits_christoph":
-                study_enriched = "crits_christoph_panel_enriched"
-                study_unenriched = "crits_christoph_unenriched"
-            else:
-                continue
-            virus = row["tidy_name"]
-            predictor_type = row["predictor_type"]
-            location = row["location"]
-            enriched_median = float(row[f"{50}%"])
-            unenriched_median = unenriched_medians[
-                virus, predictor_type, study, location
-            ]
-            fold_change = enriched_median / unenriched_median
-            fold_change_enriched = (
-                round(fold_change, 2)
-                if fold_change > 1
-                else tidy_number(fold_change)
-            )
-            fold_change_unenriched = (
-                round(1 / fold_change, 2)
-                if fold_change < 1
-                else tidy_number(1 / fold_change)
-            )
-
-            data[virus, predictor_type, study_enriched, location] = (
-                SummaryStats(
-                    mean=tidy_number(float(row["mean"])),
-                    std=tidy_number(float(row["std"])),
-                    min=tidy_number(float(row["min"])),
-                    percentiles={
-                        p: tidy_number(float(row[f"{p}%"]))
-                        for p in PERCENTILES
-                    },
-                    max=tidy_number(float(row["max"])),
-                    fold_change=fold_change_enriched,
-                )
-            )
-            data[
-                virus, predictor_type, study_unenriched, location
-            ].fold_change = fold_change_unenriched
-
-    return data
-
-
-def create_tsv():
+def start():
     data = read_data()
-    # print(data)
-    viruses = set()
-    for entry in data.keys():
-        virus, predictor_type = entry[:2]
-        viruses.add((virus, predictor_type))
-    sorted_viruses = sorted(viruses, key=lambda x: (x[1], x[0]))
-
-    headers = [
-        "Virus",
-        "Study",
-        "Median",
-        "5th Percentile",
-        "95th Percentile",
-        "Fold change\n(un- vs. enriched, median)",
-    ]
-
+    TARGET_INCIDENCE = 0.01
+    TARGET_THRESHOLDS = [10, 100, 1000]
+    viruses = ["Norovirus (GII)", "SARS-COV-2", "Influenza A"]
+    study_labels = {
+        "rothman": "Rothman Panel-enriched",
+        "crits_christoph": "Crits-Christoph Panel-enriched",
+    }
     with open(
         os.path.join(TABLE_OUTPUT_DIR, "supplement_table_7.tsv"),
-        "w",
+        mode="w",
         newline="",
     ) as file:
-        writer = csv.DictWriter(file, fieldnames=headers, delimiter="\t")
-        writer.writeheader()
+        tsv_writer = csv.writer(file, delimiter="\t")
+        tsv_writer.writerow(
+            [
+                "Virus",
+                "Study",
+                "50th %",
+                "5th %",
+                "95th %",
+                "Detection Threshold",
+            ]
+        )
+        for detection_threshold in TARGET_THRESHOLDS:
+            for virus in viruses:
+                geomean_dict = {
+                    "median": [],
+                    "lower_bound": [],
+                    "upper_bound": [],
+                }
+                studies = study_labels.keys()
+                for i, study in enumerate(studies):
+                    (
+                        median_reads,
+                        lower_bound_reads,
+                        upper_bound_reads,
+                    ) = get_reads_required(
+                        data,
+                        cumulative_incidence=TARGET_INCIDENCE,
+                        detection_threshold=detection_threshold,
+                        virus=virus,
+                        predictor_type="incidence",
+                        study=study,
+                    )
 
-        for virus, predictor_type in sorted_viruses:
+                    geomean_dict["median"].append(median_reads)
+                    geomean_dict["lower_bound"].append(lower_bound_reads)
+                    geomean_dict["upper_bound"].append(upper_bound_reads)
 
-            for study in studies:
+                    tidy_median = tidy_number(median_reads)
+                    tidy_lower = tidy_number(lower_bound_reads)
+                    tidy_upper = tidy_number(upper_bound_reads)
+                    tsv_writer.writerow(
+                        [
+                            virus,
+                            study_labels[study],
+                            tidy_median,
+                            tidy_lower,
+                            tidy_upper,
+                            detection_threshold,
+                        ]
+                    )
+                    if i == len(studies) - 1:
+                        geomean_median = gmean(geomean_dict["median"])
+                        geomean_lower = gmean(geomean_dict["lower_bound"])
+                        geomean_upper = gmean(geomean_dict["upper_bound"])
 
-                stats = data[virus, predictor_type, study, "Overall"]
-                writer.writerow(
-                    {
-                        "Virus": virus,
-                        "Study": pretty_study[study],
-                        "Median": stats.percentiles[50],
-                        "5th Percentile": stats.percentiles[5],
-                        "95th Percentile": stats.percentiles[95],
-                        "Fold change\n(un- vs. enriched, median)": stats.fold_change,
-                    }
-                )
+                        tidy_median = tidy_number(geomean_median)
+                        tidy_lower = tidy_number(geomean_lower)
+                        tidy_upper = tidy_number(geomean_upper)
 
-
-def start():
-    create_tsv()
+                        tsv_writer.writerow(
+                            [
+                                virus,
+                                "Mean (geometric)",
+                                tidy_median,
+                                tidy_lower,
+                                tidy_upper,
+                                detection_threshold,
+                            ]
+                        )
 
 
 if __name__ == "__main__":

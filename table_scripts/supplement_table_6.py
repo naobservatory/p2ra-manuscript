@@ -100,7 +100,7 @@ def start():
         "spurbeck": "Spurbeck",
     }
     with open(
-        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_8.tsv"),
+        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_6.tsv"),
         mode="w",
         newline="",
     ) as file:
