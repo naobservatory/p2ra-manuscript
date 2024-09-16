@@ -1,56 +1,46 @@
-Virus	Study	Median	Lower	Upper
-Influenza A	Rothman	2.20 x 10⁻⁷	4.82 x 10⁻⁹	2.95 x 10⁻⁶
-Influenza A	Crits-Christoph	5.30 x 10⁻⁶	9.43 x 10⁻⁸	1.81 x 10⁻⁴
-Influenza A	Spurbeck	3.37 x 10⁻¹⁰	6.72 x 10⁻¹²	4.37 x 10⁻⁹
-Influenza B	Rothman	3.25 x 10⁻⁷	5.90 x 10⁻⁹	3.68 x 10⁻⁶
-Influenza B	Crits-Christoph	8.37 x 10⁻⁶	8.40 x 10⁻⁸	1.89 x 10⁻⁴
-Influenza B	Spurbeck	1.43 x 10⁻⁸	2.52 x 10⁻¹⁰	1.85 x 10⁻⁷
-Norovirus (GI)	Rothman	1.88 x 10⁻⁴	5.75 x 10⁻⁵	4.54 x 10⁻⁴
-Norovirus (GI)	Crits-Christoph	9.21 x 10⁻⁷	8.01 x 10⁻⁹	2.50 x 10⁻⁵
-Norovirus (GI)	Spurbeck	1.47 x 10⁻⁷	1.39 x 10⁻⁸	7.91 x 10⁻⁷
-Norovirus (GII)	Rothman	4.17 x 10⁻⁵	1.59 x 10⁻⁵	9.54 x 10⁻⁵
-Norovirus (GII)	Crits-Christoph	1.21 x 10⁻⁶	7.06 x 10⁻⁸	8.29 x 10⁻⁶
-Norovirus (GII)	Spurbeck	4.42 x 10⁻⁸	3.91 x 10⁻⁹	2.33 x 10⁻⁷
-SARS-COV-2	Rothman	6.25 x 10⁻⁸	1.67 x 10⁻⁸	1.99 x 10⁻⁷
-SARS-COV-2	Crits-Christoph	2.38 x 10⁻⁷	1.65 x 10⁻⁸	1.76 x 10⁻⁶
-SARS-COV-2	Spurbeck	3.77 x 10⁻¹⁰	2.52 x 10⁻¹¹	2.19 x 10⁻⁹
-AAV2	Rothman	2.08 x 10⁻¹²	4.10 x 10⁻¹⁴	2.75 x 10⁻¹¹
-AAV2	Crits-Christoph	2.01 x 10⁻¹¹	3.54 x 10⁻¹³	2.84 x 10⁻¹⁰
-AAV2	Spurbeck	1.33 x 10⁻¹⁰	1.14 x 10⁻¹¹	9.72 x 10⁻¹⁰
-AAV2	Brinch	8.74 x 10⁻¹¹	1.95 x 10⁻¹¹	3.57 x 10⁻¹⁰
-BKV	Rothman	9.97 x 10⁻¹³	2.12 x 10⁻¹⁴	1.33 x 10⁻¹¹
-BKV	Crits-Christoph	3.55 x 10⁻¹⁰	1.66 x 10⁻¹¹	5.04 x 10⁻⁹
-BKV	Spurbeck	1.42 x 10⁻¹¹	8.81 x 10⁻¹³	1.02 x 10⁻¹⁰
-BKV	Brinch	5.81 x 10⁻¹⁰	2.71 x 10⁻¹⁰	1.18 x 10⁻⁹
-CMV	Rothman	3.72 x 10⁻¹²	1.07 x 10⁻¹³	3.40 x 10⁻¹¹
-CMV	Crits-Christoph	3.92 x 10⁻¹¹	1.05 x 10⁻¹²	5.11 x 10⁻¹⁰
-CMV	Spurbeck	2.08 x 10⁻¹²	4.14 x 10⁻¹⁴	2.86 x 10⁻¹¹
-CMV	Brinch	7.86 x 10⁻¹³	1.41 x 10⁻¹⁴	1.12 x 10⁻¹¹
-EBV	Rothman	1.49 x 10⁻¹¹	8.29 x 10⁻¹³	8.34 x 10⁻¹¹
-EBV	Crits-Christoph	3.57 x 10⁻¹²	5.57 x 10⁻¹⁴	8.24 x 10⁻¹¹
-EBV	Spurbeck	1.36 x 10⁻¹²	3.78 x 10⁻¹⁴	1.91 x 10⁻¹¹
-EBV	Brinch	2.98 x 10⁻¹¹	7.58 x 10⁻¹²	9.23 x 10⁻¹¹
-HCV	Rothman	7.00 x 10⁻¹¹	1.38 x 10⁻¹²	1.12 x 10⁻⁹
-HCV	Crits-Christoph	2.71 x 10⁻¹⁰	1.95 x 10⁻¹²	7.33 x 10⁻⁹
-HCV	Spurbeck	4.72 x 10⁻¹¹	9.41 x 10⁻¹³	7.01 x 10⁻¹⁰
-HCV	Brinch	1.42 x 10⁻¹⁰	2.44 x 10⁻¹²	3.34 x 10⁻⁹
-HIV	Rothman	7.58 x 10⁻¹⁰	1.27 x 10⁻¹¹	1.07 x 10⁻⁸
-HIV	Crits-Christoph	8.92 x 10⁻⁹	2.05 x 10⁻¹⁰	1.01 x 10⁻⁷
-HIV	Spurbeck	4.58 x 10⁻¹⁰	8.01 x 10⁻¹²	6.11 x 10⁻⁹
-HIV	Brinch	2.02 x 10⁻⁹	2.74 x 10⁻¹¹	2.48 x 10⁻⁸
-HPV	Rothman	2.48 x 10⁻¹²	2.78 x 10⁻¹⁴	3.80 x 10⁻¹¹
-HPV	Crits-Christoph	8.10 x 10⁻¹²	7.09 x 10⁻¹⁴	1.64 x 10⁻¹⁰
-HPV	Spurbeck	9.21 x 10⁻¹³	1.67 x 10⁻¹⁴	1.55 x 10⁻¹¹
-HPV	Brinch	7.62 x 10⁻¹³	1.67 x 10⁻¹⁴	2.01 x 10⁻¹¹
-HSV-1	Rothman	4.85 x 10⁻¹⁰	1.81 x 10⁻¹⁰	9.37 x 10⁻¹⁰
-HSV-1	Crits-Christoph	4.58 x 10⁻¹²	5.49 x 10⁻¹⁴	1.38 x 10⁻¹⁰
-HSV-1	Spurbeck	8.21 x 10⁻¹³	1.34 x 10⁻¹⁴	1.48 x 10⁻¹¹
-HSV-1	Brinch	3.95 x 10⁻¹²	1.66 x 10⁻¹³	2.83 x 10⁻¹¹
-JCV	Rothman	1.02 x 10⁻¹¹	3.49 x 10⁻¹³	9.80 x 10⁻¹¹
-JCV	Crits-Christoph	1.09 x 10⁻⁹	8.20 x 10⁻¹¹	1.22 x 10⁻⁸
-JCV	Spurbeck	4.79 x 10⁻¹¹	4.19 x 10⁻¹²	2.88 x 10⁻¹⁰
-JCV	Brinch	1.80 x 10⁻⁹	8.33 x 10⁻¹⁰	3.69 x 10⁻⁹
-MCV	Rothman	7.49 x 10⁻¹²	2.29 x 10⁻¹³	5.47 x 10⁻¹¹
-MCV	Crits-Christoph	2.55 x 10⁻⁸	8.69 x 10⁻⁹	6.83 x 10⁻⁸
-MCV	Spurbeck	5.47 x 10⁻¹²	2.09 x 10⁻¹³	4.50 x 10⁻¹¹
-MCV	Brinch	2.54 x 10⁻¹⁰	1.14 x 10⁻¹⁰	5.82 x 10⁻¹⁰
+Virus	Study	Median	5th Percentile	95th Percentile	"Fold change
+(un- vs. enriched, median)"
+Influenza A	Rothman Unenriched	2.20 x 10⁻⁷	4.82 x 10⁻⁹	2.95 x 10⁻⁶	1.43
+Influenza A	Rothman Panel-enriched	1.53 x 10⁻⁷	9.27 x 10⁻⁹	2.27 x 10⁻⁶	6.98 x 10⁻¹
+Influenza A	Crits-Christoph Unenriched	5.30 x 10⁻⁶	9.43 x 10⁻⁸	1.81 x 10⁻⁴	7.38 x 10⁻³
+Influenza A	Crits-Christoph Panel-enriched	7.18 x 10⁻⁴	7.69 x 10⁻⁶	1.95 x 10⁻²	135.41
+Influenza B	Rothman Unenriched	3.25 x 10⁻⁷	5.90 x 10⁻⁹	3.68 x 10⁻⁶	5.42
+Influenza B	Rothman Panel-enriched	6.00 x 10⁻⁸	9.23 x 10⁻¹⁰	8.76 x 10⁻⁷	1.84 x 10⁻¹
+Influenza B	Crits-Christoph Unenriched	8.37 x 10⁻⁶	8.40 x 10⁻⁸	1.89 x 10⁻⁴	1.17 x 10⁻²
+Influenza B	Crits-Christoph Panel-enriched	7.16 x 10⁻⁴	8.02 x 10⁻⁶	2.31 x 10⁻²	85.6
+Norovirus (GI)	Rothman Unenriched	1.40 x 10⁻³	5.21 x 10⁻⁴	3.81 x 10⁻³	6.14
+Norovirus (GI)	Rothman Panel-enriched	2.28 x 10⁻⁴	4.51 x 10⁻⁵	1.36 x 10⁻³	1.63 x 10⁻¹
+Norovirus (GI)	Crits-Christoph Unenriched	4.87 x 10⁻⁵	3.04 x 10⁻⁶	3.08 x 10⁻⁴	9.00 x 10⁻²
+Norovirus (GI)	Crits-Christoph Panel-enriched	5.41 x 10⁻⁴	1.15 x 10⁻⁵	9.79 x 10⁻³	11.11
+Norovirus (GII)	Rothman Unenriched	1.16 x 10⁻⁴	3.65 x 10⁻⁵	3.20 x 10⁻⁴	5.02
+Norovirus (GII)	Rothman Panel-enriched	2.31 x 10⁻⁵	5.98 x 10⁻⁶	9.91 x 10⁻⁵	1.99 x 10⁻¹
+Norovirus (GII)	Crits-Christoph Unenriched	1.29 x 10⁻⁵	2.37 x 10⁻⁶	4.90 x 10⁻⁵	3.96 x 10⁻²
+Norovirus (GII)	Crits-Christoph Panel-enriched	3.26 x 10⁻⁴	1.94 x 10⁻⁵	2.66 x 10⁻³	25.24
+SARS-COV-2	Rothman Unenriched	6.25 x 10⁻⁸	1.67 x 10⁻⁸	1.99 x 10⁻⁷	1.52 x 10⁻²
+SARS-COV-2	Rothman Panel-enriched	4.11 x 10⁻⁶	1.12 x 10⁻⁶	1.71 x 10⁻⁵	65.86
+SARS-COV-2	Crits-Christoph Unenriched	2.38 x 10⁻⁷	1.65 x 10⁻⁸	1.76 x 10⁻⁶	1.34 x 10⁻⁶
+SARS-COV-2	Crits-Christoph Panel-enriched	1.78 x 10⁻¹	2.37 x 10⁻²	6.16 x 10⁻¹	748966.54
+CMV	Rothman Unenriched	3.72 x 10⁻¹²	1.07 x 10⁻¹³	3.40 x 10⁻¹¹	2.08
+CMV	Rothman Panel-enriched	1.79 x 10⁻¹²	1.80 x 10⁻¹³	9.66 x 10⁻¹²	4.82 x 10⁻¹
+CMV	Crits-Christoph Unenriched	3.92 x 10⁻¹¹	1.05 x 10⁻¹²	5.11 x 10⁻¹⁰	5.94 x 10⁻²
+CMV	Crits-Christoph Panel-enriched	6.60 x 10⁻¹⁰	4.45 x 10⁻¹²	1.69 x 10⁻⁸	16.84
+EBV	Rothman Unenriched	1.49 x 10⁻¹¹	8.29 x 10⁻¹³	8.34 x 10⁻¹¹	3.09
+EBV	Rothman Panel-enriched	4.82 x 10⁻¹²	1.91 x 10⁻¹³	4.10 x 10⁻¹¹	3.24 x 10⁻¹
+EBV	Crits-Christoph Unenriched	3.57 x 10⁻¹²	5.57 x 10⁻¹⁴	8.24 x 10⁻¹¹	9.09 x 10⁻³
+EBV	Crits-Christoph Panel-enriched	3.93 x 10⁻¹⁰	2.84 x 10⁻¹²	1.10 x 10⁻⁸	110.01
+HCV	Rothman Unenriched	7.00 x 10⁻¹¹	1.38 x 10⁻¹²	1.12 x 10⁻⁹	5.02
+HCV	Rothman Panel-enriched	1.39 x 10⁻¹¹	5.80 x 10⁻¹³	2.32 x 10⁻¹⁰	1.99 x 10⁻¹
+HCV	Crits-Christoph Unenriched	2.71 x 10⁻¹⁰	1.95 x 10⁻¹²	7.33 x 10⁻⁹	9.36 x 10⁻³
+HCV	Crits-Christoph Panel-enriched	2.89 x 10⁻⁸	3.71 x 10⁻¹⁰	8.92 x 10⁻⁷	106.8
+HIV	Rothman Unenriched	7.58 x 10⁻¹⁰	1.27 x 10⁻¹¹	1.07 x 10⁻⁸	2.67 x 10⁻¹
+HIV	Rothman Panel-enriched	2.84 x 10⁻⁹	4.05 x 10⁻¹⁰	9.76 x 10⁻⁹	3.74
+HIV	Crits-Christoph Unenriched	8.92 x 10⁻⁹	2.05 x 10⁻¹⁰	1.01 x 10⁻⁷	8.05 x 10⁻²
+HIV	Crits-Christoph Panel-enriched	1.11 x 10⁻⁷	1.82 x 10⁻⁹	5.03 x 10⁻⁶	12.43
+HPV	Rothman Unenriched	2.48 x 10⁻¹²	2.78 x 10⁻¹⁴	3.80 x 10⁻¹¹	3.98
+HPV	Rothman Panel-enriched	6.23 x 10⁻¹³	1.35 x 10⁻¹⁴	7.13 x 10⁻¹²	2.51 x 10⁻¹
+HPV	Crits-Christoph Unenriched	8.10 x 10⁻¹²	7.09 x 10⁻¹⁴	1.64 x 10⁻¹⁰	1.09 x 10⁻²
+HPV	Crits-Christoph Panel-enriched	7.42 x 10⁻¹⁰	9.15 x 10⁻¹²	2.56 x 10⁻⁸	91.65
+HSV-1	Rothman Unenriched	5.09 x 10⁻¹⁰	2.10 x 10⁻¹⁰	9.80 x 10⁻¹⁰	6.36
+HSV-1	Rothman Panel-enriched	8.00 x 10⁻¹¹	3.00 x 10⁻¹¹	1.95 x 10⁻¹⁰	1.57 x 10⁻¹
+HSV-1	Crits-Christoph Unenriched	4.58 x 10⁻¹²	5.49 x 10⁻¹⁴	1.38 x 10⁻¹⁰	6.94 x 10⁻³
+HSV-1	Crits-Christoph Panel-enriched	6.59 x 10⁻¹⁰	6.00 x 10⁻¹²	1.66 x 10⁻⁸	144.04
