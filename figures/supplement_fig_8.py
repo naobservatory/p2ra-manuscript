@@ -148,10 +148,14 @@ def get_sequencing_cost(virus, cumulative_incidence, study, enriched):
 def get_cost_data():
     virus_study_1_perc = []
     virus_study_001_perc = []
-    seq_costs_1_perc = []
-    seq_costs_001_perc = []
-    processing_costs_1_perc = []
-    processing_costs_001_perc = []
+    seq_costs_1_perc_scv_2 = []
+    seq_costs_001_perc_scv_2 = []
+    seq_costs_1_perc_norovirus = []
+    seq_costs_001_perc_norovirus = []
+    processing_costs_1_perc_scv_2 = []
+    processing_costs_001_perc_scv_2 = []
+    processing_costs_1_perc_norovirus = []
+    processing_costs_001_perc_norovirus = []
 
     for cumulative_incidence in [CUM_INC_1_PERC, CUM_INC_001_PERC]:
         for enriched in [True, False]:
@@ -183,113 +187,170 @@ def get_cost_data():
                     )
                     pretty_study = study_labels[study]
 
-                    study_label = (
-                        f"{pretty_study} | {virus} ({enrichment_label}"
-                    )
+                    study_label = f"{pretty_study}\n({enrichment_label}"
 
                     if cumulative_incidence == CUM_INC_1_PERC:
-                        processing_costs_1_perc.append(processing_cost)
-                        seq_costs_1_perc.append(seq_cost)
+                        processing_costs_1_perc_scv_2.append(processing_cost)
+                        seq_costs_1_perc_scv_2.append(seq_cost)
+                        processing_costs_1_perc_norovirus.append(
+                            processing_cost
+                        )
+                        seq_costs_1_perc_norovirus.append(seq_cost)
                         virus_study_1_perc.append(study_label)
                     else:
-                        processing_costs_001_perc.append(processing_cost)
-                        seq_costs_001_perc.append(seq_cost)
+                        processing_costs_001_perc_scv_2.append(processing_cost)
+                        seq_costs_001_perc_scv_2.append(seq_cost)
+                        processing_costs_001_perc_norovirus.append(
+                            processing_cost
+                        )
+                        seq_costs_001_perc_norovirus.append(seq_cost)
                         virus_study_001_perc.append(study_label)
-    costs_1_perc = {
-        "Processing Cost": processing_costs_1_perc,
-        "Sequencing Cost": seq_costs_1_perc,
+    costs_1_perc_scv_2 = {
+        "Processing Cost": processing_costs_1_perc_scv_2,
+        "Sequencing Cost": seq_costs_1_perc_scv_2,
     }
-    costs_001_perc = {
-        "Processing Cost": processing_costs_001_perc,
-        "Sequencing Cost": seq_costs_001_perc,
+    costs_001_perc_scv_2 = {
+        "Processing Cost": processing_costs_001_perc_scv_2,
+        "Sequencing Cost": seq_costs_001_perc_scv_2,
+    }
+    costs_1_perc_norovirus = {
+        "Processing Cost": processing_costs_1_perc_norovirus,
+        "Sequencing Cost": seq_costs_1_perc_norovirus,
+    }
+    costs_001_perc_norovirus = {
+        "Processing Cost": processing_costs_001_perc_norovirus,
+        "Sequencing Cost": seq_costs_001_perc_norovirus,
     }
     return (
         virus_study_1_perc,
         virus_study_001_perc,
-        costs_1_perc,
-        costs_001_perc,
+        costs_1_perc_scv_2,
+        costs_001_perc_scv_2,
+        costs_1_perc_norovirus,
+        costs_001_perc_norovirus,
     )
 
 
-virus_study_1_perc, virus_study_001_perc, costs_1_perc, costs_001_perc = (
-    get_cost_data()
-)
-
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 9), sharex=True)
-
-
-left_1_perc = np.zeros(len(virus_study_1_perc))
-left_001_perc = np.zeros(len(virus_study_001_perc))
-
-for cost_type in costs_1_perc:
-    ax1.barh(
+def create_fig():
+    (
         virus_study_1_perc,
-        costs_1_perc[cost_type],
-        left=left_1_perc,
-        label=cost_type,
-    )
-    left_1_perc += costs_1_perc[cost_type]
-    ax1.set_title("1% Cumulative Incidence")
-
-for cost_type in costs_001_perc:
-    ax2.barh(
         virus_study_001_perc,
-        costs_001_perc[cost_type],
-        left=left_001_perc,
-        label=cost_type,
-    )
-    left_001_perc += costs_001_perc[cost_type]
-    ax2.set_title("0.01% Cumulative Incidence")
-# Add text labels for seq_costs > 10000
-ax1.set_xlim(1, 1e4)
-ax1.text(
-    1e4 + 500,
-    len(virus_study_1_perc),
-    "Total Cost per sample",
-    va="center",
-    ha="left",
-    fontsize=12,
-)
-for i, (label, seq_cost, processing_cost) in enumerate(
-    zip(
-        virus_study_1_perc,
-        costs_1_perc["Sequencing Cost"],
-        costs_1_perc["Processing Cost"],
-    )
-):
+        costs_1_perc_scv_2,
+        costs_001_perc_scv_2,
+        costs_1_perc_norovirus,
+        costs_001_perc_norovirus,
+    ) = get_cost_data()
 
-    total_cost = processing_cost + seq_cost
-    ax1.text(
-        1e4 + 500,
-        i,
-        f"${total_cost:,.0f}",
-        va="center",
-        ha="left",
-        fontsize=10,
-    )
+    fig, axs = plt.subplots(2, 2, figsize=(12, 6), sharex=True)
+    ax1, ax2, ax3, ax4 = axs.flatten()
+    left_1_perc = np.zeros(len(virus_study_1_perc))
+    left_001_perc = np.zeros(len(virus_study_001_perc))
 
-for i, (label, seq_cost, processing_cost) in enumerate(
-    zip(
-        virus_study_001_perc,
-        costs_001_perc["Sequencing Cost"],
-        costs_001_perc["Processing Cost"],
-    )
-):
+    for cost_type in costs_1_perc_scv_2:
+        ax1.barh(
+            virus_study_1_perc,
+            costs_1_perc_scv_2[cost_type],
+            left=left_1_perc,
+            label=cost_type,
+        )
+        left_1_perc += costs_1_perc_scv_2[cost_type]
+        ax1.set_title("SARS-CoV-2\n1% Cumulative Incidence")
 
-    total_cost = processing_cost + seq_cost
-    ax2.text(
-        1e4 + 500,
-        i,
-        f"${total_cost:,.0f}",
-        va="center",
-        ha="left",
-        fontsize=10,
-    )
+    for cost_type in costs_001_perc_scv_2:
+        ax2.barh(
+            virus_study_001_perc,
+            costs_001_perc_scv_2[cost_type],
+            left=left_001_perc,
+            label=cost_type,
+        )
+        left_001_perc += costs_001_perc_scv_2[cost_type]
+        ax2.set_title("SARS-CoV-2\n0.01% Cumulative Incidence")
+    left_1_perc = np.zeros(len(virus_study_1_perc))
+    left_001_perc = np.zeros(len(virus_study_001_perc))
 
-plt.subplots_adjust(right=0.85)
+    for cost_type in costs_1_perc_norovirus:
+        ax3.barh(
+            virus_study_1_perc,
+            costs_1_perc_norovirus[cost_type],
+            left=left_1_perc,
+            label=cost_type,
+        )
+        left_1_perc += costs_1_perc_norovirus[cost_type]
+        ax3.set_title("Norovirus (GII)\n1% Cumulative Incidence")
+
+    for cost_type in costs_001_perc_norovirus:
+        ax4.barh(
+            virus_study_001_perc,
+            costs_001_perc_norovirus[cost_type],
+            left=left_001_perc,
+            label=cost_type,
+        )
+        left_001_perc += costs_001_perc_norovirus[cost_type]
+        ax4.set_title("Norovirus (GII)\n0.01% Cumulative Incidence")
+    ax1.set_xlim(1, 2e4)
+    # Format x-axis labels with dollar amounts and commas
+    for ax in [ax1, ax2, ax3, ax4]:
+        ax.xaxis.set_major_formatter(
+            plt.FuncFormatter(lambda x, p: f"{x:,.0f}")
+        )
+    for ax in [ax1, ax2, ax3, ax4]:
+        for x in range(0, 20000, 2500):
+            ax.axvline(x, color="black", alpha=0.5, linewidth=0.5, zorder=-1)
+        # ax.tick_params(axis="x", =45)
+    # ax1.text(
+    #     1e4 + 500,
+    #     len(virus_study_1_perc),
+    #     "Total Cost per sample",
+    #     va="center",
+    #     ha="left",
+    #     fontsize=12,
+    # )
+    # for i, (label, seq_cost, processing_cost) in enumerate(
+    #     zip(
+    #         virus_study_1_perc,
+    #         costs_1_perc_scv_2["Sequencing Cost"],
+    #         costs_1_perc_scv_2["Processing Cost"],
+    #     )
+    # ):
+
+    #     total_cost = processing_cost + seq_cost
+    #     ax1.text(
+    #         1e4 + 500,
+    #         i,
+    #         f"${total_cost:,.0f}",
+    #         va="center",
+    #         ha="left",
+    #         fontsize=10,
+    #     )
+
+    # for i, (label, seq_cost, processing_cost) in enumerate(
+    #     zip(
+    #         virus_study_001_perc,
+    #         costs_001_perc_scv_2["Sequencing Cost"],
+    #         costs_001_perc_scv_2["Processing Cost"],
+    #     )
+    # ):
+
+    #     total_cost = processing_cost + seq_cost
+    #     ax2.text(
+    #         1e4 + 500,
+    #         i,
+    #         f"${total_cost:,.0f}",
+    #         va="center",
+    #         ha="left",
+    #         fontsize=10,
+    #     )
+
+    ax3.set_xlabel("Sequencing cost for one sample")
+    ax4.set_xlabel("Sequencing cost for one sample")
+
+    plt.subplots_adjust(right=0.85)
+
+    ax1.legend()
+
+    plt.tight_layout()
+    plt.savefig("supplement_figure_8.png", dpi=600)
 
 
-ax1.legend()
-
-plt.tight_layout()
-plt.savefig("supplement_figure_8.png", dpi=600)
+if __name__ == "__main__":
+    create_fig()
