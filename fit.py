@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 
 import pandas as pd
-
+import arviz as az
 import stats
 from mgs import Enrichment, MGSData, target_bioprojects
 from pathogens import predictors_by_taxid
@@ -31,6 +31,7 @@ def start(num_samples: int, plot: bool) -> None:
     mgs_data = MGSData.from_repo()
     input_data = []
     output_data = []
+    study_rhats = {}
     for (
         pathogen_name,
         tidy_name,
@@ -67,6 +68,26 @@ def start(num_samples: int, plot: bool) -> None:
             )
             input_data.append(model.input_df.assign(**metadata))
             output_data.append(model.get_coefficients().assign(**metadata))
+
+            coeffs = model.get_coefficients()
+            try:
+                rhat_data = (
+                    coeffs[coeffs["location"] == "Overall"]["b"]
+                    .to_numpy()
+                    .reshape((num_samples, -1))
+                    .T
+                )
+                rhat = az.rhat(rhat_data)
+                study_rhats[study] = rhat
+            except TypeError as e:
+                print(f"Error calculating R-hat for {study}: {e}")
+                print(f"Data shape: {rhat_data.shape}")
+                print(f"Data type: {rhat_data.dtype}")
+                print(
+                    f"Sample data: {rhat_data[:5, :5]}"
+                )  # Print first 5x5 elements
+                study_rhats[study] = "Error"
+
     input = pd.concat(input_data)
     input.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "input.tsv"), sep="\t", index=False
@@ -79,6 +100,9 @@ def start(num_samples: int, plot: bool) -> None:
     summary.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv"), sep="\t"
     )
+    print("Model fitting complete\nR-hat statistics:")
+    for study, rhat in study_rhats.items():
+        print(f"{study}: rhat={rhat}")
 
 
 if __name__ == "__main__":
