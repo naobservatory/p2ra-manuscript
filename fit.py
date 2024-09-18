@@ -92,7 +92,7 @@ def start(num_samples: int, plot: bool) -> None:
     summary.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv"), sep="\t"
     )
-    print("Model fitting complete\nR-hat statistics:")
+    print("Model fitting for non-enriched samples complete\nR-hat statistics:")
     for pathogen_and_study, rhat in study_pathogen_rhats.items():
         print(f"{pathogen_and_study}: rhat={rhat}")
 
