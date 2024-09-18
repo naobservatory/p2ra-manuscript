@@ -190,12 +190,12 @@ class Model(Generic[P]):
         )
 
     def fit_model(self, num_chains: int = 4, num_samples: int = 1000) -> None:
-        self.fit = self.model.sample(
-            num_chains=num_chains, num_samples=num_samples
-        )
-        self.output_df = self.fit.to_frame()
         self.num_samples = num_samples
         self.num_chains = num_chains
+        self.fit = self.model.sample(
+            num_chains=self.num_chains, num_samples=self.num_samples
+        )
+        self.output_df = self.fit.to_frame()
 
     def get_rhat(self) -> float:
         coeffs = self.get_coefficients()
