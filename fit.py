@@ -53,7 +53,7 @@ def start(num_samples: int, plot: bool) -> None:
                 continue
             model.fit_model(num_samples=num_samples)
 
-            rhat = model.get_rhat(num_samples)
+            rhat = model.get_rhat()
             study_pathogen_rhats[f"{study}, {tidy_name}"] = rhat
 
             if plot:

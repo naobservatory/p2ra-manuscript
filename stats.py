@@ -141,6 +141,8 @@ HYPERPARAMS = {
 class Model(Generic[P]):
     data: list[DataPoint[P]]
     random_seed: int
+    num_samples: None | int = None
+    num_chains: None | int = None
     model: stan.model.Model = field(init=False)
     locations: list[str | None] = field(init=False)
     input_df: pd.DataFrame = field(init=False)
@@ -192,14 +194,16 @@ class Model(Generic[P]):
             num_chains=num_chains, num_samples=num_samples
         )
         self.output_df = self.fit.to_frame()
+        self.num_samples = num_samples
+        self.num_chains = num_chains
 
-    def get_rhat(self, num_samples: int) -> float:
+    def get_rhat(self) -> float:
         coeffs = self.get_coefficients()
         rhat_data = (
-            coeffs[coeffs["location"] == "Overall"]["b"]
-            .to_numpy()
+            coeffs[coeffs["location"] == "Overall"]["b"].to_numpy()
             # Un-stack the MCMC chains
-            .reshape((num_samples, -1))
+            .reshape((self.num_samples, -1))
+            # az.rhat() expects shape (num_chains, num_samples)
             .T
         )
         rhat = az.rhat(rhat_data)
