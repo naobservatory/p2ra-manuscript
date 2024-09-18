@@ -31,7 +31,7 @@ def start(num_samples: int, plot: bool) -> None:
     mgs_data = MGSData.from_repo()
     input_data = []
     output_data = []
-    study_rhats = {}
+    study_pathogen_rhats = {}
 
     for (
         pathogen_name,
@@ -74,14 +74,15 @@ def start(num_samples: int, plot: bool) -> None:
             output_data.append(model.get_coefficients().assign(**metadata))
 
             coeffs = model.get_coefficients()
-            rhat = az.rhat(
+
+            rhat_data = (
                 coeffs[coeffs["location"] == "Overall"]["b"]
                 .to_numpy()
                 .reshape((num_samples, -1))
                 .T
             )
-            study_rhats[study] = rhat
-
+            rhat = az.rhat(rhat_data)
+            study_pathogen_rhats[f"{study}, {tidy_name}"] = rhat
     input = pd.concat(input_data)
     input.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "panel_input.tsv"),
@@ -99,8 +100,8 @@ def start(num_samples: int, plot: bool) -> None:
     print(
         "Model fitting of panel-amplified samples complete\nR-hat statistics:"
     )
-    for study, rhat in study_rhats.items():
-        print(f"{study}: rhat={rhat}")
+    for pathogen_and_study, rhat in study_pathogen_rhats.items():
+        print(f"{pathogen_and_study}: rhat={rhat}")
 
 
 if __name__ == "__main__":
