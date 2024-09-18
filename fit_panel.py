@@ -2,7 +2,6 @@
 from pathlib import Path
 
 import pandas as pd
-import arviz as az
 import os
 import stats
 from mgs import Enrichment, MGSData, target_bioprojects
@@ -56,7 +55,12 @@ def start(num_samples: int, plot: bool) -> None:
             )
             if model is None:
                 continue
+
             model.fit_model(num_samples=num_samples)
+
+            rhat = model.get_rhat(num_samples)
+            study_pathogen_rhats[f"{study}, {tidy_name}"] = rhat
+
             if plot:
                 taxid_str = "-".join(str(tid) for tid in taxids)
                 model.plot_figures(
@@ -73,16 +77,6 @@ def start(num_samples: int, plot: bool) -> None:
             input_data.append(model.input_df.assign(**metadata))
             output_data.append(model.get_coefficients().assign(**metadata))
 
-            coeffs = model.get_coefficients()
-
-            rhat_data = (
-                coeffs[coeffs["location"] == "Overall"]["b"]
-                .to_numpy()
-                .reshape((num_samples, -1))
-                .T
-            )
-            rhat = az.rhat(rhat_data)
-            study_pathogen_rhats[f"{study}, {tidy_name}"] = rhat
     input = pd.concat(input_data)
     input.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "panel_input.tsv"),

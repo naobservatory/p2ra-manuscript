@@ -8,6 +8,7 @@ import matplotlib  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import pandas as pd
+import arviz as az
 import seaborn as sns  # type: ignore
 import stan  # type: ignore
 from scipy.stats import gamma, norm  # type: ignore
@@ -191,6 +192,18 @@ class Model(Generic[P]):
             num_chains=num_chains, num_samples=num_samples
         )
         self.output_df = self.fit.to_frame()
+
+    def get_rhat(self, num_samples: int) -> float:
+        coeffs = self.get_coefficients()
+        rhat_data = (
+            coeffs[coeffs["location"] == "Overall"]["b"]
+            .to_numpy()
+            # Un-stack the MCMC chains
+            .reshape((num_samples, -1))
+            .T
+        )
+        rhat = az.rhat(rhat_data)
+        return rhat
 
     def get_output_by_sample(self) -> pd.DataFrame:
         if self.output_df is None:
