@@ -74,6 +74,7 @@ def start(num_samples: int, plot: bool) -> None:
             rhat_data = (
                 coeffs[coeffs["location"] == "Overall"]["b"]
                 .to_numpy()
+                # Un-stack the MCMC chains
                 .reshape((num_samples, -1))
                 .T
             )
