@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -209,13 +211,15 @@ def plot_steps_and_dots():
     figdir = Path(parent_dir / "fig")
     os.makedirs(figdir, exist_ok=True)
 
-    fig, axs = plt.subplots(2, 2, figsize=(12, 8), dpi=300)  # , dpi=150)
+    fig, axs = plt.subplots(2, 2, figsize=(12, 8), dpi=300)
+
     fig_numeration = ["a", "b", "c", "d"]
     axs = axs.flatten()
     i = 0
     for virus in ["SARS-COV-2", "Norovirus (GII)"]:
         for cumulative_incidence in [CUM_INC_1_PERC, CUM_INC_001_PERC]:
             ax = axs[i]
+            line_colors = plt.cm.viridis(np.linspace(0, 1, 4))
 
             ax.step(
                 miseq_depth,
@@ -252,14 +256,15 @@ def plot_steps_and_dots():
             )
 
             seq_costs = get_cost(virus, cumulative_incidence)
+
             study_colors = {
-                "crits_christoph": "red",
-                "rothman": "blue",
-                "spurbeck": "green",
+                "crits_christoph": "#2ca02c",
+                "rothman": "#ff7f0e",
+                "spurbeck": "#1f77b4",
             }
             enriched_icons = {
-                True: "o",
-                False: "x",
+                True: "x",
+                False: "o",
             }
 
             for (virus, study, enriched), (
@@ -319,13 +324,15 @@ def plot_steps_and_dots():
             ax.set_xscale("log")
             ax.set_yscale("log")
             if i in [2, 3]:
-                ax.set_xlabel("RequiredRead Depth", fontsize=12)
+                ax.set_xlabel("Required Read Depth", fontsize=12)
             if i in [0, 2]:
                 ax.set_ylabel("Yearly Sequencing Cost ($)", fontsize=12)
             ax.set_title(
                 f"{fig_numeration[i]}) {virus} Cumulative incidence: {cumulative_incidence:.2%}",
-                fontsize=14,
+                fontsize=12,
                 loc="left",
+                # fontweight="bold",
+                x=0,
             )
 
             # ax.set_title("Sequencing Cost vs. Read Depth", fontsize=14)
@@ -340,7 +347,7 @@ def plot_steps_and_dots():
                 )
             _, x_max = ax.get_xlim()
             x_tick_positions = []
-            for x in np.arange(2, np.ceil(np.log10(x_max)), 1):
+            for x in np.arange(2, np.ceil(np.log10(x_max)), 2):
                 x_tick = 10**x
                 ax.axvline(
                     x_tick,
