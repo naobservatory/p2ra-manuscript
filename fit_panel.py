@@ -100,4 +100,4 @@ def start(num_samples: int, plot: bool) -> None:
 
 if __name__ == "__main__":
     # TODO: Command line arguments
-    start(num_samples=1000, plot=True)
+    start(num_samples=8000, plot=True)
