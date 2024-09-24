@@ -482,7 +482,7 @@ def barplot(
 
 def save_plot(fig, figdir: Path, name: str) -> None:
     for ext in ["pdf", "png"]:
-        fig.savefig(figdir / f"{name}.{ext}", bbox_inches="tight", dpi=900)
+        fig.savefig(figdir / f"{name}.{ext}", bbox_inches="tight", dpi=300)
 
 
 def start():
@@ -518,7 +518,7 @@ def start():
     barplot(fig.add_subplot(gs[1, :]), hv_family_df, study_order)
     plt.tight_layout()
 
-    save_plot(fig, figdir, "composite_fig_2")
+    save_plot(fig, figdir, "fig_1")
 
 
 if __name__ == "__main__":
