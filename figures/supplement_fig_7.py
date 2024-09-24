@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -7,18 +9,20 @@ from pathlib import Path
 
 MODEL_OUTPUT_DIR = "model_output"
 
+WEEKS_PER_YEAR = 52
+
 
 CUM_INC_1_PERC = 0.01
 CUM_INC_001_PERC = 0.0001
 DETECTION_THRESHOLD = 100
 PERCENTILES = [5, 25, 50, 75, 95]
-NOVASEQ_LANE_COST = 2494
+NOVASEQ_LANE_COST_PER_YEAR = 2494 * WEEKS_PER_YEAR
 NOVASEQ_LANE_DEPTH = 1.4e9
-NOVASEQ_CELL_COST = 18902
+NOVASEQ_CELL_COST_PER_YEAR = 18902 * WEEKS_PER_YEAR
 NOVASEQ_CELL_DEPTH = 23.4e9
-MISEQ_COST = 788
+MISEQ_COST_PER_YEAR = 788 * WEEKS_PER_YEAR
 MISEQ_DEPTH = 2e6
-NEXTSEQ_COST = 1397
+NEXTSEQ_COST_PER_YEAR = 1397 * WEEKS_PER_YEAR
 NEXTSEQ_DEPTH = 45e6
 
 
@@ -119,17 +123,22 @@ def get_cost(virus, cumulative_incidence):
     seq_costs = {}
     for (virus, study, enriched), depth in seq_depths.items():
 
-        nova_seq_lane_cost = NOVASEQ_LANE_COST * np.ceil(
+        nova_seq_lane_cost = NOVASEQ_LANE_COST_PER_YEAR * np.ceil(
             depth / NOVASEQ_LANE_DEPTH
         )
-        nova_seq_cell_cost = NOVASEQ_CELL_COST * np.ceil(
+        nova_seq_cell_cost = NOVASEQ_CELL_COST_PER_YEAR * np.ceil(
             depth / NOVASEQ_CELL_DEPTH
         )
-        miseq_cost = MISEQ_COST * np.ceil(depth / MISEQ_DEPTH)
-        nextseq_cost = NEXTSEQ_COST * np.ceil(depth / NEXTSEQ_DEPTH)
+        miseq_cost = MISEQ_COST_PER_YEAR * np.ceil(depth / MISEQ_DEPTH)
+        nextseq_cost = NEXTSEQ_COST_PER_YEAR * np.ceil(depth / NEXTSEQ_DEPTH)
         lowest_cost = min(
-            nova_seq_lane_cost, nova_seq_cell_cost, miseq_cost, nextseq_cost
+            nova_seq_lane_cost,
+            nova_seq_cell_cost,
+            miseq_cost,
+            nextseq_cost,
         )
+
+        yearly_cost = lowest_cost
 
         sequencer = (
             "NovaSeq (lane)"
@@ -137,11 +146,11 @@ def get_cost(virus, cumulative_incidence):
             else (
                 "NovaSeq (cell)"
                 if lowest_cost == nova_seq_cell_cost
-                else "MiSeq" if lowest_cost == miseq_cost else "NextSeq"
+                else ("MiSeq" if lowest_cost == miseq_cost else "NextSeq")
             )
         )
 
-        seq_costs[virus, study, enriched] = (sequencer, lowest_cost, depth)
+        seq_costs[virus, study, enriched] = (sequencer, yearly_cost, depth)
     return seq_costs
 
 
@@ -154,35 +163,24 @@ def get_depth_and_costs() -> tuple[
     list[float],
 ]:
 
-    novaseq_lane_costs = []
-    novaseq_lane_depth = []
-    novaseq_cell_costs = []
-    novaseq_cell_depth = []
-    miseq_costs = []
-    miseq_depth = []
-    nextseq_costs = []
-    nextseq_depth = []
-    for i in range(0, 1000000):
+    novaseq_lane_costs = [NOVASEQ_LANE_COST_PER_YEAR]
+    novaseq_lane_depth = [0]
+    novaseq_cell_costs = [NOVASEQ_CELL_COST_PER_YEAR]
+    novaseq_cell_depth = [0]
+    miseq_costs = [MISEQ_COST_PER_YEAR]
+    miseq_depth = [0]
+    nextseq_costs = [NEXTSEQ_COST_PER_YEAR]
+    nextseq_depth = [0]
+    for i in range(1, 1000000):
 
-        if i == 0:
-            novaseq_lane_costs.append(NOVASEQ_LANE_COST)
-            novaseq_lane_depth.append(0)
-            novaseq_cell_costs.append(NOVASEQ_CELL_COST)
-            novaseq_cell_depth.append(0)
-            miseq_costs.append(MISEQ_COST)
-            miseq_depth.append(0)
-            nextseq_costs.append(NEXTSEQ_COST)
-            nextseq_depth.append(0)
-
-        else:
-            novaseq_lane_costs.append(i * NOVASEQ_LANE_COST)
-            novaseq_lane_depth.append(i * NOVASEQ_LANE_DEPTH)
-            novaseq_cell_costs.append(i * NOVASEQ_CELL_COST)
-            novaseq_cell_depth.append(i * NOVASEQ_CELL_DEPTH)
-            miseq_costs.append(i * MISEQ_COST)
-            miseq_depth.append(i * MISEQ_DEPTH)
-            nextseq_costs.append(i * NEXTSEQ_COST)
-            nextseq_depth.append(i * NEXTSEQ_DEPTH)
+        novaseq_lane_costs.append(i * NOVASEQ_LANE_COST_PER_YEAR)
+        novaseq_lane_depth.append(i * NOVASEQ_LANE_DEPTH)
+        novaseq_cell_costs.append(i * NOVASEQ_CELL_COST_PER_YEAR)
+        novaseq_cell_depth.append(i * NOVASEQ_CELL_DEPTH)
+        miseq_costs.append(i * MISEQ_COST_PER_YEAR)
+        miseq_depth.append(i * MISEQ_DEPTH)
+        nextseq_costs.append(i * NEXTSEQ_COST_PER_YEAR)
+        nextseq_depth.append(i * NEXTSEQ_DEPTH)
 
     return (
         novaseq_lane_costs,
@@ -213,13 +211,15 @@ def plot_steps_and_dots():
     figdir = Path(parent_dir / "fig")
     os.makedirs(figdir, exist_ok=True)
 
-    fig, axs = plt.subplots(2, 2, figsize=(15, 13))  # , dpi=150)
+    fig, axs = plt.subplots(2, 2, figsize=(12, 8), dpi=300)
+
     fig_numeration = ["a", "b", "c", "d"]
     axs = axs.flatten()
     i = 0
     for virus in ["SARS-COV-2", "Norovirus (GII)"]:
         for cumulative_incidence in [CUM_INC_1_PERC, CUM_INC_001_PERC]:
             ax = axs[i]
+            line_colors = plt.cm.viridis(np.linspace(0, 1, 4))
 
             ax.step(
                 miseq_depth,
@@ -256,14 +256,15 @@ def plot_steps_and_dots():
             )
 
             seq_costs = get_cost(virus, cumulative_incidence)
+
             study_colors = {
-                "crits_christoph": "red",
-                "rothman": "blue",
-                "spurbeck": "green",
+                "crits_christoph": "#2ca02c",
+                "rothman": "#ff7f0e",
+                "spurbeck": "#1f77b4",
             }
             enriched_icons = {
-                True: "o",
-                False: "x",
+                True: "x",
+                False: "o",
             }
 
             for (virus, study, enriched), (
@@ -284,7 +285,7 @@ def plot_steps_and_dots():
                     cost,
                     color=study_colors[study],
                     marker=enriched_icons[enriched],
-                    label=f"{study_labels[study]} | {enriched_label}",
+                    label=f"{study_labels[study]} ({enriched_label})",
                     zorder=10,
                 )
 
@@ -309,10 +310,10 @@ def plot_steps_and_dots():
             min_cost = min(costs)
             for cost, name in zip(
                 [
-                    MISEQ_COST,
-                    NEXTSEQ_COST,
-                    NOVASEQ_LANE_COST,
-                    NOVASEQ_CELL_COST,
+                    MISEQ_COST_PER_YEAR,
+                    NEXTSEQ_COST_PER_YEAR,
+                    NOVASEQ_LANE_COST_PER_YEAR,
+                    NOVASEQ_CELL_COST_PER_YEAR,
                 ],
                 ["MiSeq", "NextSeq", "NovaSeq (lane)", "NovaSeq (cell)"],
             ):
@@ -322,12 +323,16 @@ def plot_steps_and_dots():
 
             ax.set_xscale("log")
             ax.set_yscale("log")
-            ax.set_xlabel("Read Depth", fontsize=12)
-            ax.set_ylabel("Weekly Sequencing Cost ($)", fontsize=12)
+            if i in [2, 3]:
+                ax.set_xlabel("Required Read Depth", fontsize=12)
+            if i in [0, 2]:
+                ax.set_ylabel("Yearly Sequencing Cost ($)", fontsize=12)
             ax.set_title(
-                f"{fig_numeration[i]}) | {virus} Cumulative incidence: {cumulative_incidence:.2%}",
-                fontsize=14,
+                f"{fig_numeration[i]}) {virus} Cumulative incidence: {cumulative_incidence:.2%}",
+                fontsize=12,
                 loc="left",
+                # fontweight="bold",
+                x=0,
             )
 
             # ax.set_title("Sequencing Cost vs. Read Depth", fontsize=14)
@@ -342,7 +347,7 @@ def plot_steps_and_dots():
                 )
             _, x_max = ax.get_xlim()
             x_tick_positions = []
-            for x in np.arange(2, np.ceil(np.log10(x_max)), 1):
+            for x in np.arange(2, np.ceil(np.log10(x_max)), 2):
                 x_tick = 10**x
                 ax.axvline(
                     x_tick,
@@ -360,14 +365,24 @@ def plot_steps_and_dots():
             ax.set_xlim(1e2, max_depth * 1.1)
 
             if max_cost < 1e4:
-                ax.set_ylim(10**2.85, 1e4)
+                ax.set_ylim(10**4, 1e4)
             else:
-                ax.set_ylim(10**2.85, max_cost * 1.1)
+                ax.set_ylim(10**4, max_cost * 1.1)
+            ax.set_xlim(1e2, 1e14)
 
             ax.spines["top"].set_visible(False)
             ax.spines["right"].set_visible(False)
 
-            ax.legend(loc="upper left", fontsize=10)
+            if i == 0:  # Only add legend to the first subplot
+                handles, labels = ax.get_legend_handles_labels()
+                fig.legend(
+                    handles,
+                    labels,
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, 0),
+                    ncol=5,
+                    fontsize=10,
+                )
             i += 1
 
     plt.tight_layout()

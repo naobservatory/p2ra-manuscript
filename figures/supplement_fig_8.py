@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -292,4 +294,4 @@ plt.subplots_adjust(right=0.85)
 ax1.legend()
 
 plt.tight_layout()
-plt.savefig("supplement_figure_8.png", dpi=600)
+plt.savefig("supplement_fig_8.png", dpi=600)
