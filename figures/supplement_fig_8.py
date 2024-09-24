@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -352,5 +354,7 @@ def create_fig():
     plt.savefig("supplement_figure_8.png", dpi=600)
 
 
-if __name__ == "__main__":
-    create_fig()
+ax1.legend()
+
+plt.tight_layout()
+plt.savefig("supplement_fig_8.png", dpi=600)
