@@ -136,6 +136,8 @@ def plot_violin(
         ax.collections,
     ):
 
+        if num_reads == 0:
+            print(study, tidy_name)
         if 0 < num_reads < 10:
             alpha = 0.5
             patches.set_alpha(alpha)
@@ -381,7 +383,7 @@ def start() -> None:
 
     fig = composite_figure(fits_df, input_df)
     fig.show()
-    save_plot(fig, figdir, "composite_fig_4")
+    save_plot(fig, figdir, "fig_3")
 
 
 if __name__ == "__main__":

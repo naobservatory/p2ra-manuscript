@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as mticker  # type: ignore
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from matplotlib.gridspec import GridSpec  # type: ignore
 
 import mgs
@@ -392,7 +393,20 @@ def all_incidence_figure(
     return ax2
 
 
+def save_plot(fig, figdir: Path, name: str) -> None:
+    for ext in ["pdf", "png"]:
+        fig.savefig(
+            figdir / f"{name}.{ext}",
+            bbox_inches="tight",
+            dpi=600,
+        )
+
+
 def start():
+    parent_dir = Path("..")
+    figdir = Path(parent_dir / "fig")
+    figdir.mkdir(exist_ok=True)
+
     df = assemble_incidence_data()
     sample_dates = get_sample_dates()
 
@@ -435,15 +449,7 @@ def start():
     )
 
     plt.tight_layout()
-    plt.savefig(
-        "composite_fig_3.pdf",
-        bbox_inches="tight",
-    )
-    plt.savefig(
-        "composite_fig_3.png",
-        bbox_inches="tight",
-        dpi=600,
-    )
+    save_plot(fig, figdir, "fig_s1")
 
 
 if __name__ == "__main__":

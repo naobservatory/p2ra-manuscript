@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import csv
 import os
+from pathlib import Path
 from dataclasses import dataclass
 
 MODEL_OUTPUT_DIR = "model_output"
@@ -233,6 +234,15 @@ def get_cost_data():
     )
 
 
+def save_plot(fig, figdir: Path, name: str) -> None:
+    for ext in ["pdf", "png"]:
+        fig.savefig(
+            figdir / f"{name}.{ext}",
+            bbox_inches="tight",
+            dpi=600,
+        )
+
+
 def create_fig():
     (
         virus_study_1_perc,
@@ -242,6 +252,10 @@ def create_fig():
         costs_1_perc_norovirus,
         costs_001_perc_norovirus,
     ) = get_cost_data()
+
+    parent_dir = Path("..")
+    figdir = Path(parent_dir / "fig")
+    figdir.mkdir(exist_ok=True)
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 6), sharex=True)
     ax1, ax2, ax3, ax4 = axs.flatten()
@@ -351,10 +365,8 @@ def create_fig():
     ax1.legend()
 
     plt.tight_layout()
-    plt.savefig("supplement_figure_8.png", dpi=600)
+    save_plot(fig, figdir, "fig_s7")
 
 
-ax1.legend()
-
-plt.tight_layout()
-plt.savefig("supplement_fig_8.png", dpi=600)
+if __name__ == "__main__":
+    create_fig()

@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns  # type: ignore
 
+from pathlib import Path
+
 PERCENTILES = [5, 25, 50, 75, 95]
 
 MODEL_OUTPUT_DIR = "../model_output"
@@ -185,17 +187,22 @@ def plot_df(df: pd.DataFrame) -> None:
     ax.set_xlabel(
         "OOM difference between highest and lowest study estimate (based on median location)"
     )
-    # plt.show()
-    output_dir = "../fig"
-    plt.savefig(
-        os.path.join(output_dir, "supplement_fig_5.png"),
-        dpi=600,
-        bbox_inches="tight",
-    )
-    plt.clf()
+    return fig
+
+
+def save_plot(fig, figdir: Path, name: str) -> None:
+    for ext in ["pdf", "png"]:
+        fig.savefig(
+            figdir / f"{name}.{ext}",
+            bbox_inches="tight",
+            dpi=600,
+        )
 
 
 def start():
+    parent_dir = Path("..")
+    figdir = Path(parent_dir / "fig")
+    figdir.mkdir(exist_ok=True)
     reads_data = reads_df()
     fits_data = fits_df()
 
@@ -209,7 +216,8 @@ def start():
         right_on=["tidy_name", "study"],
     )
     diffs_df = compute_diffs(fits_data_w_reads)
-    plot_df(diffs_df)
+    fig = plot_df(diffs_df)
+    save_plot(fig, figdir, "fig_s5")
 
 
 if __name__ == "__main__":
