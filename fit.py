@@ -3,7 +3,6 @@ from pathlib import Path
 import os
 
 import pandas as pd
-
 import stats
 from mgs import Enrichment, MGSData, target_bioprojects
 from pathogens import predictors_by_taxid
@@ -31,6 +30,7 @@ def start(num_samples: int, plot: bool) -> None:
     mgs_data = MGSData.from_repo()
     input_data = []
     output_data = []
+    study_pathogen_rhats = {}
     for (
         pathogen_name,
         tidy_name,
@@ -52,6 +52,10 @@ def start(num_samples: int, plot: bool) -> None:
             if model is None:
                 continue
             model.fit_model(num_samples=num_samples)
+
+            rhat = model.get_rhat()
+            study_pathogen_rhats[f"{study}, {tidy_name}"] = rhat
+
             if plot:
                 taxid_str = "-".join(str(tid) for tid in taxids)
                 model.plot_figures(
@@ -67,6 +71,7 @@ def start(num_samples: int, plot: bool) -> None:
             )
             input_data.append(model.input_df.assign(**metadata))
             output_data.append(model.get_coefficients().assign(**metadata))
+
     input = pd.concat(input_data)
     input.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "input.tsv"), sep="\t", index=False
@@ -79,6 +84,9 @@ def start(num_samples: int, plot: bool) -> None:
     summary.to_csv(
         os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv"), sep="\t"
     )
+    print("Model fitting for non-enriched samples complete\nR-hat statistics:")
+    for pathogen_and_study, rhat in study_pathogen_rhats.items():
+        print(f"{pathogen_and_study}: rhat={rhat}")
 
 
 if __name__ == "__main__":
