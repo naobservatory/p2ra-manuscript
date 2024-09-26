@@ -99,20 +99,147 @@ for study, bioprojects in TARGET_STUDY_METADATA.items():
 
 
 target_taxa = {
-    10239: ("viruses", "Viruses"),
     2731341: ("Duplodnaviria", "DNA Viruses"),
     2732004: ("Varidnaviria", "DNA Viruses"),
     2731342: ("Monodnaviria", "DNA Viruses"),
     2559587: ("Riboviria", "RNA Viruses"),
-    9999999999: ("human viruses", "Viruses"),
 }
 
 
-def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
+def assemble_composition_df():
     viral_composition_data = []
+    for study, bioprojects in TARGET_STUDY_METADATA.items():
+        study_author = study.split()[0]
+        for bioproject in bioprojects:
+            study_bioproject = f"{study_author}-{bioproject}"
+
+            metadata_samples = {}
+            with open(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/sample-metadata.csv",
+                mode="r",
+                encoding="utf-8-sig",
+            ) as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    sample = row.pop("sample")
+                    metadata_samples[sample] = row
+
+            hv_clade_counts = pd.read_csv(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts.tsv",
+                sep="\t",
+            )
+
+            taxonomic_composition = pd.read_csv(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/taxonomic_composition.tsv",
+                sep="\t",
+            )
+
+            qc_basic_stats = pd.read_csv(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/qc_basic_stats.tsv",
+                sep="\t",
+            ).set_index(["sample", "stage"])
+
+            fine_counts = pd.read_csv(
+                f"../{BIOPROJECT_DIR}/{study_bioproject}/kraken_reports.tsv",
+                sep="\t",
+            )
+
+            fine_counts_dfs = {
+                sample: df for sample, df in fine_counts.groupby("sample")
+            }
+
+            samples = metadata_samples.keys()
+            modified_study = study
+
+            for sample in samples:
+                if (
+                    metadata_samples[sample].get("enrichment") == "enriched"
+                    or metadata_samples[sample].get("enrichment") == "1"
+                ):
+                    continue
+
+                try:
+                    total_hv_reads = hv_clade_counts.loc[
+                        (hv_clade_counts["taxid"] == 10239)
+                        & (hv_clade_counts["sample"] == sample),
+                        "n_reads_clade",
+                    ].values[0]
+                except IndexError:
+                    total_hv_reads = 0
+
+                try:
+                    total_viral_reads = taxonomic_composition.loc[
+                        (taxonomic_composition["sample"] == sample)
+                        & (taxonomic_composition["classification"] == "Viral"),
+                        "n_reads",
+                    ].values[0]
+                except IndexError:
+                    total_viral_reads = 0
+
+                total_reads = qc_basic_stats.at[
+                    (sample, "raw_concat"), "n_read_pairs"
+                ]
+
+                hv_rel_abun = total_hv_reads / total_reads
+                virus_rel_abun = total_viral_reads / total_reads
+
+                tax_reads_dict = (
+                    fine_counts_dfs[sample]
+                    .set_index("taxid")["n_reads_clade"]
+                    .to_dict()
+                )
+
+                taxa_abundances = {
+                    "DNA Viruses": 0,
+                    "RNA Viruses": 0,
+                }
+
+                for taxid in target_taxa.keys():
+                    nucleic_acid_type = target_taxa[taxid][1]
+                    tax_reads = tax_reads_dict.get(taxid, 0)
+                    tax_relative_abundance = tax_reads / total_reads
+
+                    taxa_abundances[
+                        nucleic_acid_type
+                    ] += tax_relative_abundance
+
+                viral_composition_data.append(
+                    {
+                        "study": modified_study,
+                        "sample": sample,
+                        "Human-Infecting Viruses": hv_rel_abun,
+                        "Viruses": virus_rel_abun,
+                        **taxa_abundances,
+                    }
+                )
+    viral_composition_df = pd.DataFrame(viral_composition_data)
+    return viral_composition_df
+
+
+def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
+
+    viral_composition_df = viral_composition_df.melt(
+        id_vars=["study", "sample"],
+        value_vars=[
+            "Viruses",
+            "Human-Infecting Viruses",
+            "RNA Viruses",
+            "DNA Viruses",
+        ],
+        var_name="Group",
+        value_name="Relative Abundance",
+    )
+
+    viral_composition_df["Relative Abundance"] = viral_composition_df[
+        "Relative Abundance"
+    ].replace(0, 1e-8)
+
+    return viral_composition_df
+
+
+def assemble_hv_family_df() -> pd.DataFrame:
     hv_family_data = []
     for study, bioprojects in TARGET_STUDY_METADATA.items():
-        print(study, bioprojects)
         study_author = study.split()[0]
         for bioproject in bioprojects:
             study_bioproject = f"{study_author}-{bioproject}"
@@ -133,9 +260,9 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                 sep="\t",
             )
 
-            fine_counts_dfs = {
-                sample: df for sample, df in fine_counts.groupby("sample")
-            }
+            # fine_counts_dfs = {
+            #     sample: df for sample, df in fine_counts.groupby("sample")
+            # }
 
             hv_clade_counts = pd.read_csv(
                 f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts.tsv",
@@ -197,43 +324,9 @@ def assemble_plotting_dfs() -> tuple[pd.DataFrame, pd.DataFrame]:
                     }
                 )
 
-                sample_fine_counts = fine_counts_dfs[sample]
-
-                tax_reads_dict = sample_fine_counts.set_index("taxid")[
-                    "n_reads_clade"
-                ].to_dict()
-
-                hv_relative_abundance = total_hv_reads / total_reads
-
-                taxa_abundances = {
-                    "DNA Viruses": 0,
-                    "RNA Viruses": 0,
-                    "Viruses": 0,
-                }
-
-                for taxid in target_taxa.keys():
-                    nucleic_acid_type = target_taxa[taxid][1]
-                    tax_reads = tax_reads_dict.get(taxid, 0)
-                    tax_relative_abundance = tax_reads / total_reads
-
-                    taxa_abundances[
-                        nucleic_acid_type
-                    ] += tax_relative_abundance
-
-                viral_composition_data.append(
-                    {
-                        "study": modified_study,
-                        "sample": sample,
-                        "Human-Infecting Viruses": hv_relative_abundance,
-                        **taxa_abundances,
-                    }
-                )
-
-    viral_composition_df = pd.DataFrame(viral_composition_data)
-
     hv_family_df = pd.DataFrame(hv_family_data)
 
-    return viral_composition_df, hv_family_df
+    return hv_family_df
 
 
 def shape_hv_family_df(hv_family_df: pd.DataFrame) -> pd.DataFrame:
@@ -252,29 +345,7 @@ def shape_hv_family_df(hv_family_df: pd.DataFrame) -> pd.DataFrame:
     other_families_sum = hv_family_df.drop(columns=top_families).sum(axis=1)
     hv_family_df = hv_family_df[top_families]
     hv_family_df["Other Viral Families"] = other_families_sum
-    print(hv_family_df)
     return hv_family_df
-
-
-def shape_vir_comp_df(viral_composition_df: pd.DataFrame) -> pd.DataFrame:
-
-    viral_composition_df = viral_composition_df.melt(
-        id_vars=["study", "sample"],
-        value_vars=[
-            "Viruses",
-            "Human-Infecting Viruses",
-            "RNA Viruses",
-            "DNA Viruses",
-        ],
-        var_name="Group",
-        value_name="Relative Abundance",
-    )
-
-    viral_composition_df["Relative Abundance"] = np.log10(
-        viral_composition_df["Relative Abundance"]
-    )
-
-    return viral_composition_df
 
 
 def order_df(
@@ -313,6 +384,7 @@ def boxplot(
         width=0.7,
         showfliers=False,
         ax=ax,
+        log_scale=True,
     )
     if DEBUG:
         # Calculate and print median relative abundance of human-infecting viruses for each study
@@ -339,21 +411,11 @@ def boxplot(
 
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
-    labels = []
-    for label in ax.get_yticklabels():
-        pretty_label = prettier_labels[label.get_text()]
-        label.set_text(pretty_label)
-        labels.append(label)
-    ax.set_yticklabels(labels)
+
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([prettier_labels[study] for study in order])
 
     ax.yaxis.set_label_position("right")
-    formatter = ticker.FuncFormatter(
-        lambda y, _: "${{10^{{{:d}}}}}$".format(int(y))
-    )
-
-    ax.xaxis.set_major_formatter(formatter)
-
-    ax.set_xlim(right=0, left=-8)
 
     sns.despine(top=True, right=True, left=True, bottom=False)
 
@@ -368,18 +430,33 @@ def boxplot(
         frameon=False,
     )
 
-    for i in range(-7, 0):
-        ax.axvline(i, color="grey", linewidth=0.3, linestyle=":")
+    # Add vertical grid lines
+    for i in np.arange(-7, 0, 1):
+        ax.axvline(10 ** float(i), color="grey", linewidth=0.3, linestyle=":")
 
+    ax.xaxis.set_major_formatter(
+        ticker.FuncFormatter(
+            lambda x, p: f"$10^{{{int(np.log10(x))}}}$" if x > 0 else "0"
+        )
+    )
+    ax.xaxis.set_minor_formatter(ticker.NullFormatter())
+    ax.set_xlim(10**-8, 1)
+
+    def format_func(value, tick_number):
+        if value == 10**-8:
+            return "0"
+        else:
+            return f"$10^{{{int(np.log10(value))}}}$"
+
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
     for i in range(1, len(studies)):
         if i == 1:
             ax.axhline(i - 0.5, color="black", linewidth=1, linestyle="-")
-
         else:
             ax.axhline(i - 0.5, color="grey", linewidth=0.3, linestyle=":")
 
-    ax.text(-8.01, 0.3, "DNA\nSequencing", ha="right")
-    ax.text(-8.01, 1.3, "RNA\nSequencing", ha="right")
+    ax.text(0.3 * 10**-8, 0.3, "DNA\nSequencing", ha="right")
+    ax.text(0.3 * 10**-8, 1.3, "RNA\nSequencing", ha="right")
 
     return ax
 
@@ -456,12 +533,14 @@ def barplot(
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
 
-    labels = []
-    for label in ax.get_yticklabels():
-        pretty_label = prettier_labels[label.get_text()]
-        label.set_text(pretty_label)
-        labels.append(label)
-    ax.set_yticklabels(labels)
+    # labels = []
+    # for label in ax.get_yticklabels():
+    #     pretty_label = prettier_labels[label.get_text()]
+    #     label.set_text(pretty_label)
+    #     labels.append(label)
+    # ax.set_yticklabels(labels)
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([prettier_labels[study] for study in order])
 
     ax.axhline(0.5, color="black", linewidth=1, linestyle="-")
     ax.text(-0.01, 0.2, "DNA\nSequencing", ha="right")
@@ -489,7 +568,8 @@ def start():
     parent_dir = Path("..")
     figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
-    viral_composition_df, hv_family_df = assemble_plotting_dfs()
+    hv_family_df = assemble_hv_family_df()
+    viral_composition_df = assemble_composition_df()
 
     viral_composition_df = shape_vir_comp_df(viral_composition_df)
 
@@ -506,7 +586,7 @@ def start():
         figsize=(9, 5),
     )
 
-    gs = GridSpec(2, 2, height_ratios=[14, 14], figure=fig, hspace=0.8)
+    gs = GridSpec(2, 2, height_ratios=[18, 14], figure=fig, hspace=0.8)
 
     boxplot(
         fig.add_subplot(gs[0, :]),
