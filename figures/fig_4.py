@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import csv
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
@@ -12,6 +12,10 @@ from scipy.stats import gmean
 PERCENTILES = [5, 25, 50, 75, 95]
 
 MODEL_OUTPUT_DIR = "model_output"
+
+import matplotlib as mpl
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 
 @dataclass

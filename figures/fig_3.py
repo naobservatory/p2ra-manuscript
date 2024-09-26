@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+import os
 import sys
 from pathlib import Path
-import os
 
 sys.path.append("..")
 
 MODEL_OUTPUT_DIR = "model_output"
 
+import matplotlib as mpl
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as ticker  # type: ignore
@@ -15,6 +16,8 @@ import pandas as pd
 import seaborn as sns  # type: ignore
 
 from pathogens import pathogens
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 
 def nucleic_acid(pathogen: str) -> str:
@@ -136,8 +139,6 @@ def plot_violin(
         ax.collections,
     ):
 
-        if num_reads == 0:
-            print(study, tidy_name)
         if 0 < num_reads < 10:
             alpha = 0.5
             patches.set_alpha(alpha)

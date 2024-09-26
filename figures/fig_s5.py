@@ -3,17 +3,20 @@ import os
 from collections import defaultdict
 from dataclasses import dataclass
 from math import log
+from pathlib import Path
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 import pandas as pd
 import seaborn as sns  # type: ignore
 
-from pathlib import Path
-
 PERCENTILES = [5, 25, 50, 75, 95]
 
 MODEL_OUTPUT_DIR = "../model_output"
+
+import matplotlib as mpl
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 
 def fits_df() -> pd.DataFrame:

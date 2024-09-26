@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 
-import matplotlib.pyplot as plt
-import numpy as np
 import csv
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+
 MODEL_OUTPUT_DIR = "model_output"
 
 WEEKS_PER_YEAR = 52
 
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 CUM_INC_1_PERC = 0.01
 CUM_INC_001_PERC = 0.0001
@@ -206,6 +210,11 @@ def get_depth_and_costs() -> tuple[
 ) = get_depth_and_costs()
 
 
+def save_plot(fig, figdir: Path, name: str) -> None:
+    for ext in ["pdf", "png"]:
+        fig.savefig(figdir / f"{name}.{ext}", bbox_inches="tight", dpi=600)
+
+
 def plot_steps_and_dots():
     parent_dir = Path("..")
     figdir = Path(parent_dir / "fig")
@@ -386,7 +395,8 @@ def plot_steps_and_dots():
             i += 1
 
     plt.tight_layout()
-    plt.savefig(figdir / "fig_5.png", bbox_inches="tight")
+
+    save_plot(fig, figdir, "fig_s8")
 
 
 plot_steps_and_dots()

@@ -4,6 +4,7 @@ sys.path.append("..")
 
 import datetime as dt
 from dataclasses import dataclass
+from pathlib import Path
 
 import matplotlib as mpl  # type: ignore
 import matplotlib.dates as mdates  # type: ignore
@@ -11,7 +12,6 @@ import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as mticker  # type: ignore
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from matplotlib.gridspec import GridSpec  # type: ignore
 
 import mgs
@@ -21,7 +21,6 @@ from populations import us_population
 sys.path.append("..")
 
 mpl.rcParams["pdf.fonttype"] = 42
-mpl.rcParams["ps.fonttype"] = 42
 
 
 def transform_study_name(s):

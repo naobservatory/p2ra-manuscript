@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
+import csv
+import os
+from dataclasses import dataclass
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import csv
-import os
-from pathlib import Path
-from dataclasses import dataclass
 
 MODEL_OUTPUT_DIR = "model_output"
 TABLE_OUTPUT_DIR = "tables"
+
+import matplotlib as mpl
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 CUM_INC_1_PERC = 0.01
 CUM_INC_001_PERC = 0.0001
@@ -312,50 +317,6 @@ def create_fig():
     for ax in [ax1, ax2, ax3, ax4]:
         for x in range(0, 20000, 2500):
             ax.axvline(x, color="black", alpha=0.5, linewidth=0.5, zorder=-1)
-        # ax.tick_params(axis="x", =45)
-    # ax1.text(
-    #     1e4 + 500,
-    #     len(virus_study_1_perc),
-    #     "Total Cost per sample",
-    #     va="center",
-    #     ha="left",
-    #     fontsize=12,
-    # )
-    # for i, (label, seq_cost, processing_cost) in enumerate(
-    #     zip(
-    #         virus_study_1_perc,
-    #         costs_1_perc_scv_2["Sequencing Cost"],
-    #         costs_1_perc_scv_2["Processing Cost"],
-    #     )
-    # ):
-
-    #     total_cost = processing_cost + seq_cost
-    #     ax1.text(
-    #         1e4 + 500,
-    #         i,
-    #         f"${total_cost:,.0f}",
-    #         va="center",
-    #         ha="left",
-    #         fontsize=10,
-    #     )
-
-    # for i, (label, seq_cost, processing_cost) in enumerate(
-    #     zip(
-    #         virus_study_001_perc,
-    #         costs_001_perc_scv_2["Sequencing Cost"],
-    #         costs_001_perc_scv_2["Processing Cost"],
-    #     )
-    # ):
-
-    #     total_cost = processing_cost + seq_cost
-    #     ax2.text(
-    #         1e4 + 500,
-    #         i,
-    #         f"${total_cost:,.0f}",
-    #         va="center",
-    #         ha="left",
-    #         fontsize=10,
-    #     )
 
     ax3.set_xlabel("Sequencing cost for one sample")
     ax4.set_xlabel("Sequencing cost for one sample")
@@ -365,6 +326,7 @@ def create_fig():
     ax1.legend()
 
     plt.tight_layout()
+
     save_plot(fig, figdir, "fig_s7")
 
 

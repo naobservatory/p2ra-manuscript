@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import os
 import sys
 from pathlib import Path
-import os
 
 sys.path.append("..")
 
+import matplotlib as mpl
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as ticker  # type: ignore
@@ -13,6 +14,8 @@ import pandas as pd
 import seaborn as sns  # type: ignore
 
 from pathogens import pathogens
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 MODEL_OUTPUT_DIR = "model_output"
 
