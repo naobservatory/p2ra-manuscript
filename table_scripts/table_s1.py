@@ -232,7 +232,5 @@ if __name__ == "__main__":
     from tabulate import tabulate
 
     headers = ["Study", "All viruses", "Human-infecting viruses"]
-    with open(
-        os.path.join("..", TABLE_DIR, "supplement_table_1.tsv"), "w"
-    ) as f:
+    with open(os.path.join("..", TABLE_DIR, "table_s1.tsv"), "w") as f:
         f.write(tabulate(table, headers, tablefmt="tsv"))

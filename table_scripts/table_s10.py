@@ -154,7 +154,7 @@ def round_to_three_digits(num):
 
 def get_cost_table():
     with open(
-        os.path.join("..", TABLE_OUTPUT_DIR, "supplement_table_10.tsv"), "w"
+        os.path.join("..", TABLE_OUTPUT_DIR, "table_s10.tsv"), "w"
     ) as csvfile:
         writer = csv.writer(csvfile, delimiter="\t")
         writer.writerow(
