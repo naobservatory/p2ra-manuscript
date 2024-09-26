@@ -38,7 +38,7 @@ def tidy_number(reads_required=int) -> str:
     superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
     exponent = exponent.translate(superscript_map)
 
-    return f"{coefficient} x 10{exponent}"
+    return f"{coefficient} × 10{exponent}"
 
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
@@ -75,10 +75,10 @@ def create_tsv():
         "brinch": "Brinch",
     }
 
-    headers = ["Virus", "Study", "Median", "Lower", "Upper"]
+    headers = ["Virus", "Study", "Median", "5th Percentile", "95th Percentile"]
 
     with open(
-        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_4.tsv"),
+        os.path.join(TABLE_OUTPUT_DIR, "table_s6.tsv"),
         "w",
         newline="",
     ) as file:
@@ -91,8 +91,8 @@ def create_tsv():
             )
             gmean_data = {
                 "Median": [],
-                "Lower": [],
-                "Upper": [],
+                "5th Percentile": [],
+                "95th Percentile": [],
             }
 
             for study in studies:
@@ -102,24 +102,24 @@ def create_tsv():
                         "Virus": virus,
                         "Study": study_tidy[study],
                         "Median": tidy_number(stats.percentiles[50]),
-                        "Lower": tidy_number(stats.percentiles[5]),
-                        "Upper": tidy_number(stats.percentiles[95]),
+                        "5th Percentile": tidy_number(stats.percentiles[5]),
+                        "95th Percentile": tidy_number(stats.percentiles[95]),
                     }
                 )
                 gmean_data["Median"].append(stats.percentiles[50])
-                gmean_data["Lower"].append(stats.percentiles[5])
-                gmean_data["Upper"].append(stats.percentiles[95])
+                gmean_data["5th Percentile"].append(stats.percentiles[5])
+                gmean_data["95th Percentile"].append(stats.percentiles[95])
 
             gmean_median = gmean(gmean_data["Median"])
-            gmean_lower = gmean(gmean_data["Lower"])
-            gmean_upper = gmean(gmean_data["Upper"])
+            gmean_lower = gmean(gmean_data["5th Percentile"])
+            gmean_upper = gmean(gmean_data["95th Percentile"])
             writer.writerow(
                 {
                     "Virus": virus,
                     "Study": "Mean (geometric)",
                     "Median": tidy_number(gmean_median),
-                    "Lower": tidy_number(gmean_lower),
-                    "Upper": tidy_number(gmean_upper),
+                    "5th Percentile": tidy_number(gmean_lower),
+                    "95th Percentile": tidy_number(gmean_upper),
                 }
             )
 

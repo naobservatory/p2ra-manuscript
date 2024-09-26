@@ -1,0 +1,51 @@
+Virus	Study	Median	5th Percentile	95th Percentile
+Influenza A	Rothman	1.86 × 10⁻⁷	4.41 × 10⁻⁹	2.37 × 10⁻⁶
+Influenza A	Crits-Christoph	6.23 × 10⁻⁶	8.08 × 10⁻⁸	1.73 × 10⁻⁴
+Influenza A	Spurbeck	2.31 × 10⁻¹⁰	4.02 × 10⁻¹²	3.60 × 10⁻⁹
+Influenza A	Mean (geometric)	6.45 × 10⁻⁸	1.13 × 10⁻⁹	1.14 × 10⁻⁶
+Influenza B	Rothman	2.76 × 10⁻⁷	6.25 × 10⁻⁹	3.44 × 10⁻⁶
+Influenza B	Crits-Christoph	7.64 × 10⁻⁶	8.58 × 10⁻⁸	1.85 × 10⁻⁴
+Influenza B	Spurbeck	1.15 × 10⁻⁸	2.34 × 10⁻¹⁰	1.80 × 10⁻⁷
+Influenza B	Mean (geometric)	2.89 × 10⁻⁷	5.00 × 10⁻⁹	4.85 × 10⁻⁶
+Norovirus (GI)	Rothman	1.41 × 10⁻³	4.92 × 10⁻⁴	3.93 × 10⁻³
+Norovirus (GI)	Crits-Christoph	4.73 × 10⁻⁵	3.12 × 10⁻⁶	3.13 × 10⁻⁴
+Norovirus (GI)	Spurbeck	3.43 × 10⁻⁷	4.56 × 10⁻⁸	1.76 × 10⁻⁶
+Norovirus (GI)	Mean (geometric)	2.84 × 10⁻⁵	4.12 × 10⁻⁶	1.29 × 10⁻⁴
+Norovirus (GII)	Rothman	1.15 × 10⁻⁴	3.77 × 10⁻⁵	3.28 × 10⁻⁴
+Norovirus (GII)	Crits-Christoph	1.25 × 10⁻⁵	2.13 × 10⁻⁶	4.78 × 10⁻⁵
+Norovirus (GII)	Spurbeck	8.27 × 10⁻⁸	8.87 × 10⁻⁹	4.57 × 10⁻⁷
+Norovirus (GII)	Mean (geometric)	4.91 × 10⁻⁶	8.93 × 10⁻⁷	1.93 × 10⁻⁵
+SARS-COV-2	Rothman	6.05 × 10⁻⁸	1.53 × 10⁻⁸	1.92 × 10⁻⁷
+SARS-COV-2	Crits-Christoph	2.33 × 10⁻⁷	1.47 × 10⁻⁸	1.60 × 10⁻⁶
+SARS-COV-2	Spurbeck	3.78 × 10⁻¹⁰	2.75 × 10⁻¹¹	2.20 × 10⁻⁹
+SARS-COV-2	Mean (geometric)	1.75 × 10⁻⁸	1.83 × 10⁻⁹	8.78 × 10⁻⁸
+CMV	Rothman	3.46 × 10⁻¹²	8.79 × 10⁻¹⁴	3.66 × 10⁻¹¹
+CMV	Crits-Christoph	3.84 × 10⁻¹¹	8.98 × 10⁻¹³	5.07 × 10⁻¹⁰
+CMV	Spurbeck	2.30 × 10⁻¹²	4.74 × 10⁻¹⁴	2.82 × 10⁻¹¹
+CMV	Brinch	8.59 × 10⁻¹³	1.61 × 10⁻¹⁴	1.26 × 10⁻¹¹
+CMV	Mean (geometric)	4.03 × 10⁻¹²	8.81 × 10⁻¹⁴	5.06 × 10⁻¹¹
+EBV	Rothman	1.38 × 10⁻¹¹	5.92 × 10⁻¹³	9.59 × 10⁻¹¹
+EBV	Crits-Christoph	2.63 × 10⁻¹²	4.12 × 10⁻¹⁴	8.45 × 10⁻¹¹
+EBV	Spurbeck	1.30 × 10⁻¹²	2.73 × 10⁻¹⁴	1.86 × 10⁻¹¹
+EBV	Brinch	2.99 × 10⁻¹¹	7.46 × 10⁻¹²	9.88 × 10⁻¹¹
+EBV	Mean (geometric)	6.13 × 10⁻¹²	2.66 × 10⁻¹³	6.22 × 10⁻¹¹
+HCV	Rothman	8.30 × 10⁻¹¹	1.64 × 10⁻¹²	1.19 × 10⁻⁹
+HCV	Crits-Christoph	2.77 × 10⁻¹⁰	2.86 × 10⁻¹²	6.74 × 10⁻⁹
+HCV	Spurbeck	5.62 × 10⁻¹¹	1.21 × 10⁻¹²	7.48 × 10⁻¹⁰
+HCV	Brinch	7.81 × 10⁻¹¹	1.22 × 10⁻¹²	1.74 × 10⁻⁹
+HCV	Mean (geometric)	1.00 × 10⁻¹⁰	1.62 × 10⁻¹²	1.80 × 10⁻⁹
+HIV	Rothman	9.94 × 10⁻¹⁰	1.74 × 10⁻¹¹	1.34 × 10⁻⁸
+HIV	Crits-Christoph	7.79 × 10⁻⁹	1.93 × 10⁻¹⁰	9.79 × 10⁻⁸
+HIV	Spurbeck	3.72 × 10⁻¹⁰	6.97 × 10⁻¹²	5.31 × 10⁻⁹
+HIV	Brinch	1.70 × 10⁻⁹	3.23 × 10⁻¹¹	2.31 × 10⁻⁸
+HIV	Mean (geometric)	1.49 × 10⁻⁹	2.95 × 10⁻¹¹	2.00 × 10⁻⁸
+HPV	Rothman	2.16 × 10⁻¹²	3.80 × 10⁻¹⁴	3.21 × 10⁻¹¹
+HPV	Crits-Christoph	7.82 × 10⁻¹²	7.63 × 10⁻¹⁴	1.72 × 10⁻¹⁰
+HPV	Spurbeck	1.44 × 10⁻¹²	2.59 × 10⁻¹⁴	2.03 × 10⁻¹¹
+HPV	Brinch	8.78 × 10⁻¹³	1.71 × 10⁻¹⁴	2.12 × 10⁻¹¹
+HPV	Mean (geometric)	2.15 × 10⁻¹²	3.36 × 10⁻¹⁴	3.93 × 10⁻¹¹
+HSV-1	Rothman	5.11 × 10⁻¹⁰	2.16 × 10⁻¹⁰	9.89 × 10⁻¹⁰
+HSV-1	Crits-Christoph	5.88 × 10⁻¹²	6.56 × 10⁻¹⁴	1.48 × 10⁻¹⁰
+HSV-1	Spurbeck	1.11 × 10⁻¹²	1.79 × 10⁻¹⁴	1.62 × 10⁻¹¹
+HSV-1	Brinch	5.87 × 10⁻¹¹	1.87 × 10⁻¹¹	1.79 × 10⁻¹⁰
+HSV-1	Mean (geometric)	2.10 × 10⁻¹¹	1.47 × 10⁻¹²	1.44 × 10⁻¹⁰
