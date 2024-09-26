@@ -3,7 +3,7 @@
 import csv
 import os
 from dataclasses import dataclass
-
+from pathlib import Path
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 from matplotlib.lines import Line2D  # type: ignore
@@ -116,7 +116,16 @@ def get_reads_required(
     return median_reads, lower_reads, upper_reads
 
 
+def save_plot(fig, figdir: Path, name: str) -> None:
+    for ext in ["pdf", "png"]:
+        fig.savefig(figdir / f"{name}.{ext}", bbox_inches="tight", dpi=600)
+
+
 def start():
+    parent_dir = Path("..")
+    figdir = Path(parent_dir / "fig")
+    os.makedirs(figdir, exist_ok=True)
+
     data = read_data()
 
     viruses = ["Norovirus (GII)", "SARS-COV-2"]
@@ -280,11 +289,7 @@ def start():
 
     fig.tight_layout
     fig.show()
-    fig.savefig(
-        os.path.join("..", "fig", "fig_4.png"),
-        bbox_inches="tight",
-        dpi=600,
-    )
+    save_plot(fig, figdir, "fig_4")
 
 
 if __name__ == "__main__":
