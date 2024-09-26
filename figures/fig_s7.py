@@ -11,30 +11,28 @@ from dataclasses import dataclass
 MODEL_OUTPUT_DIR = "model_output"
 TABLE_OUTPUT_DIR = "tables"
 
-WEEKS_PER_YEAR = 52
-
 CUM_INC_1_PERC = 0.01
 CUM_INC_001_PERC = 0.0001
 DETECTION_THRESHOLD = 100
 PERCENTILES = [5, 25, 50, 75, 95]
-NOVASEQ_LANE_COST_PER_YEAR = 2494 * WEEKS_PER_YEAR
+NOVASEQ_LANE_COST = 2494
 NOVASEQ_LANE_DEPTH = 1.4e9
-NOVASEQ_CELL_COST_PER_YEAR = 18902 * WEEKS_PER_YEAR
+NOVASEQ_CELL_COST = 18902
 NOVASEQ_CELL_DEPTH = 23.4e9
-MISEQ_COST_PER_YEAR = 788 * WEEKS_PER_YEAR
+MISEQ_COST = 788
 MISEQ_DEPTH = 2e6
-NEXTSEQ_COST_PER_YEAR = 1397 * WEEKS_PER_YEAR
+NEXTSEQ_COST = 1397
 NEXTSEQ_DEPTH = 45e6
 
 # https://www.illumina.com/products/by-type/sequencing-kits/library-prep-kits/respiratory-virus-oligo-panel.html#tabs-0f175ae031-item-7349ca530e-order
 # $10,368 for 32 reactions.
-ENRICHMENT_COST_PER_YEAR = 324 * WEEKS_PER_YEAR
+ENRICHMENT_COST = 324
 # https://bauercore.fas.harvard.edu/fy25-ngs-library-prep#:~:text=1/4%20volume-,%24216,-%24302
 # $216 per sample with Harvard Account Code
-LIBRARY_PREP_COST_PER_YEAR = 216 * WEEKS_PER_YEAR
+LIBRARY_PREP_COST = 216
 # https://www.illumina.com/products/by-type/molecular-biology-reagents/ribo-zero-plus-rrna-depletion.html#tabs-4d64a43abe-item-354b58d9fa-order
 # $910 per sample for 16 samples
-RIBODEPLETION_COST_PER_YEAR = 57 * WEEKS_PER_YEAR
+RIBODEPLETION_COST = 57
 
 study_labels = {
     "crits_christoph": "Crits-Christoph",
@@ -124,12 +122,12 @@ def get_sequencing_cost(virus, cumulative_incidence, study, enriched):
         enriched,
     )
 
-    novaseq_lane_cost = NOVASEQ_LANE_COST_PER_YEAR * np.ceil(
+    novaseq_lane_cost = NOVASEQ_LANE_COST * np.ceil(
         seq_depth / NOVASEQ_LANE_DEPTH
     )
-    miseq_cost = MISEQ_COST_PER_YEAR * np.ceil(seq_depth / MISEQ_DEPTH)
-    nextseq_cost = NEXTSEQ_COST_PER_YEAR * np.ceil(seq_depth / NEXTSEQ_DEPTH)
-    novaseq_cell_cost = NOVASEQ_CELL_COST_PER_YEAR * np.ceil(
+    miseq_cost = MISEQ_COST * np.ceil(seq_depth / MISEQ_DEPTH)
+    nextseq_cost = NEXTSEQ_COST * np.ceil(seq_depth / NEXTSEQ_DEPTH)
+    novaseq_cell_cost = NOVASEQ_CELL_COST * np.ceil(
         seq_depth / NOVASEQ_CELL_DEPTH
     )
     lowest_cost = min(
@@ -180,10 +178,10 @@ def get_cost_data():
                     )
                     processing_cost = 0
                     if enriched:
-                        processing_cost += ENRICHMENT_COST_PER_YEAR
+                        processing_cost += ENRICHMENT_COST
                     if study == "crits_christoph" and not enriched:
-                        processing_cost += RIBODEPLETION_COST_PER_YEAR
-                    processing_cost += LIBRARY_PREP_COST_PER_YEAR
+                        processing_cost += RIBODEPLETION_COST
+                    processing_cost += LIBRARY_PREP_COST
                     total_cost = seq_cost + processing_cost
                     yearly_cost = total_cost * 52
 
@@ -259,12 +257,12 @@ def create_fig():
     figdir = Path(parent_dir / "fig")
     figdir.mkdir(exist_ok=True)
 
-    fig, axs = plt.subplots(4, 1, figsize=(12, 12), sharex=True)
+    fig, axs = plt.subplots(2, 2, figsize=(12, 6), sharex=True)
     ax1, ax2, ax3, ax4 = axs.flatten()
     left_1_perc = np.zeros(len(virus_study_1_perc))
     left_001_perc = np.zeros(len(virus_study_001_perc))
 
-    for cost_type in costs_1_perc_scv_2.keys():
+    for cost_type in costs_1_perc_scv_2:
         ax1.barh(
             virus_study_1_perc,
             costs_1_perc_scv_2[cost_type],
@@ -274,7 +272,7 @@ def create_fig():
         left_1_perc += costs_1_perc_scv_2[cost_type]
         ax1.set_title("SARS-CoV-2\n1% Cumulative Incidence")
 
-    for cost_type in costs_001_perc_scv_2.keys():
+    for cost_type in costs_001_perc_scv_2:
         ax2.barh(
             virus_study_001_perc,
             costs_001_perc_scv_2[cost_type],
@@ -286,7 +284,7 @@ def create_fig():
     left_1_perc = np.zeros(len(virus_study_1_perc))
     left_001_perc = np.zeros(len(virus_study_001_perc))
 
-    for cost_type in costs_1_perc_norovirus.keys():
+    for cost_type in costs_1_perc_norovirus:
         ax3.barh(
             virus_study_1_perc,
             costs_1_perc_norovirus[cost_type],
@@ -296,7 +294,7 @@ def create_fig():
         left_1_perc += costs_1_perc_norovirus[cost_type]
         ax3.set_title("Norovirus (GII)\n1% Cumulative Incidence")
 
-    for cost_type in costs_001_perc_norovirus.keys():
+    for cost_type in costs_001_perc_norovirus:
         ax4.barh(
             virus_study_001_perc,
             costs_001_perc_norovirus[cost_type],
@@ -305,42 +303,41 @@ def create_fig():
         )
         left_001_perc += costs_001_perc_norovirus[cost_type]
         ax4.set_title("Norovirus (GII)\n0.01% Cumulative Incidence")
-    ax1.set_xlim(1, 1e6)
+    ax1.set_xlim(1, 2e4)
     # Format x-axis labels with dollar amounts and commas
     for ax in [ax1, ax2, ax3, ax4]:
         ax.xaxis.set_major_formatter(
             plt.FuncFormatter(lambda x, p: f"{x:,.0f}")
         )
     for ax in [ax1, ax2, ax3, ax4]:
-        for x in range(0, int(1e6), int(1e5)):
+        for x in range(0, 20000, 2500):
             ax.axvline(x, color="black", alpha=0.5, linewidth=0.5, zorder=-1)
         # ax.tick_params(axis="x", =45)
-    ax1.text(
-        1e6 + 25000,
-        len(virus_study_1_perc),
-        "Total Cost per sample",
-        va="center",
-        ha="left",
-        fontsize=12,
-    )
-    for i, (label, seq_cost, processing_cost) in enumerate(
-        zip(
-            virus_study_1_perc,
-            costs_1_perc_scv_2["Sequencing Cost"],
-            costs_1_perc_scv_2["Processing Cost"],
-        )
-    ):
+    # ax1.text(
+    #     1e4 + 500,
+    #     len(virus_study_1_perc),
+    #     "Total Cost per sample",
+    #     va="center",
+    #     ha="left",
+    #     fontsize=12,
+    # )
+    # for i, (label, seq_cost, processing_cost) in enumerate(
+    #     zip(
+    #         virus_study_1_perc,
+    #         costs_1_perc_scv_2["Sequencing Cost"],
+    #         costs_1_perc_scv_2["Processing Cost"],
+    #     )
+    # ):
 
-        total_cost = processing_cost + seq_cost
-        print(i, virus_study_1_perc[i])
-        ax1.text(
-            1e6 + 25000,
-            i,
-            f"${total_cost:,.0f}",
-            va="center",
-            ha="left",
-            fontsize=10,
-        )
+    #     total_cost = processing_cost + seq_cost
+    #     ax1.text(
+    #         1e4 + 500,
+    #         i,
+    #         f"${total_cost:,.0f}",
+    #         va="center",
+    #         ha="left",
+    #         fontsize=10,
+    #     )
 
     # for i, (label, seq_cost, processing_cost) in enumerate(
     #     zip(
@@ -352,7 +349,7 @@ def create_fig():
 
     #     total_cost = processing_cost + seq_cost
     #     ax2.text(
-    #         1e6 + 25000,
+    #         1e4 + 500,
     #         i,
     #         f"${total_cost:,.0f}",
     #         va="center",
