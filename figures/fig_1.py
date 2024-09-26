@@ -405,7 +405,7 @@ def boxplot(
             print(f"{study}: {abundance:.2e}")
 
     ax_title = ax.set_title("a", fontweight="bold")
-    ax_title.set_position((-0.15, 0))
+    ax_title.set_position((-0.13, 0))
 
     ax.set_xlabel("Relative abundance among all reads")
 
@@ -443,10 +443,7 @@ def boxplot(
     ax.set_xlim(10**-8, 1)
 
     def format_func(value, tick_number):
-        if value == 10**-8:
-            return "0"
-        else:
-            return f"$10^{{{int(np.log10(value))}}}$"
+        return f"$10^{{{int(np.log10(value))}}}$"
 
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
     for i in range(1, len(studies)):
@@ -455,8 +452,8 @@ def boxplot(
         else:
             ax.axhline(i - 0.5, color="grey", linewidth=0.3, linestyle=":")
 
-    ax.text(0.3 * 10**-8, 0.3, "DNA\nSequencing", ha="right")
-    ax.text(0.3 * 10**-8, 1.3, "RNA\nSequencing", ha="right")
+    ax.text(0.9 * 10**-8, 0.3, "DNA\nSequencing", ha="right")
+    ax.text(0.9 * 10**-8, 1.3, "RNA\nSequencing", ha="right")
 
     return ax
 
@@ -528,17 +525,11 @@ def barplot(
 
     ax.invert_yaxis()
     ax_title = ax.set_title("b", fontweight="bold")
-    ax_title.set_position((-0.15, 0))
+    ax_title.set_position((-0.13, 0))
     ax.set_xlabel("Relative abundance among human-infecting viruses")
     ax.set_ylabel("")
     ax.tick_params(left=False, labelright=True, labelleft=False)
 
-    # labels = []
-    # for label in ax.get_yticklabels():
-    #     pretty_label = prettier_labels[label.get_text()]
-    #     label.set_text(pretty_label)
-    #     labels.append(label)
-    # ax.set_yticklabels(labels)
     ax.set_yticks(range(len(order)))
     ax.set_yticklabels([prettier_labels[study] for study in order])
 
@@ -586,7 +577,7 @@ def start():
         figsize=(9, 5),
     )
 
-    gs = GridSpec(2, 2, height_ratios=[18, 14], figure=fig, hspace=0.8)
+    gs = GridSpec(2, 2, height_ratios=[15, 14], figure=fig, hspace=0.8)
 
     boxplot(
         fig.add_subplot(gs[0, :]),
