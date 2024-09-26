@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 from pathlib import Path
-import os
 
 sys.path.append("..")
 
@@ -16,6 +16,10 @@ import seaborn as sns  # type: ignore
 from pathogens import pathogens
 
 MODEL_OUTPUT_DIR = "model_output"
+
+import matplotlib as mpl
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 
 def nucleic_acid(pathogen: str) -> str:

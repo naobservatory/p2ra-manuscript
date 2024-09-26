@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 
+import csv
 import gzip
 import json
 import os
 import subprocess
-import csv
+from collections import defaultdict
 from pathlib import Path
-from scipy.stats import gmean
+
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.ticker as ticker  # type: ignore
 import numpy as np
 import pandas as pd
 import seaborn as sns  # type: ignore
 from matplotlib.gridspec import GridSpec  # type: ignore
-from collections import defaultdict
+from scipy.stats import gmean
 
 dashboard = os.path.expanduser("~/code/mgs-pipeline/dashboard/")
+
+import matplotlib as mpl
+
+mpl.rcParams["pdf.fonttype"] = 42
 
 DEBUG = None
 
