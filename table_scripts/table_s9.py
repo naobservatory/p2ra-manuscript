@@ -9,8 +9,6 @@ from scipy.stats import gmean
 PERCENTILES = [5, 25, 50, 75, 95]
 MODEL_OUTPUT_DIR = "../model_output"
 TABLE_OUTPUT_DIR = "../tables"
-TARGET_INCIDENCE = 0.01
-TARGET_THRESHOLDS = [10, 100, 1000]
 
 
 @dataclass
@@ -24,7 +22,9 @@ class SummaryStats:
 
 def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
     data = {}
-    with open(os.path.join(MODEL_OUTPUT_DIR, "fits_summary.tsv")) as datafile:
+    with open(
+        os.path.join(MODEL_OUTPUT_DIR, "panel_fits_summary.tsv")
+    ) as datafile:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
@@ -39,31 +39,6 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
                 max=float(row["max"]),
             )
     return data
-
-
-def tidy_number(reads_required=int) -> str:
-    sci_notation = f"{reads_required:.2e}"
-
-    coefficient, exponent = sci_notation.split("e")
-
-    exponent = exponent.replace("+", "")
-    if exponent.startswith("0") and len(exponent) > 1:
-        exponent = exponent[1:]
-
-    exponent = (
-        exponent.replace("0", "⁰")
-        .replace("1", "¹")
-        .replace("2", "²")
-        .replace("3", "³")
-        .replace("4", "⁴")
-        .replace("5", "⁵")
-        .replace("6", "⁶")
-        .replace("7", "⁷")
-        .replace("8", "⁸")
-        .replace("9", "⁹")
-    )
-
-    return f"{coefficient} x 10{exponent}"
 
 
 def get_reads_required(
@@ -90,17 +65,42 @@ def get_reads_required(
     return median_reads, lower_bound_reads, upper_bound_reads
 
 
+def tidy_number(reads_required=int) -> str:
+    sci_notation = f"{reads_required:.2e}"
+
+    coefficient, exponent = sci_notation.split("e")
+
+    exponent = exponent.replace("+", "")
+    if exponent.startswith("0") and len(exponent) > 1:
+        exponent = exponent[1:]
+
+    exponent = (
+        exponent.replace("0", "⁰")
+        .replace("1", "¹")
+        .replace("2", "²")
+        .replace("3", "³")
+        .replace("4", "⁴")
+        .replace("5", "⁵")
+        .replace("6", "⁶")
+        .replace("7", "⁷")
+        .replace("8", "⁸")
+        .replace("9", "⁹")
+    )
+
+    return f"{coefficient} × 10{exponent}"
+
+
 def start():
     data = read_data()
-
-    viruses = ["Norovirus (GII)", "SARS-COV-2"]
+    TARGET_INCIDENCE = 0.01
+    TARGET_THRESHOLDS = [10, 100, 1000]
+    viruses = ["Norovirus (GII)", "SARS-COV-2", "Influenza A"]
     study_labels = {
-        "crits_christoph": "Crits-Christoph",
-        "rothman": "Rothman",
-        "spurbeck": "Spurbeck",
+        "rothman": "Rothman Panel-enriched",
+        "crits_christoph": "Crits-Christoph Panel-enriched",
     }
     with open(
-        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_6.tsv"),
+        os.path.join(TABLE_OUTPUT_DIR, "table_s9.tsv"),
         mode="w",
         newline="",
     ) as file:
@@ -109,9 +109,9 @@ def start():
             [
                 "Virus",
                 "Study",
-                "50th %",
-                "5th %",
-                "95th %",
+                "Median",
+                "5th Percentile",
+                "95th Percentile",
                 "Detection Threshold",
             ]
         )

@@ -40,7 +40,7 @@ def tidy_number(reads_required=int) -> str:
     superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
     exponent = exponent.translate(superscript_map)
 
-    return f"{coefficient} x 10{exponent}"
+    return f"{coefficient} × 10{exponent}"
 
 
 studies = [
@@ -149,7 +149,6 @@ def read_data() -> dict[tuple[str, str, str, str, str], SummaryStats]:
 
 def create_tsv():
     data = read_data()
-    # print(data)
     viruses = set()
     for entry in data.keys():
         virus, predictor_type = entry[:2]
@@ -166,7 +165,7 @@ def create_tsv():
     ]
 
     with open(
-        os.path.join(TABLE_OUTPUT_DIR, "supplement_table_5.tsv"),
+        os.path.join(TABLE_OUTPUT_DIR, "table_s7.tsv"),
         "w",
         newline="",
     ) as file:
