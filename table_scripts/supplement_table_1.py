@@ -5,6 +5,7 @@ import subprocess
 import csv
 import pandas as pd
 from scipy.stats import gmean
+import numpy as np
 
 if os.path.basename(os.getcwd()) != "table_scripts":
     raise RuntimeError("Run this script from table_scripts/")
@@ -100,8 +101,8 @@ def assemble_table():
     )
 
     table = []
-    gmeans_hv = []
-    gmeans_virus = []
+    medians_hv = []
+    medians_virus = []
 
     for study, bioprojects in TARGET_STUDY_METADATA.items():
         study_relative_abundance = defaultdict(lambda: defaultdict(float))
@@ -123,13 +124,12 @@ def assemble_table():
             hv_clade_counts = pd.read_csv(
                 f"../{BIOPROJECT_DIR}/{study_bioproject}/hv_clade_counts.tsv",
                 sep="\t",
-            ).set_index(["taxid", "sample"])
+            )
 
             taxonomic_composition = pd.read_csv(
                 f"../{BIOPROJECT_DIR}/{study_bioproject}/taxonomic_composition.tsv",
                 sep="\t",
-            ).set_index(["sample", "classification"])
-
+            )
             qc_basic_stats = pd.read_csv(
                 f"../{BIOPROJECT_DIR}/{study_bioproject}/qc_basic_stats.tsv",
                 sep="\t",
@@ -137,23 +137,6 @@ def assemble_table():
 
             samples = metadata_samples.keys()
             modified_study = study
-
-            if study == "Bengtsson-Palme 2016":
-                samples = [
-                    sample
-                    for sample in samples
-                    if metadata_samples[sample]["sample_type"].startswith(
-                        "Inlet"
-                    )
-                ]
-                modified_study = "Bengtsson-\nPalme 2016"
-
-            if study == "Ng 2019":
-                samples = [
-                    sample
-                    for sample in samples
-                    if metadata_samples[sample]["sample_type"] == "Influent"
-                ]
 
             for sample in samples:
                 if study == "CC 2021":
@@ -173,67 +156,72 @@ def assemble_table():
                         modified_study = "Rothman 2021 Panel-enriched"
 
                 try:
-                    total_hv_reads = hv_clade_counts.at[
-                        (10239, sample), "n_reads_clade"
-                    ]
-                except KeyError:
-                    if DEBUG:
-                        print(
-                            f"{sample} has no hv hits, thus no entry in hv_clade_counts. Setting total_hv_reads to 0"
-                        )
+                    total_hv_reads = hv_clade_counts.loc[
+                        (hv_clade_counts["taxid"] == 10239)
+                        & (hv_clade_counts["sample"] == sample),
+                        "n_reads_clade",
+                    ].values[0]
+                except IndexError:
                     total_hv_reads = 0
+
+                try:
+                    total_viral_reads = taxonomic_composition.loc[
+                        (taxonomic_composition["sample"] == sample)
+                        & (taxonomic_composition["classification"] == "Viral"),
+                        "n_reads",
+                    ].values[0]
+                except IndexError:
+                    total_viral_reads = 0
 
                 total_reads = qc_basic_stats.at[
                     (sample, "raw_concat"), "n_read_pairs"
                 ]
+
                 hv_rel_abun = total_hv_reads / total_reads
-                virus_rel_abun = taxonomic_composition.at[
-                    (sample, "Viral"), "p_reads"
-                ]
+                virus_rel_abun = total_viral_reads / total_reads
+
                 study_relative_abundance[modified_study][sample] = (
                     virus_hv_rel_abun(hv_rel_abun, virus_rel_abun)
                 )
 
         for modified_study in study_relative_abundance.keys():
-            gmean_virus = gmean(
+            median_virus = np.median(
                 [
                     sample.virus_rel_abun
                     for sample in study_relative_abundance[
                         modified_study
                     ].values()
-                    if sample.virus_rel_abun > 0
                 ]
             )
-            gmean_hv = gmean(
+            median_hv = np.median(
                 [
                     sample.hv_rel_abun
                     for sample in study_relative_abundance[
                         modified_study
                     ].values()
-                    if sample.hv_rel_abun > 0
                 ]
             )
 
-            gmeans_hv.append(gmean_hv)
+            medians_hv.append(median_hv)
 
-            gmeans_virus.append(gmean_virus)
+            medians_virus.append(median_virus)
             table.append(
                 [
                     modified_study,
-                    format_rel_abun(gmean_virus),
-                    format_rel_abun(gmean_hv),
+                    format_rel_abun(median_virus),
+                    format_rel_abun(median_hv),
                 ]
             )
 
-    gmean_hv_across_studies = gmean(gmeans_hv)
+    median_hv_across_studies = np.median(medians_hv)
 
-    gmean_virus_across_studies = gmean(gmeans_virus)
+    median_virus_across_studies = np.median(medians_virus)
 
     table.append(
         [
             "All studies",
-            format_rel_abun(gmean_virus_across_studies),
-            format_rel_abun(gmean_hv_across_studies),
+            format_rel_abun(median_virus_across_studies),
+            format_rel_abun(median_hv_across_studies),
         ]
     )
     return table
