@@ -331,7 +331,7 @@ def plot_steps_and_dots():
             ax.set_yscale("log")
             if i in [2, 3]:
                 ax.set_xlabel(
-                    "Required Read Depth (one sample/week)", fontsize=12
+                    "Required Read Depth per week and sample", fontsize=12
                 )
             if i in [0, 2]:
                 ax.set_ylabel("Sequencing Cost ($)", fontsize=12)
