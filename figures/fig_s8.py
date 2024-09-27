@@ -330,22 +330,15 @@ def plot_steps_and_dots():
             ax.set_xscale("log")
             ax.set_yscale("log")
             if i in [2, 3]:
-                ax.set_xlabel(
-                    "Required Read Depth per week and sample", fontsize=12
-                )
+                ax.set_xlabel("Required Read Depth per week", fontsize=12)
             if i in [0, 2]:
                 ax.set_ylabel("Sequencing Cost ($)", fontsize=12)
             ax.set_title(
                 f"{fig_numeration[i]}) {virus} Cumulative incidence: {cumulative_incidence:.2%}",
                 fontsize=12,
                 loc="left",
-                # fontweight="bold",
                 x=0,
             )
-
-            # ax.set_title("Sequencing Cost vs. Read Depth", fontsize=14)
-
-            # ax.grid(True, which="major", axis="both", ls="-", alpha=0.2)
 
             for y in np.arange(
                 np.floor(np.log10(min_cost)), np.ceil(np.log10(max_cost)), 0.5

@@ -301,7 +301,7 @@ def create_fig():
     )
 
     plt.subplots_adjust(right=0.85)
-    ax2.set_xlabel("Sequencing cost for one week (one sample)", fontsize=12)
+    ax2.set_xlabel("Processing and sequencing cost per week", fontsize=12)
 
     ax1.legend()
 
