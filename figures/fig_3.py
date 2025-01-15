@@ -179,7 +179,6 @@ def plot_violin(
                 plt.plot(
                     [x_max], [y_mid], marker="|", markersize=3, color=color
                 )
-                patches.set_alpha(alpha)
 
 
 def format_func(value, tick_number):
