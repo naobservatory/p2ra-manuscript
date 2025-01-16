@@ -219,13 +219,15 @@ def plot_steps_and_dots():
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 8), dpi=300)
 
+    Y_MIN = 10**2
+    Y_MAX = 10**8
+
     fig_numeration = ["a", "b", "c", "d"]
     axs = axs.flatten()
     i = 0
     for virus in ["SARS-COV-2", "Norovirus (GII)"]:
         for cumulative_incidence in [CUM_INC_1_PERC, CUM_INC_001_PERC]:
             ax = axs[i]
-            line_colors = plt.cm.viridis(np.linspace(0, 1, 4))
 
             ax.step(
                 miseq_depth,
@@ -312,8 +314,6 @@ def plot_steps_and_dots():
                 ) in seq_costs.items()
             ]
 
-            max_cost = max(costs)
-            min_cost = min(costs)
             for cost, name in zip(
                 [
                     MISEQ_COST,
@@ -323,8 +323,6 @@ def plot_steps_and_dots():
                 ],
                 ["MiSeq", "NextSeq", "NovaSeq (lane)", "NovaSeq (cell)"],
             ):
-                if i == 2 and name == "NovaSeq (cell)":
-                    continue
                 ax.text(1e3, cost, name, ha="left", va="bottom", fontsize=10)
 
             ax.set_xscale("log")
@@ -340,9 +338,7 @@ def plot_steps_and_dots():
                 x=0,
             )
 
-            for y in np.arange(
-                np.floor(np.log10(min_cost)), np.ceil(np.log10(max_cost)), 0.5
-            ):
+            for y in np.arange(np.log10(Y_MIN), np.log10(Y_MAX), 0.5):
                 ax.axhline(
                     10**y, color="black", alpha=0.2, ls="--", linewidth=0.3
                 )
@@ -362,13 +358,9 @@ def plot_steps_and_dots():
             ax.set_xticks(x_tick_positions)
             ax.tick_params(axis="both", which="major", labelsize=10)
             ax.tick_params(axis="both", which="minor", length=0)
-            # Set x-axis ticks at every order of magnitude
             ax.set_xlim(1e2, max_depth * 1.1)
 
-            if max_cost < 1e4:
-                ax.set_ylim(10**2, 1e4)
-            else:
-                ax.set_ylim(10**2, max_cost * 1.1)
+            ax.set_ylim(Y_MIN, Y_MAX)  # max_cost * 1.1)
             ax.set_xlim(1e2, 1e14)
 
             ax.spines["top"].set_visible(False)
