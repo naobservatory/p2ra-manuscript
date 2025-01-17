@@ -134,14 +134,9 @@ def start():
         "crits_christoph": "Crits-Christoph",
         "rothman": "Rothman",
     }
-    DETECTION_THRESHOLDS = [10, 100, 1000]
+    DETECTION_THRESHOLD = 100
 
-    fig, (top_axes, bottom_axes) = plt.subplots(
-        len(viruses),
-        len(DETECTION_THRESHOLDS),
-        sharey=True,
-        figsize=(9, 6),
-    )
+    fig, axes = plt.subplots(1, 2, sharey=True, figsize=(6, 3))
 
     study_colors = {
         "spurbeck": "#1b9e77",
@@ -150,144 +145,107 @@ def start():
     }
     line_styles = ["-", "--"]
 
-    for axes, detection_threshold in zip(
-        zip(top_axes, bottom_axes), DETECTION_THRESHOLDS
-    ):
-        for virus, ax in zip(viruses, axes):
-            geomean_dict = {
-                "median": [],
-                "lower": [],
-                "upper": [],
-            }
-            studies = study_labels.keys()
-            i = 0
-            for enriched in [False, True]:
-                for study in studies:
-                    if study == "spurbeck" and enriched:
-                        continue
-                    if virus == "Norovirus (GII)" and enriched:
-                        continue
-                    study_median, study_lower, study_upper = (
-                        get_reads_required(
-                            data,
-                            cumulative_incidence=np.logspace(-4, -1, 100),
-                            detection_threshold=detection_threshold,
-                            virus=virus,
-                            location="Overall",
-                            predictor_type="incidence",
-                            study=study,
-                            enriched=enriched,
-                        )
-                    )
+    for virus, ax in zip(viruses, axes):
+        geomean_dict = {
+            "median": [],
+            "lower": [],
+            "upper": [],
+        }
+        studies = study_labels.keys()
+        i = 0
+        for enriched in [False, True]:
+            for study in studies:
+                if study == "spurbeck" and enriched:
+                    continue
+                if virus == "Norovirus (GII)" and enriched:
+                    continue
+                study_median, study_lower, study_upper = get_reads_required(
+                    data,
+                    cumulative_incidence=np.logspace(-4, -1, 100),
+                    detection_threshold=DETECTION_THRESHOLD,
+                    virus=virus,
+                    location="Overall",
+                    predictor_type="incidence",
+                    study=study,
+                    enriched=enriched,
+                )
 
-                    geomean_dict["median"].append(study_median)
-                    geomean_dict["lower"].append(study_lower)
-                    geomean_dict["upper"].append(study_upper)
+                geomean_dict["median"].append(study_median)
+                geomean_dict["lower"].append(study_lower)
+                geomean_dict["upper"].append(study_upper)
 
-                    cumulative_incidence = np.logspace(-4, -1, 100)
-                    detection_threshold = detection_threshold
+                cumulative_incidence = np.logspace(-4, -1, 100)
 
-                    if virus == "Norovirus (GII)":
-                        ax.set_title(
-                            f"Detection Threshold: {detection_threshold}",
-                            loc="center",
-                            fontdict={"fontsize": 10},
-                        )
+                ax.set_title(
+                    f"{virus}",
+                    loc="center",
+                    fontdict={"fontsize": 10},
+                )
 
-                    study_label = f"{study_labels[study]}"
-                    if enriched:
-                        study_label += "\n(panel-enriched)"
-                    else:
-                        study_label += "\n(unenriched)"
+                study_label = f"{study_labels[study]}"
+                if enriched:
+                    study_label += "\n(panel-enriched)"
+                else:
+                    study_label += "\n(unenriched)"
 
-                    if enriched:
-                        linestyle = "--"
-                    else:
-                        linestyle = "-"
-                    plot_lines(
-                        ax=ax,
-                        median=study_median,
-                        lower=study_lower,
-                        upper=study_upper,
-                        label=study_label,
-                        linestyle=linestyle,
-                        color=study_colors[study],
-                        cumulative_incidence=cumulative_incidence,
-                    )
+                if enriched:
+                    linestyle = "--"
+                else:
+                    linestyle = "-"
+                plot_lines(
+                    ax=ax,
+                    median=study_median,
+                    lower=study_lower,
+                    upper=study_upper,
+                    label=study_label,
+                    linestyle=linestyle,
+                    color=study_colors[study],
+                    cumulative_incidence=cumulative_incidence,
+                )
 
-                    ax.set_xticks([1e-4, 1e-3, 1e-2, 1e-1])
-                    ax.set_xticklabels(
-                        ["0.01%", "0.1%", "1%", "10%"], fontsize=8
-                    )
-                    ax.set_yticks([1e3, 1e6, 1e9, 1e12, 1e15])
-                    ax.tick_params(axis="y", labelsize=8)
-                    ax.set_xlim(1e-4, 1e-1)
+                ax.set_xticks([1e-4, 1e-3, 1e-2, 1e-1])
+                ax.set_xticklabels(["0.01%", "0.1%", "1%", "10%"], fontsize=8)
+                ax.set_yticks([1e3, 1e6, 1e9, 1e12, 1e15])
+                ax.tick_params(axis="y", labelsize=8)
+                ax.set_xlim(1e-4, 1e-1)
 
-                    ax.grid(
-                        which="major",
-                        linestyle="-",
-                        linewidth=0.5,
-                        color="gray",
-                        alpha=0.7,
-                    )
-                    i += 1
+                ax.grid(
+                    which="major",
+                    linestyle="-",
+                    linewidth=0.5,
+                    color="gray",
+                    alpha=0.7,
+                )
+                i += 1
 
-    fig.subplots_adjust(hspace=0.4, wspace=0.2)
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
 
-    for i, (top_ax, bottom_ax) in enumerate(zip(top_axes, bottom_axes)):
-        if i == 0:
-            for ax in top_ax, bottom_ax:
-                ax.set_ylabel("Reads per week")
-        else:
-            for ax in top_ax, bottom_ax:
-                ax.tick_params(axis="y", which="both", left=False, right=False)
+    # Set y-axis label only for the leftmost plot
+    axes[0].set_ylabel("Reads per week")
 
-        bottom_ax.set_xlabel("Cumulative Incidence")
-
-    fig.axes[0].text(
-        -0.26,
-        1.2,
-        "a",
-        fontweight="bold",
-        fontdict={"fontsize": 12},
-        transform=fig.axes[0].transAxes,
-    )
-    fig.axes[0].text(
-        -0.16,
-        1.2,
-        "(Norovirus GII)",
-        fontdict={"fontsize": 12},
-        transform=fig.axes[0].transAxes,
+    # Remove y-ticks from right plot
+    axes[1].tick_params(
+        axis="y", which="both", left=False, right=False, labelleft=False
     )
 
-    fig.axes[3].text(
-        -0.26,
-        1.1,
-        "b",
-        fontweight="bold",
-        fontdict={"fontsize": 12},
-        transform=fig.axes[3].transAxes,
-    )
-
-    fig.axes[3].text(
-        -0.16,
-        1.1,
-        "(SARS-COV-2)",
-        fontdict={"fontsize": 12},
-        transform=fig.axes[3].transAxes,
-    )
-
-    legend = fig.axes[4].legend(
-        bbox_to_anchor=(0.43, -0.48),
-        loc="lower center",
-        ncol=5,
-        fontsize=9,
-    )
-
-    for ax in fig.axes:
+    # Set x-axis label for both plots
+    for ax in axes:
+        ax.set_xlabel("Cumulative Incidence")
         ax.tick_params(axis="x", which="minor", bottom=False)
 
-    fig.tight_layout
+
+    # Add legend at the bottom, only showing handles from the right plot (SARS-COV-2)
+    handles, labels = axes[1].get_legend_handles_labels()
+    legend = fig.legend(
+        handles=handles,
+        labels=labels,
+        bbox_to_anchor=(0.52, -0.18),
+        loc="lower center",
+        ncol=3,
+        fontsize=8,
+    )
+
+    fig.tight_layout()
     fig.show()
     save_plot(fig, figdir, "fig_4")
 
