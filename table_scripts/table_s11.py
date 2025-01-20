@@ -8,6 +8,19 @@ def read_csv_file(file_path):
     return pd.read_csv(file_path, sep="\t")
 
 
+# To create model runs with different pseudocount values:
+# Set the pseudocount value in pathogen_properties.py (default is 0.1)
+# Alter the name of the output files in fit.py and fit_panel.py, to make it clear
+# which pseudocount value was used for the fit (e.g., 0.01, 0.1, 1.0)
+# I.e., name the output files:
+#    - For enriched: model_output/panel_fits_summary_{pseudocount}.tsv
+#    - For unenriched: model_output/fits_summary_{pseudocount}.tsv
+# Then, run the scripts for each pseudocount value:
+#    - fit.py for unenriched sequencing
+#    - fit_panel.py for enriched sequencing
+# This should result in files that are imported below.
+
+
 fits_enriched_001 = read_csv_file("model_output/panel_fits_summary_0.01.tsv")
 fits_unenriched_001 = read_csv_file("model_output/fits_summary_0.01.tsv")
 fits_enriched_01 = read_csv_file("model_output/panel_fits_summary_0.1.tsv")
