@@ -28,6 +28,14 @@ plot_3b_order_dict = {  # Mirroring order in Plot 2b.
     "HPV": 6,
 }
 
+plot_3a_order_dict = {
+    "Norovirus (GI)": 1,
+    "Norovirus (GII)": 2,
+    "SARS-COV-2": 3,
+    "Influenza A": 4,
+    "Influenza B": 5,
+}
+
 
 def nucleic_acid(pathogen: str) -> str:
     return pathogens[pathogen].pathogen_chars.na_type.value
@@ -89,6 +97,7 @@ def adjust_axes(ax, predictor_type: str) -> None:
 
 def plot_violin(
     ax,
+    plot_order_dict: dict[str, int],
     data: pd.DataFrame,
     viral_reads: pd.DataFrame,
     y: str,
@@ -108,7 +117,7 @@ def plot_violin(
     # Sort in one operation using both criteria
     plotting_order = (
         viral_reads.assign(
-            sort_order=lambda x: x["tidy_name"].map(plot_3b_order_dict)
+            sort_order=lambda x: x["tidy_name"].map(plot_order_dict)
         )
         .sort_values(
             ["sort_order"]
@@ -217,12 +226,16 @@ def format_func(value, tick_number):
 
 
 def plot_incidence(
-    data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
+    data: pd.DataFrame,
+    input_data: pd.DataFrame,
+    ax: plt.Axes,
+    plot_order_dict: dict[str, int],
 ) -> plt.Axes:
     predictor_type = "incidence"
     ax.set_xlim((-15, 0))
     plot_violin(
         ax=ax,
+        plot_order_dict=plot_order_dict,
         data=data[
             (data.predictor_type == predictor_type)
             & (data.location == "Overall")
@@ -265,12 +278,16 @@ def plot_incidence(
 
 
 def plot_prevalence(
-    data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
+    data: pd.DataFrame,
+    input_data: pd.DataFrame,
+    ax: plt.Axes,
+    plot_order_dict: dict[str, int],
 ) -> plt.Axes:
     predictor_type = "prevalence"
     ax.set_xlim((-15, 0))
     plot_violin(
         ax=ax,
+        plot_order_dict=plot_order_dict,
         data=data[
             (data.predictor_type == predictor_type)
             & (data.location == "Overall")
@@ -345,8 +362,18 @@ def composite_figure(
         figsize=(5, 6),
     )
     gs = fig.add_gridspec(2, 1, height_ratios=[5, 7], hspace=0.2)
-    plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
-    plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]))
+    plot_incidence(
+        data,
+        input_data,
+        fig.add_subplot(gs[0, 0]),
+        plot_order_dict=plot_3a_order_dict,
+    )
+    plot_prevalence(
+        data,
+        input_data,
+        fig.add_subplot(gs[1, 0]),
+        plot_order_dict=plot_3b_order_dict,
+    )
     return fig
 
 

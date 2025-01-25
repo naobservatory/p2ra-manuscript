@@ -30,7 +30,6 @@ fits_unenriched_1 = read_csv_file("model_output/fits_summary_1.tsv")
 
 tables_dir = "tables"
 
-
 items = defaultdict(lambda: defaultdict(float))
 
 pretty_study_names = {
@@ -70,29 +69,19 @@ for df, pseudocount, enrichment in [
 
 def tidy_number(rel_abund=float) -> str:
     sci_notation = f"{rel_abund:.2e}"
-
     coefficient, exponent = sci_notation.split("e")
 
-    exponent = exponent.replace("+", "")
-    if exponent.startswith("-"):
-        exponent = "⁻" + exponent[2:].lstrip("0")
+    # Convert to superscript, handling negative sign
+    superscript = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+    exp_num = exponent.replace("+", "")
+    if exp_num.startswith("-"):
+        exp_num = "⁻" + exp_num[1:].lstrip("0")
     else:
-        exponent = exponent.lstrip("0")
+        exp_num = (
+            exp_num.lstrip("0") or "0"
+        )  # use "0" if all zeros were stripped
 
-    exponent = (
-        exponent.replace("0", "⁰")
-        .replace("1", "¹")
-        .replace("2", "²")
-        .replace("3", "³")
-        .replace("4", "⁴")
-        .replace("5", "⁵")
-        .replace("6", "⁶")
-        .replace("7", "⁷")
-        .replace("8", "⁸")
-        .replace("9", "⁹")
-    )
-
-    return f"{coefficient} x 10{exponent}"
+    return f"{coefficient} x 10{exp_num.translate(superscript)}"
 
 
 lines = []

@@ -314,7 +314,7 @@ def start():
     figdir = Path(parent_dir / "fig")
     os.makedirs(figdir, exist_ok=True)
     fig = create_fig()
-    save_plot(fig, figdir, "fig_s7")
+    save_plot(fig, figdir, "fig_s4")
 
 
 if __name__ == "__main__":
