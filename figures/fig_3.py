@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
+import json
 import os
 import sys
-from pathlib import Path
-
-sys.path.append("..")
-
-MODEL_OUTPUT_DIR = "model_output"
-
 import matplotlib as mpl
 import matplotlib.patches as mpatches  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
@@ -14,10 +9,32 @@ import matplotlib.ticker as ticker  # type: ignore
 import numpy as np
 import pandas as pd
 import seaborn as sns  # type: ignore
+from pathlib import Path
+
+sys.path.append("..")
 
 from pathogens import pathogens
 
 mpl.rcParams["pdf.fonttype"] = 42
+
+MODEL_OUTPUT_DIR = "model_output"
+
+plot_3b_order_dict = {  # Mirroring order in Plot 2b.
+    "HIV": 1,
+    "HCV": 2,
+    "HSV-1": 3,
+    "EBV": 4,
+    "CMV": 5,
+    "HPV": 6,
+}
+
+plot_3a_order_dict = {
+    "Norovirus (GI)": 1,
+    "Norovirus (GII)": 2,
+    "SARS-COV-2": 3,
+    "Influenza A": 4,
+    "Influenza B": 5,
+}
 
 
 def nucleic_acid(pathogen: str) -> str:
@@ -80,6 +97,7 @@ def adjust_axes(ax, predictor_type: str) -> None:
 
 def plot_violin(
     ax,
+    plot_order_dict: dict[str, int],
     data: pd.DataFrame,
     viral_reads: pd.DataFrame,
     y: str,
@@ -89,16 +107,26 @@ def plot_violin(
     violin_scale=1.0,
 ) -> None:
     assert len(sorting_order) == len(ascending)
-    plotting_order = viral_reads.sort_values(
-        sorting_order, ascending=ascending
-    ).reset_index()
-    sns_colors = sns.color_palette().as_hex()
     palette = {
         "Rothman\nPanel-enriched": "#9467bd",
         "Rothman\nUnenriched": "#ff7f0e",
         "Crits-Christoph\nPanel-enriched": "#17becf",
         "Crits-Christoph\nUnenriched": "#2ca02c",
     }
+
+    # Sort in one operation using both criteria
+    plotting_order = (
+        viral_reads.assign(
+            sort_order=lambda x: x["tidy_name"].map(plot_order_dict)
+        )
+        .sort_values(
+            ["sort_order"]
+            + sorting_order,  # First by our custom order, then by the other criteria
+            ascending=[True]
+            + ascending,  # True for sort_order, then the original ascending values
+        )
+        .drop(columns=["sort_order"])
+    )
 
     sns.violinplot(
         ax=ax,
@@ -138,13 +166,15 @@ def plot_violin(
         plotting_order.tidy_name,
         ax.collections,
     ):
-
-        if 0 < num_reads < 10:
+        if num_reads == 0:
+            alpha = 0.0
+        elif 0 < num_reads < 10:
             alpha = 0.5
-            patches.set_alpha(alpha)
-        elif num_reads > 10:
+        else:  # num_reads >= 10
             alpha = 1.0
-            patches.set_alpha(alpha)
+
+        patches.set_alpha(alpha)
+
         for path in patches.get_paths():
             y_mid = path.vertices[0, 1]
             path.vertices[:, 1] = (
@@ -152,7 +182,6 @@ def plot_violin(
             )
             if (hatch_zero_counts) and (num_reads == 0):
                 color = patches.get_facecolor()
-                alpha = 0.0
                 y_max = y_mid + 0.03
                 y_min = y_mid - 0.03
 
@@ -175,10 +204,20 @@ def plot_violin(
                     hatch="|||",
                     edgecolor=color,
                 )
+
                 ax.add_patch(rect)
-                plt.plot(
-                    [x_max], [y_mid], marker="|", markersize=3, color=color
+
+                ax.plot(
+                    [x_max],
+                    [y_mid],
+                    marker="|",
+                    markersize=3,
+                    alpha=1,
+                    color=color,
+                    zorder=3,
+                    linestyle="None",  # Add this to ensure no line is drawn
                 )
+
                 patches.set_alpha(alpha)
 
 
@@ -187,12 +226,16 @@ def format_func(value, tick_number):
 
 
 def plot_incidence(
-    data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
+    data: pd.DataFrame,
+    input_data: pd.DataFrame,
+    ax: plt.Axes,
+    plot_order_dict: dict[str, int],
 ) -> plt.Axes:
     predictor_type = "incidence"
     ax.set_xlim((-15, 0))
     plot_violin(
         ax=ax,
+        plot_order_dict=plot_order_dict,
         data=data[
             (data.predictor_type == predictor_type)
             & (data.location == "Overall")
@@ -235,12 +278,16 @@ def plot_incidence(
 
 
 def plot_prevalence(
-    data: pd.DataFrame, input_data: pd.DataFrame, ax: plt.Axes
+    data: pd.DataFrame,
+    input_data: pd.DataFrame,
+    ax: plt.Axes,
+    plot_order_dict: dict[str, int],
 ) -> plt.Axes:
     predictor_type = "prevalence"
     ax.set_xlim((-15, 0))
     plot_violin(
         ax=ax,
+        plot_order_dict=plot_order_dict,
         data=data[
             (data.predictor_type == predictor_type)
             & (data.location == "Overall")
@@ -315,8 +362,18 @@ def composite_figure(
         figsize=(5, 6),
     )
     gs = fig.add_gridspec(2, 1, height_ratios=[5, 7], hspace=0.2)
-    plot_incidence(data, input_data, fig.add_subplot(gs[0, 0]))
-    plot_prevalence(data, input_data, fig.add_subplot(gs[1, 0]))
+    plot_incidence(
+        data,
+        input_data,
+        fig.add_subplot(gs[0, 0]),
+        plot_order_dict=plot_3a_order_dict,
+    )
+    plot_prevalence(
+        data,
+        input_data,
+        fig.add_subplot(gs[1, 0]),
+        plot_order_dict=plot_3b_order_dict,
+    )
     return fig
 
 

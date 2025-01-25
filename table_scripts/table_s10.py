@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -55,7 +56,6 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
-            # predictor_type = row["predictor_type"]
             study = row["study"]
             location = row["location"]
             enriched = False
@@ -72,7 +72,6 @@ def read_data() -> dict[tuple[str, str, str, str], SummaryStats]:
         reader = csv.DictReader(datafile, delimiter="\t")
         for row in reader:
             virus = row["tidy_name"]
-            # predictor_type = row["predictor_type"]
             study = row["study"]
             location = row["location"]
             enriched = True
@@ -107,9 +106,6 @@ def get_reads_required(
 
 
 def get_sequencing_cost(virus, cumulative_incidence, study, enriched):
-
-    # predictor_type = "incidence"
-
     seq_depth = get_reads_required(
         data,
         cumulative_incidence,
@@ -150,6 +146,24 @@ def round_to_three_digits(num):
         return 0
     magnitude = 10 ** (int(np.log10(num)) - 2)
     return round(num / magnitude) * magnitude
+
+
+def tidy_number(reads_required: float) -> str:
+    sci_notation = f"{reads_required:.2e}"
+
+    coefficient, exponent = sci_notation.split("e")
+
+    # Round the coefficient to two decimal places
+    coefficient = f"{float(coefficient):.2f}"
+
+    # Remove leading '+' and zeros from exponent
+    exponent = exponent.lstrip("+0")
+
+    # Convert exponent to superscript
+    superscript_map = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+    exponent = exponent.translate(superscript_map)
+
+    return f"{coefficient} × 10{exponent}"
 
 
 def get_cost_table():
@@ -204,20 +218,15 @@ def get_cost_table():
                         processing_costs.append(processing_cost)
                         total_costs.append(total_cost)
                         yearly_costs.append(yearly_cost)
+
                         seq_depths.append(seq_depth)
 
                         # Prettifying everything
-                        total_cost = (
-                            f"${round_to_three_digits(int(total_cost)):,}"
-                        )
-                        yearly_cost = (
-                            f"${round_to_three_digits(int(yearly_cost)):,}"
-                        )
-                        processing_cost = (
-                            f"${round_to_three_digits(processing_cost):,}"
-                        )
-                        seq_cost = f"${round_to_three_digits(seq_cost):,}"
-                        seq_depth = f"{seq_depth:.2e}"
+                        total_cost = f"${int(total_cost):,}"
+                        yearly_cost = f"${int(yearly_cost):,}"
+                        processing_cost = f"${int(processing_cost):,}"
+                        seq_cost = f"${int(seq_cost):,}"
+                        seq_depth = tidy_number(seq_depth)
                         enrichment_label = (
                             "Panel-enriched" if enriched else "Unenriched"
                         )
@@ -238,19 +247,12 @@ def get_cost_table():
                                 sequencer,
                             )
                         )
-                    mean_seq_cost = (
-                        f"${round_to_three_digits(int(gmean(seq_costs))):,}"
-                    )
-                    mean_processing_cost = f"${round_to_three_digits(int(gmean(processing_costs))):,}"
-                    mean_total_cost = (
-                        f"${round_to_three_digits(int(gmean(total_costs))):,}"
-                    )
-                    mean_yearly_cost = (
-                        f"${round_to_three_digits(int(gmean(yearly_costs))):,}"
-                    )
-                    mean_seq_depth = (
-                        f"{round_to_three_digits(int(gmean(seq_depths))):.2e}"
-                    )
+                    mean_seq_cost = f"${int(gmean(seq_costs)):,}"
+                    mean_processing_cost = f"${int(gmean(processing_costs)):,}"
+                    mean_total_cost = f"${int(gmean(total_costs)):,}"
+                    mean_yearly_cost = f"${int(gmean(yearly_costs)):,}"
+
+                    mean_seq_depth = tidy_number(gmean(seq_depths))
                     writer.writerow(
                         (
                             virus,

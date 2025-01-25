@@ -136,7 +136,7 @@ dmypy.json
 # VScode
 .vscode/settings.json
 *.code-workspace
-
+.vscode
 settings.json
 
 
@@ -174,8 +174,8 @@ figures/*.ipynb
 *_table*.tsv
 
 
-# One-off scripts
-scripts/*
-
 # bioprojects
 bioprojects/*
+
+# One-off files
+figures/plot_order_for_fig_3.tsv

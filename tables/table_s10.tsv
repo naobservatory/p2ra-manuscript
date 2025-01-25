@@ -1,23 +1,23 @@
 Virus	Enrichment	Cumulative incidence	Study	Processing cost (per sample)	Sequencing cost (per sample)	Total cost (per sample)	Total cost (per year)	Sequencing depth	Sequencer
-SARS-COV-2	Panel-enriched	1.00%	Crits-Christoph	$540	$788	$1,330	$69,100	6.01e+02	MiSeq
-SARS-COV-2	Panel-enriched	1.00%	Rothman	$540	$1,400	$1,940	$101,000	2.43e+07	NextSeq
-SARS-COV-2	Panel-enriched	1.00%	Overall (geomean)	$540	$1,050	$1,600	$83,400	1.21e+05	N/A
-SARS-COV-2	Panel-enriched	0.01%	Crits-Christoph	$540	$788	$1,330	$69,100	6.01e+04	MiSeq
-SARS-COV-2	Panel-enriched	0.01%	Rothman	$540	$4,990	$5,530	$287,000	2.43e+09	NovaSeq (lane)
-SARS-COV-2	Panel-enriched	0.01%	Overall (geomean)	$540	$1,980	$2,710	$141,000	1.21e+07	N/A
-SARS-COV-2	Unenriched	1.00%	Crits-Christoph	$273	$2,490	$2,770	$144,000	4.29e+08	NovaSeq (lane)
-SARS-COV-2	Unenriched	1.00%	Rothman	$216	$4,990	$5,200	$271,000	1.65e+09	NovaSeq (lane)
-SARS-COV-2	Unenriched	1.00%	Spurbeck	$216	$227,000	$227,000	$11,800,000	2.64e+11	NovaSeq (cell)
-SARS-COV-2	Unenriched	1.00%	Overall (geomean)	$233	$14,100	$14,800	$772,000	5.72e+09	N/A
-SARS-COV-2	Unenriched	0.01%	Crits-Christoph	$273	$37,800	$38,100	$1,980,000	4.29e+10	NovaSeq (cell)
-SARS-COV-2	Unenriched	0.01%	Rothman	$216	$151,000	$151,000	$7,870,000	1.65e+11	NovaSeq (cell)
-SARS-COV-2	Unenriched	0.01%	Spurbeck	$216	$21,400,000	$21,400,000	$1,110,000,000	2.64e+13	NovaSeq (cell)
-SARS-COV-2	Unenriched	0.01%	Overall (geomean)	$233	$496,000	$498,000	$25,900,000	5.72e+11	N/A
-Norovirus (GII)	Unenriched	1.00%	Crits-Christoph	$273	$1,400	$1,670	$86,800	8.01e+06	NextSeq
-Norovirus (GII)	Unenriched	1.00%	Rothman	$216	$788	$1,000	$52,200	8.71e+05	MiSeq
-Norovirus (GII)	Unenriched	1.00%	Spurbeck	$216	$2,490	$2,710	$141,000	1.21e+09	NovaSeq (lane)
-Norovirus (GII)	Unenriched	1.00%	Overall (geomean)	$233	$1,400	$1,660	$86,100	2.04e+07	N/A
-Norovirus (GII)	Unenriched	0.01%	Crits-Christoph	$273	$2,490	$2,770	$144,000	8.01e+08	NovaSeq (lane)
-Norovirus (GII)	Unenriched	0.01%	Rothman	$216	$2,490	$2,710	$141,000	8.71e+07	NovaSeq (lane)
-Norovirus (GII)	Unenriched	0.01%	Spurbeck	$216	$113,000	$114,000	$5,910,000	1.21e+11	NovaSeq (cell)
-Norovirus (GII)	Unenriched	0.01%	Overall (geomean)	$233	$8,900	$9,480	$493,000	2.04e+09	N/A
+SARS-COV-2	Panel-enriched	1.00%	Crits-Christoph	$540	$788	$1,328	$69,056	6.01 × 10²	MiSeq
+SARS-COV-2	Panel-enriched	1.00%	Rothman	$540	$1,397	$1,937	$100,724	2.43 × 10⁷	NextSeq
+SARS-COV-2	Panel-enriched	1.00%	Overall (geomean)	$540	$1,049	$1,603	$83,400	1.21 × 10⁵	N/A
+SARS-COV-2	Panel-enriched	0.01%	Crits-Christoph	$540	$788	$1,328	$69,056	6.01 × 10⁴	MiSeq
+SARS-COV-2	Panel-enriched	0.01%	Rothman	$540	$4,988	$5,528	$287,456	2.43 × 10⁹	NovaSeq (lane)
+SARS-COV-2	Panel-enriched	0.01%	Overall (geomean)	$540	$1,982	$2,709	$140,892	1.21 × 10⁷	N/A
+SARS-COV-2	Unenriched	1.00%	Crits-Christoph	$273	$2,494	$2,767	$143,884	4.29 × 10⁸	NovaSeq (lane)
+SARS-COV-2	Unenriched	1.00%	Rothman	$216	$4,988	$5,204	$270,608	1.65 × 10⁹	NovaSeq (lane)
+SARS-COV-2	Unenriched	1.00%	Spurbeck	$216	$226,824	$227,040	$11,806,080	2.64 × 10¹¹	NovaSeq (cell)
+SARS-COV-2	Unenriched	1.00%	Overall (geomean)	$233	$14,130	$14,841	$771,767	5.72 × 10⁹	N/A
+SARS-COV-2	Unenriched	0.01%	Crits-Christoph	$273	$37,804	$38,077	$1,980,004	4.29 × 10¹⁰	NovaSeq (cell)
+SARS-COV-2	Unenriched	0.01%	Rothman	$216	$151,216	$151,432	$7,874,464	1.65 × 10¹¹	NovaSeq (cell)
+SARS-COV-2	Unenriched	0.01%	Spurbeck	$216	$21,359,260	$21,359,476	$1,110,692,752	2.64 × 10¹³	NovaSeq (cell)
+SARS-COV-2	Unenriched	0.01%	Overall (geomean)	$233	$496,105	$497,535	$25,871,821	5.72 × 10¹¹	N/A
+Norovirus (GII)	Unenriched	1.00%	Crits-Christoph	$273	$1,397	$1,670	$86,840	8.01 × 10⁶	NextSeq
+Norovirus (GII)	Unenriched	1.00%	Rothman	$216	$788	$1,004	$52,208	8.71 × 10⁵	MiSeq
+Norovirus (GII)	Unenriched	1.00%	Spurbeck	$216	$2,494	$2,710	$140,920	1.21 × 10⁹	NovaSeq (lane)
+Norovirus (GII)	Unenriched	1.00%	Overall (geomean)	$233	$1,400	$1,656	$86,127	2.04 × 10⁷	N/A
+Norovirus (GII)	Unenriched	0.01%	Crits-Christoph	$273	$2,494	$2,767	$143,884	8.01 × 10⁸	NovaSeq (lane)
+Norovirus (GII)	Unenriched	0.01%	Rothman	$216	$2,494	$2,710	$140,920	8.71 × 10⁷	NovaSeq (lane)
+Norovirus (GII)	Unenriched	0.01%	Spurbeck	$216	$113,412	$113,628	$5,908,656	1.21 × 10¹¹	NovaSeq (cell)
+Norovirus (GII)	Unenriched	0.01%	Overall (geomean)	$233	$8,901	$9,480	$492,974	2.04 × 10⁹	N/A

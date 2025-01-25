@@ -220,7 +220,7 @@ def start():
     )
     diffs_df = compute_diffs(fits_data_w_reads)
     fig = plot_df(diffs_df)
-    save_plot(fig, figdir, "fig_s5")
+    save_plot(fig, figdir, "fig_s2")
 
 
 if __name__ == "__main__":
