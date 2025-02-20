@@ -1,31 +1,34 @@
 # Predicting Virus Relative Abundance in Wastewater
-Simon L. Grimm, Jeff T. Kaufman, Daniel Rice, Michael M. McLaren, Charlie Whittaker, William J. Bradshaw & Kevin M. Esvelt
+Simon L. Grimm, Jeff T. Kaufman, Daniel Rice, Michael M. McLaren, Charles Whittaker, William J. Bradshaw & Kevin M. Esvelt
 
 ## Abstract
-Detecting novel pathogens at an early stage requires robust early warning that is both sensitive and pathogen-agnostic. Wastewater metagenomic sequencing (W-MGS) could enable highly pathogen-agnostic disease monitoring, but its sensitivity and financial feasibility are dependent on the relative abundance of novel pathogen sequences in W-MGS data. Here we collate W-MGS data from a diverse range of studies to characterize the relative abundance of known viruses in wastewater samples. We develop a Bayesian statistical model to integrate a subset of these data with epidemiological estimates of incidence and prevalence, and use it to estimate the expected relative abundance of different viral pathogens for a given prevalence or incidence in the community. Our results reveal pronounced variation between sites and studies, with estimates differing by one to three orders of magnitude for the same pathogen. For example, the expected relative abundance of SARS-CoV-2 at weekly incidence of 1% of the population varied between 10-7 and 10-10. Integrating these estimates with a simple cost model highlights substantial variation in the volume of W-MGS required to detect these pathogens. The mean sequencing cost of identifying 100 reads from a new SARS-CoV-2-like pathogen at 1% cumulative incidence was $2,579,000. A Norovirus-like pathogen which sheds more would require sequencing costs of $18,000. This model, and its parameter estimates, represent an important resource for future investigation into the performance of wastewater MGS, and can be extended to incorporate new wastewater datasets as they become available.
+### Background
+Metagenomic sequencing of wastewater (W-MGS) can in principle detect any known or novel pathogen in a population. We quantify the sensitivity and cost of W-MGS for viral pathogen detection by jointly analysing W-MGS and epidemiological data for a range of human-infecting viruses.
+### Methods
+Sequencing data from four studies were analysed to estimate the relative abundance (RA) of 11 human-infecting viruses. Corresponding prevalence and incidence estimates were obtained or calculated from academic and public-health reports. These estimates were combined using a hierarchical Bayesian model to predict RA at set prevalence or incidence values, allowing comparison across studies and viruses. These predictions were then used to estimate the sequencing depth and concomitant cost required for pathogen detection using W-MGS with or without use of a hybridization-capture enrichment panel. 
+### Findings
+After controlling for variation in local infection rates, relative abundance varied by orders of magnitude across studies for a given virus. For instance, a local SARS-CoV-2 weekly incidence of 1% corresponds to predicted SARS-CoV-2 relative abundance ranging from 3·8 × 10-10 to 2·4 × 10-7 across studies, translating to orders-of-magnitude variation in the cost of operating a system able to detect a SARS-CoV-2-like pathogen at a given sensitivity. Use of a respiratory virus enrichment panel in two studies dramatically increased predicted relative abundance of SARS-CoV-2, lowering yearly costs by 24- to 29-fold for a system able to detect a SARS-CoV-2-like pathogen before reaching 0.01% cumulative incidence.
+### Interpretation
+The large variation in viral relative abundance after controlling for epidemiological factors indicates that other sources of inter-study variation, such as differences in sewershed hydrology and lab protocols, have a substantial impact on the sensitivity and cost of W-MGS. Well-chosen hybridization capture panels can dramatically increase sensitivity and reduce cost for viruses in the panel, but may reduce sensitivity to unknown or unexpected pathogens.
+### Funding 
+Wellcome Trust; Open Philanthropy; Musk Foundation
+
+
 
 ### Repository structure
-This work is split across two repositories: This repo contains scripts to collect incidence and prevalence estimates, and to build the model, while determining relative abundances from existing data is in the [INSERT FINAL MGS_PIPELINE REPO}
-[mgs-pipeline](https://github.com/naobservatory/mgs-pipeline) repo.
+This work is split across two repositories: This repo contains scripts to collect incidence and prevalence estimates and to build the model. The computational pipeline to determine relative abundance from existing data can be found under https://github.com/naobservatory/mgs-workflow/tree/2.1.0.
 
 Scripts to create the manuscript figures are found in the `figures/` directory. Scripts to generate epidemiological estimates are in the `pathogens/` directory.
 
 ### Working with prevalence data
 
-In python, run `import pathogens` and then iterate over `pathogens.pathogens`.
-Each pathogen implements an `estimate_prevalences` method which gives one or
-more estimates.
+In python, run `import pathogens` and then iterate over `pathogens.pathogens`. Each pathogen implements an `estimate_prevalences` method which gives one or more estimates.
 
 Run `./summarize.py` to get an overview of the data.
 
 ### Downloading the data
 
-To download the data for the model, build the first composite figure:
-
-```
-$ cd figures/
-$ python3 composite_fig_1.py
-```
+To download the data used in the tables and figures presented in this repo, visit https://doi.org/10.6084/m9.figshare.28395104.v1
 
 ### Statistical model
 
@@ -63,5 +66,3 @@ python -m pip install -r requirements-dev.txt"
 However, on some non-Linux systems (including M2 Macbooks), one of `pystan`'s dependencies,`httpstan`, may fail to install.
 To get around this problem, you can [install httpstan from source](https://httpstan.readthedocs.io/en/latest/installation.html#installation-from-source).
 Once it is built and installed, you can then install the requirements file as above.
-(Note that you can clone the `httpstan` repo anywhere on your computer.
-We recommend doing this outside of the `p2ra` repo directory so that git doesn't try to track it.)
