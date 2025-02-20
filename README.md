@@ -69,4 +69,4 @@ Once it is built and installed, you can then install the requirements file as ab
 
 ###
 
-In case of questions please reach out to Simon Grimm (simongrimm.com).
+In case of questions please reach out to [Simon Grimm](simongrimm.com).
