@@ -42,7 +42,7 @@ To fit the model, run `./fit.py`. This will create, under `model_output/`:
 * `fig/`, a directory containing a large number plots of posterior distributions and samples from posterior predictive distributions
   (see [model.md](model.md) for details)
 
-Once the model has been fit, run `./plot_summaries.py` to create plots of the posterior distribution of $RA(1\perhundred)$.
+Once the model has been fit, run `./plot_summaries.py` to create plots of the posterior distribution of $RA(1%)$.
 
 * `fig/incidence-violin.{pdf,png}`, posteriors for all incidence viruses
 * `fig/prevalence-violin.{pdf,png}`, posteriors for all prevalence viruses
