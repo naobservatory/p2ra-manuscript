@@ -66,3 +66,7 @@ python -m pip install -r requirements-dev.txt"
 However, on some non-Linux systems (including M2 Macbooks), one of `pystan`'s dependencies,`httpstan`, may fail to install.
 To get around this problem, you can [install httpstan from source](https://httpstan.readthedocs.io/en/latest/installation.html#installation-from-source).
 Once it is built and installed, you can then install the requirements file as above.
+
+###
+
+In case of questions please reach out to Simon Grimm (simongrimm.com).
